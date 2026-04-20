@@ -2,8 +2,8 @@ backend:
   name: github
   repo: mberchillc/CatchDog
   branch: main
-  base_url: https://api.netlify.com
-  auth_endpoint: auth
+  auth_type: implicit
+  app_id: Ov23lis5gu8lcaPHZD27
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
