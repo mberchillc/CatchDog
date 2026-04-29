@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CatchDog — Workflow Control Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0b12;
+    color: #fff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.logo span {
+    color: #7b6cff;
+}
+
+.container {
+    padding: 40px;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.card {
+    flex: 1;
+    padding: 20px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #111122, #0a0a12);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card h3 {
+    margin: 0;
+    color: #aaa;
+}
+
+.card p {
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.ok { background: #1f8f5f; }
+.pending { background: #b38b00; }
+.error { background: #8f2b2b; }
+
+button {
+    background: linear-gradient(90deg, #7b6cff, #5a54ff);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+button.secondary {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.flow {
+    display: flex;
+    gap: 10px;
+    margin-top: 40px;
+}
+
+.step {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(123,108,255,0.1);
+    border: 1px solid rgba(123,108,255,0.3);
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Catch<span>Dog</span></div>
+    <div>Workflow Panel</div>
+</header>
+
+<div class="container">
+
+<h1>Invoice Automation</h1>
+<div class="subtitle">AI-powered workflow running in the background</div>
+
+<div class="cards">
+    <div class="card">
+        <h3>Received today</h3>
+        <p>12</p>
+    </div>
+    <div class="card">
+        <h3>Processed</h3>
+        <p>10</p>
+    </div>
+    <div class="card">
+        <h3>Needs review</h3>
+        <p>2</p>
+    </div>
+</div>
+
+<table class="table">
+<thead>
+<tr>
+    <th>Date</th>
+    <th>Sender</th>
+    <th>File</th>
+    <th>AI Summary</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Today 10:32</td>
+<td>vendor@company.com</td>
+<td>invoice_458.pdf</td>
+<td>$1,250 — Marketing services</td>
+<td><span class="status ok">Processed</span></td>
+<td>
+<button>View</button>
+</td>
+</tr>
+
+<tr>
+<td>Today 09:15</td>
+<td>billing@tools.io</td>
+<td>invoice_457.pdf</td>
+<td>Unclear classification</td>
+<td><span class="status pending">Review</span></td>
+<td>
+<button>Approve</button>
+<button class="secondary">Reprocess</button>
+</td>
+</tr>
+
+<tr>
+<td>Yesterday</td>
+<td>finance@agency.com</td>
+<td>invoice_456.pdf</td>
+<td>Error reading document</td>
+<td><span class="status error">Error</span></td>
+<td>
+<button>Retry</button>
+</td>
+</tr>
+
+</tbody>
+</table>
+
+<div class="flow">
+    <div class="step">Email received</div>
+    <div class="step">AI reads PDF</div>
+    <div class="step">Classifies</div>
+    <div class="step">Saves to folder</div>
+    <div class="step">Sends report</div>
+</div>
+
+</div>
+
+</body>
+</html>
