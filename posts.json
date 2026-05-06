@@ -1,1 +1,42 @@
-
+[
+  {
+    "title": "Why I Founded CatchDog",
+    "slug": "why-i-founded-catchdog",
+    "excerpt": "CatchDog started as a workflow automation idea. But building a company with generative AI at its core quickly changed the scope of what was possible.",
+    "category": "Founder Notes",
+    "date": "2026-05-06",
+    "cover": "images/post2-image.png",
+    "url": "posts/why-i-founded-catchdog.html",
+    "published": true
+  },
+  {
+    "title": "The Operating Nervous System: How AI Agents Are Rewiring Business Operations",
+    "slug": "the-operating-nervous-system",
+    "excerpt": "Organizations are hitting the same wall: fragmented tools, repetitive tasks, and communication flows that nobody designed — they just accumulated.",
+    "category": "AI & Automation",
+    "date": "2026-04-22",
+    "cover": "images/post1-image.png",
+    "url": "posts/the-operating-nervous-system.html",
+    "published": true
+  },
+  {
+    "title": "The anthropological lens: why context beats prompts",
+    "slug": "anthropological-lens-context-beats-prompts",
+    "excerpt": "Understanding AI output starts with understanding human behavior, not just parameters.",
+    "category": "AI & Strategy",
+    "date": "2026-03-28",
+    "cover": "",
+    "url": "#",
+    "published": true
+  },
+  {
+    "title": "Connecting your CRM to AI: a no-code guide for small teams",
+    "slug": "connecting-crm-to-ai",
+    "excerpt": "Step by step: how to automate lead follow-up without writing a single line of code.",
+    "category": "No-Code Automation",
+    "date": "2026-03-15",
+    "cover": "",
+    "url": "#",
+    "published": true
+  }
+]
