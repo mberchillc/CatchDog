@@ -621,30 +621,11 @@
     <div class="section-sub">AI, automation and the future of work.</div>
   </div>
 
-  <!-- Featured post -->
-<a href="posts/why-i-founded-catchdog.html" class="blog-featured">
-  <div class="blog-featured-img">
-    <img src="images/post2-image.png" alt="Mauro Berchi, founder of CatchDog, with AI-powered business systems">
-  </div>
-  <div class="blog-featured-body">
-    <span class="blog-tag">Founder Notes</span>
-    <h2>Why I Founded CatchDog</h2>
-    <p>CatchDog started as a workflow automation idea. But building a company with generative AI at its core quickly changed the scope of what was possible.</p>
-    <span class="blog-date">May 6, 2026</span>
-  </div>
-</a>
+  <!-- Featured post loaded from posts.json -->
+<div id="blog-featured"></div>
 
-  <!-- Grid posts -->
-  <div class="blog-grid">
-   <a href="posts/the-operating-nervous-system.html" class="blog-card">
-  <div class="blog-card-img">
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-  </div>
-  <div class="blog-card-body">
-    <h3>The Operating Nervous System: How AI Agents Are Rewiring Business Operations</h3>
-    <p>Organizations are hitting the same wall: fragmented tools, repetitive tasks, and communication flows that nobody designed — they just accumulated.</p>
-    <span class="blog-card-date">April 22, 2026</span>
-  </div>
+<!-- Grid posts loaded from posts.json -->
+<div class="blog-grid" id="blog-grid"></div>
 </a>
     <a href="#" class="blog-card">
       <div class="blog-card-img">
@@ -709,6 +690,71 @@
 
   setTimeout(runAnimation, 800);
 </script>
+<script>
+  async function loadBlogPosts() {
+    try {
+      const response = await fetch('posts.json');
+      const posts = await response.json();
 
+      const publishedPosts = posts
+        .filter(post => post.published)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const featuredPost = publishedPosts[0];
+      const gridPosts = publishedPosts.slice(1);
+
+      const featuredContainer = document.getElementById('blog-featured');
+      const gridContainer = document.getElementById('blog-grid');
+
+      if (featuredPost && featuredContainer) {
+        featuredContainer.innerHTML = `
+          <a href="${featuredPost.url}" class="blog-featured">
+            <div class="blog-featured-img">
+              <img src="${featuredPost.cover}" alt="${featuredPost.title}">
+            </div>
+            <div class="blog-featured-body">
+              <span class="blog-tag">${featuredPost.category}</span>
+              <h2>${featuredPost.title}</h2>
+              <p>${featuredPost.excerpt}</p>
+              <span class="blog-date">${formatDate(featuredPost.date)}</span>
+            </div>
+          </a>
+        `;
+      }
+
+      if (gridContainer) {
+        gridContainer.innerHTML = gridPosts.map(post => `
+          <a href="${post.url}" class="blog-card">
+            <div class="blog-card-img">
+              ${
+                post.cover
+                  ? `<img src="${post.cover}" alt="${post.title}">`
+                  : `<svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`
+              }
+            </div>
+            <div class="blog-card-body">
+              <h3>${post.title}</h3>
+              <p>${post.excerpt}</p>
+              <span class="blog-card-date">${formatDate(post.date)}</span>
+            </div>
+          </a>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading blog posts:', error);
+    }
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  loadBlogPosts();
+</script>
 </body>
 </html>
