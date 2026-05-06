@@ -1,0 +1,72 @@
+media:
+  input: images/blog
+  output: /images/blog
+
+content:
+  - name: posts
+    label: Blog Posts
+    type: collection
+    path: content/posts
+    filename: "{fields.slug}.md"
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: slug
+        label: Slug
+        type: string
+        required: true
+
+      - name: excerpt
+        label: Subtitle / Excerpt
+        type: text
+        required: true
+
+      - name: category
+        label: Category
+        type: select
+        options:
+          values:
+            - Founder Notes
+            - AI & Automation
+            - Business Systems
+            - Media Partnerships
+            - Case Studies
+        required: true
+
+      - name: date
+        label: Publication Date
+        type: date
+        required: true
+
+      - name: author
+        label: Author
+        type: string
+        default: Mauro Berchi
+
+      - name: cover
+        label: Cover Image
+        type: image
+        required: true
+
+      - name: read_time
+        label: Read Time
+        type: string
+        default: 3 min read
+
+      - name: featured
+        label: Featured Post
+        type: boolean
+        default: false
+
+      - name: published
+        label: Published
+        type: boolean
+        default: true
+
+      - name: body
+        label: Body
+        type: rich-text
+        required: true
