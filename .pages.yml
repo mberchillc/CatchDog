@@ -10,7 +10,12 @@ content:
     format: json
     list: true
     view:
-      fields: [title, date, category]
+      primary: title
+      fields: [date, category, published]
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
     fields:
       - name: title
         label: Title
