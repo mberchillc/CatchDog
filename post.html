@@ -1,1 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CatchDog Blog</title>
+<meta name="description" content="CatchDog blog post">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0c0c12;
+    --purple: #6B5CE7;
+    --purple-light: #8B7CF8;
+    --purple-pale: #C4BAFF;
+    --white: #ffffff;
+    --white60: rgba(255,255,255,0.6);
+    --white40: rgba(255,255,255,0.4);
+    --border: rgba(255,255,255,0.08);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(12,12,18,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: 7px;
+  }
+
+  .nav-brand {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+
+  .nav-brand span { color: var(--purple-light); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    color: var(--white60);
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--purple);
+    color: var(--white);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .post-hero {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem 2rem;
+  }
+
+  .post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--purple-pale);
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+  }
+
+  .post-back:hover { opacity: 1; }
+
+  .post-tag {
+    display: inline-block;
+    background: rgba(107,92,231,0.12);
+    border: 0.5px solid rgba(107,92,231,0.3);
+    color: var(--purple-pale);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+  }
+
+  .post-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+
+  .post-subtitle {
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.68);
+    margin-bottom: 1.8rem;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 13px;
+    color: var(--white40);
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .post-meta-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-meta-author img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .post-meta-author span { color: var(--white60); }
+
+  .post-cover {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    border: 0.5px solid var(--border);
+  }
+
+  .post-cover img {
+    width: 100%;
+    display: block;
+  }
+
+  .post-body {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2.5rem 5rem;
+  }
+
+  .post-body p {
+    font-size: 17px;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.78);
+    margin-bottom: 1.8rem;
+  }
+
+  .post-body h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 2.6rem 0 1rem;
+    color: var(--white);
+  }
+
+  .post-body p:first-child::first-letter {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.8rem;
+    font-weight: 800;
+    float: left;
+    line-height: 0.85;
+    margin-right: 10px;
+    margin-top: 6px;
+    color: var(--purple-light);
+  }
+
+  footer {
+    padding: 1.5rem 2.5rem;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  footer p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.22);
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    .nav-links { display: none; }
+    .post-hero { padding: 2.5rem 1.2rem 1.5rem; }
+    .post-title { font-size: 28px; }
+    .post-subtitle { font-size: 16px; }
+    .post-body { padding: 0 1.2rem 3rem; }
+    .post-body p { font-size: 15px; }
+  }
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="logo_nav.png" alt="CatchDog" onerror="this.style.display='none'">
+    <span class="nav-brand">Catch<span>Dog</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html#hiw">How it works</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="index.html#blog">Blog</a>
+  </div>
+  <a href="mailto:catchdogllc@gmail.com" class="nav-cta">Get started</a>
+</nav>
+
+<div class="post-hero">
+  <a href="index.html#blog" class="post-back">← Back to Blog</a>
+
+  <div class="post-tag" id="post-category"></div>
+  <h1 class="post-title" id="post-title"></h1>
+  <p class="post-subtitle" id="post-excerpt"></p>
+
+  <div class="post-meta">
+    <div class="post-meta-author">
+      <img src="mauro.png" alt="Mauro Berchi">
+      <span id="post-author">Mauro Berchi</span>
+    </div>
+    <span id="post-date"></span>
+    <span id="post-read-time"></span>
+  </div>
+
+  <div class="post-cover" id="post-cover-wrap">
+    <img id="post-cover" src="" alt="">
+  </div>
+</div>
+
+<div class="post-body" id="post-body"></div>
+
+<footer>
+  <p>© 2026 CatchDog LLC — Miami, FL</p>
+  <p>Smart automation for your business</p>
+</footer>
+
+<script>
+  async function loadPost() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    if (!slug) {
+      showNotFound();
+      return;
+    }
+
+    try {
+      const response = await fetch('posts.json');
+      const posts = await response.json();
+      const post = posts.find(item => item.slug === slug && item.published);
+
+      if (!post) {
+        showNotFound();
+        return;
+      }
+
+      document.title = `${post.title} — CatchDog Blog`;
+      document.querySelector('meta[name="description"]').setAttribute('content', post.excerpt || '');
+
+      document.getElementById('post-category').textContent = post.category || '';
+      document.getElementById('post-title').textContent = post.title || '';
+      document.getElementById('post-excerpt').textContent = post.excerpt || '';
+      document.getElementById('post-author').textContent = post.author || 'Mauro Berchi';
+      document.getElementById('post-date').textContent = formatDate(post.date);
+      document.getElementById('post-read-time').textContent = post.read_time || '';
+
+      const cover = document.getElementById('post-cover');
+      const coverWrap = document.getElementById('post-cover-wrap');
+
+      if (post.cover) {
+        cover.src = post.cover;
+        cover.alt = post.title;
+      } else {
+        coverWrap.style.display = 'none';
+      }
+
+      document.getElementById('post-body').innerHTML = formatBody(post.body || '');
+    } catch (error) {
+      console.error('Error loading post:', error);
+      showNotFound();
+    }
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  function formatBody(body) {
+    return body
+      .split(/\n{2,}/)
+      .map(block => {
+        const clean = block.trim();
+
+        if (clean.startsWith('## ')) {
+          return `<h2>${clean.replace('## ', '')}</h2>`;
+        }
+
+        return `<p>${clean.replace(/\n/g, '<br>')}</p>`;
+      })
+      .join('');
+  }
+
+  function showNotFound() {
+    document.getElementById('post-title').textContent = 'Post not found';
+    document.getElementById('post-excerpt').textContent = 'The post you are looking for is not available.';
+    document.getElementById('post-cover-wrap').style.display = 'none';
+    document.getElementById('post-body').innerHTML = '';
+  }
+
+  loadPost();
+</script>
+
+</body>
+</html>
