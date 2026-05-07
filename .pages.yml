@@ -35,12 +35,11 @@ content:
       - name: cover
         label: Cover Image
         type: image
-      - 
       - name: published
         label: Published
         type: boolean
         default: true
       - name: body
         label: Body
-        type: rich-text
+        type: text
         required: true
