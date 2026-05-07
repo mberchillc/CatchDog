@@ -6,7 +6,6 @@
     "category": "Founder Notes",
     "date": "2026-05-06",
     "cover": "images/post2-image.png",
-    "url": "posts/why-i-founded-catchdog.html",
     "published": true
   },
   {
@@ -16,7 +15,6 @@
     "category": "AI & Automation",
     "date": "2026-04-22",
     "cover": "images/post1-image.png",
-    "url": "posts/the-operating-nervous-system.html",
     "published": true
   },
   {
@@ -25,8 +23,6 @@
     "excerpt": "Understanding AI output starts with understanding human behavior, not just parameters.",
     "category": "AI & Strategy",
     "date": "2026-03-28",
-    "cover": "",
-    "url": "#",
     "published": true
   },
   {
@@ -35,8 +31,16 @@
     "excerpt": "Step by step: how to automate lead follow-up without writing a single line of code.",
     "category": "No-Code Automation",
     "date": "2026-03-15",
-    "cover": "",
-    "url": "#",
     "published": true
+  },
+  {
+    "title": "You don't need to deal with technology ",
+    "slug": "why-businesses-dont-need-ai-solutions",
+    "excerpt": "Most companies don’t have an AI problem. They have operational friction: disconnected tools, manual steps, and systems that don’t work together. The worst outcome is using AI where human judgment is essential, while people keep wasting time on low-value repetitive tasks.\n",
+    "category": "AI and Automation",
+    "date": "2026-05-07",
+    "cover": "/images/blog/foto cliente CatchDog-3.png",
+    "published": true,
+    "body": "Most businesses don’t wake up thinking they need AI.\n\nThey struggle with something much more concrete: too many tools, too many manual steps, too much time lost moving information from one place to another.\n\nThe problem is rarely “we need artificial intelligence.”\n\nThe problem is usually: this process is slow, this follow-up depends on memory, this information is duplicated, this tool does not talk to that tool, this client experience feels messy, this team is wasting time on work that should not require human attention.\n\nThat distinction matters.\n\nBecause the point is not to add AI everywhere. In fact, one of the worst mistakes a business can make is using AI where human judgment, trust, taste, or strategic thinking are essential.\n\nThe real opportunity is different: use technology to remove the operational weight that keeps people away from the work where they actually create value.\n\nMost companies already have enough tools. Email, spreadsheets, forms, CRMs, calendars, cloud folders, messaging apps. What they usually lack is coherence.\n\nWhen systems don’t communicate, people become the interface.\n\nThey copy, paste, check, remind, update, resend, rename, classify, chase, and follow up. That is where time is lost. That is where errors appear. That is where good teams become tired teams.\n\nThis is where AI can matter — not as a product label, but as part of a practical system.\n\nA useful system can classify information, prioritize requests, trigger the right follow-up, route a lead, organize documents, draft a first response, or connect different tools into one operational flow.\n\nThe client does not need to deal with the technology behind it.\n\nThe client needs to explain the business problem clearly.\n\nThat is the kind of work I want to do with CatchDog: sit with a business owner, understand where the friction is, and build lightweight systems that make the operation easier, faster, and more coherent.\n\nI have been working with AI as a collaborative layer since 2018, starting with research at AI Lab, University of Buenos Aires. Not as a tool to “prompt,” but as a way to extend thinking and build systems around it.\n\nThat is the foundation behind CatchDog LLC.\n\nMost of the time, clients don’t ask for AI.\n\nThey ask for things to work.\n\nAnd that is exactly the point."
   }
 ]
