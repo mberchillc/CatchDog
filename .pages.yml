@@ -42,4 +42,4 @@ content:
       - name: body
         label: Body
         type: text
-        required: true
+        
