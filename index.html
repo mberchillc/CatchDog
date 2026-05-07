@@ -708,7 +708,7 @@
 
       if (featuredPost && featuredContainer) {
         featuredContainer.innerHTML = `
-          <a href="${featuredPost.url}" class="blog-featured">
+          <a href="${featuredPost.url || `post.html?slug=${featuredPost.slug}`}" class="blog-featured">
             <div class="blog-featured-img">
               <img src="${featuredPost.cover}" alt="${featuredPost.title}">
             </div>
@@ -724,7 +724,7 @@
 
       if (gridContainer) {
         gridContainer.innerHTML = gridPosts.map(post => `
-          <a href="${post.url}" class="blog-card">
+          <a href="${post.url || `post.html?slug=${post.slug}`}" class="blog-card">
             <div class="blog-card-img">
               ${
                 post.cover
