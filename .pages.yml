@@ -9,6 +9,8 @@ content:
     path: posts.json
     format: json
     list: true
+    view:
+  fields: [title, date, category]
     fields:
       - name: title
         label: Title
