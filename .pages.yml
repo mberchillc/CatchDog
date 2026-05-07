@@ -10,7 +10,7 @@ content:
     format: json
     list: true
     view:
-  fields: [title, date, category]
+      fields: [title, date, category]
     fields:
       - name: title
         label: Title
