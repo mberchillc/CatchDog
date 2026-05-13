@@ -1,21 +1,25 @@
 [
   {
-    "title": "Why I Founded CatchDog",
-    "slug": "why-i-founded-catchdog",
-    "excerpt": "CatchDog started as a workflow automation idea. But building a company with generative AI at its core quickly changed the scope of what was possible.",
-    "category": "Founder Notes",
-    "date": "2026-05-06",
-    "cover": "images/post2-image.png",
-    "published": true
+    {
+  "title": "Why I Founded CatchDog",
+  "slug": "why-i-founded-catchdog",
+  "excerpt": "CatchDog started as a workflow automation idea. But building a company with generative AI at its core quickly changed the scope of what was possible.",
+  "category": "Founder Notes",
+  "date": "2026-05-06",
+  "cover": "images/post2-image.png",
+  "published": true,
+  "body": "When I started building CatchDog LLC, the initial idea was very specific: help small and mid-sized businesses automate workflows and connect the tools they already use.\n\nBut something became clear very quickly. A company born with generative AI at its core does not remain limited to one category of service. As the technology evolves, the scope of what can be built also expands.\n\nThat is why CatchDog LLC gradually became more than a workflow automation project. Today, the work can include functional systems, lightweight interfaces, dashboards, SaaS-style prototypes, operational automations, audiovisual content, explainers, and AI-assisted problem solving. Not because the goal is to “do everything,” but because many business problems do not fit neatly into one technical box.\n\nMost SMBs do not need a massive software implementation. They need someone who can understand the problem, translate it into a practical digital solution, and deliver something usable without turning the process into a long and expensive enterprise project.\n\nThis is the logic behind CatchDog LLC: use AI not as a gimmick, but as a working layer that helps move faster across strategy, systems, interfaces, content, and execution.\n\nI do not think clients always need to know every tool or technical step behind the solution. What they need is clarity, functionality, and results they can actually use.\n\nThat is the kind of company I wanted to build: small, flexible, AI-native, and focused on solving real operational problems with lightweight technology."
   },
   {
-    "title": "The Operating Nervous System: How AI Agents Are Rewiring Business Operations",
-    "slug": "the-operating-nervous-system",
-    "excerpt": "Organizations are hitting the same wall: fragmented tools, repetitive tasks, and communication flows that nobody designed — they just accumulated.",
-    "category": "AI & Automation",
-    "date": "2026-04-22",
-    "cover": "images/post1-image.png",
-    "published": true
+    {
+  "title": "The Operating Nervous System: How AI Agents Are Rewiring Business Operations",
+  "slug": "the-operating-nervous-system",
+  "excerpt": "Organizations are hitting the same wall: fragmented tools, repetitive tasks, and communication flows that nobody designed — they just accumulated.",
+  "category": "AI & Automation",
+  "date": "2026-04-22",
+  "cover": "images/post1-image.png",
+  "published": true,
+  "body": "CatchDog was born from a simple premise: most small and mid-sized businesses do not need heavy enterprise software. They need practical digital systems that solve real operational problems. At first, that meant workflow automation and tool integration. But a company built natively with generative AI does not stay confined to one narrow category. As the technology evolves, so does the range of problems it can address.\n\nThat is why CatchDog is not just an “automation company.” It builds end-to-end functional systems, interfaces, control panels, lightweight dashboards, SaaS-style prototypes, audiovisual assets, scripts, explainers, and AI-assisted operational solutions. The client does not need to know every tool, API, model, platform, or technical layer behind the result. What matters is that the problem is understood, translated into a usable system, and delivered in a way the business can actually operate.\n\nThis is the real shift: generative AI allows a small, flexible team to cover areas that used to require separate specialists, agencies, developers, designers, content producers, and consultants. CatchDog can move from diagnosing a workflow problem to building a prototype, creating a front-end interface, designing supporting content, and automating repetitive tasks. It is not “doing everything” in the abstract. It is doing almost everything a business needs in the space of lightweight, functional technology.\n\nFor SMBs, this matters because speed, clarity, and usefulness are often more valuable than complexity. CatchDog turns messy operational needs into systems, assets, and workflows that reduce friction and accelerate execution. It is a company designed for the AI era: not defined by one service category, but by the ability to keep adapting as the tools expand and the business problems become clearer."
   },
   {
     "title": "The anthropological lens: why context beats prompts",
