@@ -470,7 +470,38 @@
   border-color: rgba(255, 255, 255, 0.7);
 }
 }
-  /* RESPONSIVE */
+  .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid rgba(139, 124, 248, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lang-switch button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.lang-switch button.active {
+  background: var(--purple);
+  color: #fff;
+}
+ /* RESPONSIVE */
   @media (max-width: 640px) {
     nav { padding: 1rem 1.2rem; }
     .nav-links { display: none; }
@@ -497,13 +528,22 @@
     <img src="logo_nav.png" alt="CatchDog" onerror="this.style.display='none'">
     <span class="nav-brand">Catch<span>Dog</span></span>
   </a>
+
   <div class="nav-links">
     <a href="#hiw">How it works</a>
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
     <a href="#blog">Blog</a>
   </div>
-  <a href="#contact" class="nav-cta">Get started</a>
+
+  <div class="nav-actions">
+    <div class="lang-switch">
+      <button type="button" data-lang="en" class="active">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+
+    <a href="#contact" class="nav-cta">Get started</a>
+  </div>
 </nav>
 
 <section class="hero">
@@ -515,10 +555,6 @@
   <p>CatchDog connects the software your business already uses — email, spreadsheets, CRM, forms and AI — into automated workflows that run in the background.</p>
   <div class="hero-buttons">
     <<div class="hero-buttons">
-     <div class="lang-switch">
-  <button type="button" data-lang="en" class="active">EN</button>
-  <button type="button" data-lang="es">ES</button>
-</div>
   <a href="mailto:catchdogllc@gmail.com" class="btn-primary">Start automating</a>
   <a href="catchdog-dashboard.html" target="_blank" rel="noopener noreferrer" class="btn-secondary">View workflow demo</a>
   <a href="#hiw" class="btn-secondary">See how it works</a>
