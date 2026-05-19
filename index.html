@@ -817,13 +817,28 @@
 </script>
 <script>
   const langButtons = document.querySelectorAll(".lang-switch button");
+  const translatableItems = document.querySelectorAll("[data-en][data-es]");
+
+  function setLanguage(lang) {
+    translatableItems.forEach(item => {
+      item.textContent = item.dataset[lang];
+    });
+
+    langButtons.forEach(button => {
+      button.classList.toggle("active", button.dataset.lang === lang);
+    });
+
+    localStorage.setItem("catchdogLang", lang);
+    document.documentElement.lang = lang;
+  }
 
   langButtons.forEach(button => {
     button.addEventListener("click", () => {
-      langButtons.forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
+      setLanguage(button.dataset.lang);
     });
   });
+
+  setLanguage(localStorage.getItem("catchdogLang") || "en");
 </script>
 </body>
 </html>
