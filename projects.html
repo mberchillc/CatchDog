@@ -57,14 +57,19 @@
   .mock-browser { border: 1px solid rgba(255,255,255,0.18); background: rgba(8,8,15,0.82); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.35); }
   .browser-bar { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 13px; border-bottom: 1px solid rgba(255,255,255,0.08); }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.28); }
-  .trainer-screen { padding: 24px; background: linear-gradient(135deg, #123b32, #d8b783); min-height: 230px; }
-  .trainer-logo { width: 120px; height: 34px; border-radius: 999px; background: rgba(255,255,255,0.88); margin-bottom: 42px; }
-  .trainer-panel { background: rgba(255,255,255,0.92); color: #18322b; border-radius: 18px; padding: 18px; max-width: 300px; }
+  .trainer-screen { padding: 24px; background: linear-gradient(135deg, #123b32, #d8b783); min-height: 230px; position: relative; }
+  .trainer-logo { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: rgba(255,255,255,0.9); color: #18322b; padding: 8px 14px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 38px; }
+  .trainer-logo::before { content: ''; width: 18px; height: 18px; border-radius: 50%; background: #18322b; box-shadow: 9px 0 0 #d8b783; }
+  .trainer-panel { background: rgba(255,255,255,0.92); color: #18322b; border-radius: 18px; padding: 18px; max-width: 330px; box-shadow: 0 18px 45px rgba(0,0,0,0.14); }
   .trainer-panel h3 { font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 8px; }
+  .trainer-panel p { font-size: 17px; line-height: 1.25; color: #18322b; }
   .trainer-chip { display: inline-block; background: #18322b; color: #fff; border-radius: 999px; padding: 8px 12px; font-size: 12px; margin-top: 12px; }
-  .admin-card { position: absolute; right: 26px; bottom: 24px; width: 210px; background: rgba(12,12,18,0.92); border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; padding: 16px; box-shadow: 0 18px 48px rgba(0,0,0,0.35); }
+  .admin-card { position: absolute; right: 26px; bottom: 24px; width: 230px; background: rgba(12,12,18,0.92); border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; padding: 16px; box-shadow: 0 18px 48px rgba(0,0,0,0.35); }
   .admin-card strong { display: block; font-size: 13px; margin-bottom: 12px; }
   .admin-row { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.15); margin: 8px 0; }
+  .admin-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .admin-metric { border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 8px; font-size: 11px; color: rgba(255,255,255,0.68); }
+  .admin-metric b { display: block; color: #fff; font-size: 15px; margin-bottom: 2px; }
   .deck { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; transform: rotate(-1deg); }
   .slide { min-height: 112px; border: 1px solid rgba(255,255,255,0.17); border-radius: 18px; padding: 16px; background: linear-gradient(145deg, rgba(56,31,104,0.95), rgba(23,16,56,0.96)); position: relative; overflow: hidden; }
   .slide::after { content: ''; position: absolute; width: 180px; height: 180px; border: 1px solid rgba(255,255,255,0.08); border-radius: 50%; right: -70px; top: -80px; }
@@ -109,26 +114,30 @@
         <div class="mock-browser">
           <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
           <div class="trainer-screen">
-            <div class="trainer-logo"></div>
+            <div class="trainer-logo">Yanina</div>
             <div class="trainer-panel">
               <h3>Yanina Trainer</h3>
-              <p>Fitness, health and habits for women +50.</p>
+              <p>Fitness, Wellness and Nutrition.</p>
               <span class="trainer-chip">Live website</span>
             </div>
           </div>
         </div>
         <div class="admin-card">
-          <strong>Custom content platform</strong>
+          <strong>All-in-one platform</strong>
           <div class="admin-row" style="width:92%"></div>
           <div class="admin-row" style="width:68%"></div>
           <div class="admin-row" style="width:82%"></div>
+          <div class="admin-metrics">
+            <div class="admin-metric"><b>Video</b>library</div>
+            <div class="admin-metric"><b>Metrics</b>tracking</div>
+          </div>
         </div>
       </div>
       <div class="project-body">
-        <div class="tagline">Brand + website + publishing workflow</div>
+        <div class="tagline">Brand + website + training platform</div>
         <h2>Yanina Trainer digital platform</h2>
-        <p class="desc">A complete digital foundation for a personal trainer brand: visual direction, static website, blog structure, dynamic posts and the roadmap toward a simple admin experience so content can be published without touching GitHub.</p>
-        <div class="chips"><span class="chip">Website</span><span class="chip">Brand system</span><span class="chip">Blog engine</span><span class="chip">Admin roadmap</span></div>
+        <p class="desc">A 360° digital experience for in-person, online and hybrid training, with client data, embedded video, training metrics and regular progress measurements — everything a personal trainer needs, and clients anywhere can rely on.</p>
+        <div class="chips"><span class="chip">Website</span><span class="chip">Brand system</span><span class="chip">Client data</span><span class="chip">Embedded video</span><span class="chip">Training metrics</span></div>
         <div class="actions">
           <a class="btn btn-primary" href="https://yaninatrainer.net/" target="_blank" rel="noopener noreferrer">Open live site</a>
         </div>
