@@ -11,36 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --bg: #0c0c12;
-    --panel: rgba(255,255,255,0.055);
-    --border: rgba(255,255,255,0.12);
-    --purple: #6B5CE7;
-    --purple-light: #8B7CF8;
-    --purple-pale: #C4BAFF;
-    --white: #fff;
-    --muted: rgba(255,255,255,0.68);
-    --dim: rgba(255,255,255,0.38);
-  }
+  :root { --bg: #0c0c12; --panel: rgba(255,255,255,0.055); --border: rgba(255,255,255,0.12); --purple: #6B5CE7; --purple-light: #8B7CF8; --purple-pale: #C4BAFF; --white: #fff; --muted: rgba(255,255,255,0.68); --dim: rgba(255,255,255,0.38); }
   html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Inter', sans-serif;
-    color: var(--white);
-    background: radial-gradient(circle at 12% 0%, rgba(107,92,231,0.28), transparent 28%), linear-gradient(120deg,#090910,#151127 55%,#0c0c12);
-    min-height: 100vh;
-  }
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2.2rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(12,12,18,0.88);
-    backdrop-filter: blur(14px);
-  }
+  body { font-family: 'Inter', sans-serif; color: var(--white); background: radial-gradient(circle at 12% 0%, rgba(107,92,231,0.28), transparent 28%), linear-gradient(120deg,#090910,#151127 55%,#0c0c12); min-height: 100vh; }
+  nav { position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2.2rem; border-bottom: 1px solid var(--border); background: rgba(12,12,18,0.88); backdrop-filter: blur(14px); }
   nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
   .brand { color: var(--white); font-weight: 700; letter-spacing: -0.2px; }
   .brand span { color: var(--purple-light); }
@@ -54,28 +28,12 @@
   .note { border: 1px solid var(--border); background: var(--panel); border-radius: 22px; padding: 22px; color: var(--muted); line-height: 1.65; }
   .note b { color: var(--white); }
   .viewer { display: grid; grid-template-columns: minmax(0,1fr) 178px; gap: 18px; align-items: start; }
-  .slides {
-    height: min(72vh, 760px);
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    border: 1px solid var(--border);
-    border-radius: 26px;
-    background: rgba(255,255,255,0.045);
-    padding: 18px;
-    box-shadow: 0 28px 90px rgba(0,0,0,0.34);
-  }
+  .slides { height: min(72vh, 760px); overflow-y: auto; scroll-snap-type: y mandatory; border: 1px solid var(--border); border-radius: 26px; background: rgba(255,255,255,0.045); padding: 18px; box-shadow: 0 28px 90px rgba(0,0,0,0.34); }
   .slide { scroll-snap-align: start; min-height: calc(min(72vh, 760px) - 36px); display: flex; flex-direction: column; justify-content: center; margin-bottom: 18px; }
   .slide img { width: 100%; height: auto; max-height: calc(min(72vh, 760px) - 88px); object-fit: contain; border-radius: 18px; display: block; background: #140f27; border: 1px solid rgba(255,255,255,0.13); }
   .slide figcaption { color: var(--muted); font-size: 13px; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
   .slide figcaption span { color: var(--purple-pale); font-weight: 800; letter-spacing: 0.8px; }
-  .thumbs {
-    position: sticky;
-    top: 86px;
-    max-height: min(72vh, 760px);
-    overflow-y: auto;
-    display: grid;
-    gap: 10px;
-  }
+  .thumbs { position: sticky; top: 86px; max-height: min(72vh, 760px); overflow-y: auto; display: grid; gap: 10px; }
   .thumb { position: relative; display: block; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.06); text-decoration: none; transition: transform .18s, border-color .18s; }
   .thumb:hover { transform: translateY(-1px); border-color: rgba(196,186,255,0.55); }
   .thumb img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; opacity: .86; }
@@ -89,78 +47,42 @@
   .summary-card b { display: block; font-family: 'Syne', sans-serif; font-size: 21px; margin-bottom: 7px; }
   .summary-card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
   footer { max-width: 1240px; margin: 0 auto; padding: 0 2.2rem 2.6rem; color: var(--dim); font-size: 12px; }
-  @media (max-width: 940px) {
-    nav { padding: 1rem 1.2rem; }
-    .navlinks a:not(.nav-cta) { display: none; }
-    main { padding: 3rem 1.2rem; }
-    .hero { grid-template-columns: 1fr; gap: 1.4rem; }
-    .viewer { grid-template-columns: 1fr; }
-    .slides { height: auto; max-height: none; overflow: visible; scroll-snap-type: none; padding: 12px; }
-    .slide { min-height: 0; scroll-snap-align: none; }
-    .slide img { max-height: none; }
-    .thumbs { display: none; }
-    .summary { grid-template-columns: 1fr 1fr; }
-  }
+  @media (max-width: 940px) { nav { padding: 1rem 1.2rem; } .navlinks a:not(.nav-cta) { display: none; } main { padding: 3rem 1.2rem; } .hero { grid-template-columns: 1fr; gap: 1.4rem; } .viewer { grid-template-columns: 1fr; } .slides { height: auto; max-height: none; overflow: visible; scroll-snap-type: none; padding: 12px; } .slide { min-height: 0; scroll-snap-align: none; } .slide img { max-height: none; } .thumbs { display: none; } .summary { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .summary { grid-template-columns: 1fr; } h1 { letter-spacing: -1.4px; } }
 </style>
 </head>
 <body>
 <nav>
   <a class="brand" href="index.html">Catch<span>Dog</span></a>
-  <div class="navlinks">
-    <a href="projects.html">Projects</a>
-    <a href="index.html#contact" class="nav-cta">Get started</a>
-  </div>
+  <div class="navlinks"><a href="projects.html">Projects</a><a href="index.html#contact" class="nav-cta">Get started</a></div>
 </nav>
-
 <main>
   <section class="hero">
-    <div>
-      <div class="eyebrow">SmileAccess / Visual concept deck</div>
-      <h1>Financial access for dental care.</h1>
-      <p class="lead">A more faithful visual deck using optimized slides from the working SmileAccess materials, with the extended tiered workflow added as the final layer.</p>
-      <div class="actions"><a class="btn primary" href="#slide-1">Start deck</a><a class="btn secondary" href="projects.html">Back to projects</a></div>
-    </div>
+    <div><div class="eyebrow">SmileAccess / Visual concept deck</div><h1>Financial access for dental care.</h1><p class="lead">A more faithful visual deck using optimized slides from the working SmileAccess materials, with the extended tiered workflow added as the final layer.</p><div class="actions"><a class="btn primary" href="#slide-1">Start deck</a><a class="btn secondary" href="projects.html">Back to projects</a></div></div>
     <div class="note"><b>Structure:</b> the first seven slides use the compact SmileAccess AI deck. The final four slides add the Zero-Uncertainty Workflow from the larger version: multi-lender sprint, market expansion, collaborative match and mutual fund intervention.</div>
   </section>
-
   <section class="viewer">
     <div class="slides">
-      <figure class="slide" id="slide-1"><img src="assets/smileaccess/slide01.webp" alt="SmileAccess AI cover slide"><figcaption><span>01</span> Cover / SmileAccess AI</figcaption></figure>
-      <figure class="slide" id="slide-2"><img src="assets/smileaccess/slide02.webp" alt="The Double Pain Crisis"><figcaption><span>02</span> The Double Pain Crisis</figcaption></figure>
-      <figure class="slide" id="slide-3"><img src="assets/smileaccess/slide03.webp" alt="SmileAccess solution screen"><figcaption><span>03</span> Single data entry / lender scan / in-house safety net</figcaption></figure>
-      <figure class="slide" id="slide-4"><img src="assets/smileaccess/slide04.webp" alt="Market opportunity"><figcaption><span>04</span> Market opportunity</figcaption></figure>
-      <figure class="slide" id="slide-5"><img src="assets/smileaccess/slide05.webp" alt="Business model"><figcaption><span>05</span> Business model</figcaption></figure>
-      <figure class="slide" id="slide-6"><img src="assets/smileaccess/slide06.webp" alt="Our team"><figcaption><span>06</span> Team</figcaption></figure>
-      <figure class="slide" id="slide-7"><img src="assets/smileaccess/slide07.webp" alt="Why Choose Us"><figcaption><span>07</span> Inclusion in action</figcaption></figure>
-      <figure class="slide" id="slide-8"><img src="assets/smileaccess/slide08.webp" alt="Step 1 Multi-Lender Sprint"><figcaption><span>08</span> Zero-Uncertainty Workflow / Tier 1</figcaption></figure>
-      <figure class="slide" id="slide-9"><img src="assets/smileaccess/slide09.webp" alt="Step 2 Market Expansion"><figcaption><span>09</span> Zero-Uncertainty Workflow / Tier 2</figcaption></figure>
-      <figure class="slide" id="slide-10"><img src="assets/smileaccess/slide10.webp" alt="Step 3 Collaborative Match"><figcaption><span>10</span> Zero-Uncertainty Workflow / Tier 3</figcaption></figure>
-      <figure class="slide" id="slide-11"><img src="assets/smileaccess/slide11.webp" alt="Step 4 Mutual Fund Intervention"><figcaption><span>11</span> Zero-Uncertainty Workflow / Tier 4</figcaption></figure>
+      <figure class="slide" id="slide-1"><img src="assets/slide01.webp" alt="SmileAccess AI cover slide"><figcaption><span>01</span> Cover / SmileAccess AI</figcaption></figure>
+      <figure class="slide" id="slide-2"><img src="assets/slide02.webp" alt="The Double Pain Crisis"><figcaption><span>02</span> The Double Pain Crisis</figcaption></figure>
+      <figure class="slide" id="slide-3"><img src="assets/slide03.webp" alt="SmileAccess solution screen"><figcaption><span>03</span> Single data entry / lender scan / in-house safety net</figcaption></figure>
+      <figure class="slide" id="slide-4"><img src="assets/slide04.webp" alt="Market opportunity"><figcaption><span>04</span> Market opportunity</figcaption></figure>
+      <figure class="slide" id="slide-5"><img src="assets/slide05.webp" alt="Business model"><figcaption><span>05</span> Business model</figcaption></figure>
+      <figure class="slide" id="slide-6"><img src="assets/slide06.webp" alt="Our team"><figcaption><span>06</span> Team</figcaption></figure>
+      <figure class="slide" id="slide-7"><img src="assets/slide07.webp" alt="Why Choose Us"><figcaption><span>07</span> Inclusion in action</figcaption></figure>
+      <figure class="slide" id="slide-8"><img src="assets/slide08.webp" alt="Step 1 Multi-Lender Sprint"><figcaption><span>08</span> Zero-Uncertainty Workflow / Tier 1</figcaption></figure>
+      <figure class="slide" id="slide-9"><img src="assets/slide09.webp" alt="Step 2 Market Expansion"><figcaption><span>09</span> Zero-Uncertainty Workflow / Tier 2</figcaption></figure>
+      <figure class="slide" id="slide-10"><img src="assets/slide10.webp" alt="Step 3 Collaborative Match"><figcaption><span>10</span> Zero-Uncertainty Workflow / Tier 3</figcaption></figure>
+      <figure class="slide" id="slide-11"><img src="assets/slide11.webp" alt="Step 4 Mutual Fund Intervention"><figcaption><span>11</span> Zero-Uncertainty Workflow / Tier 4</figcaption></figure>
     </div>
     <aside class="thumbs" aria-label="Slide thumbnails">
-      <a class="thumb" href="#slide-1"><img src="assets/smileaccess/slide01.webp" alt=""><span>01</span></a>
-      <a class="thumb" href="#slide-2"><img src="assets/smileaccess/slide02.webp" alt=""><span>02</span></a>
-      <a class="thumb" href="#slide-3"><img src="assets/smileaccess/slide03.webp" alt=""><span>03</span></a>
-      <a class="thumb" href="#slide-4"><img src="assets/smileaccess/slide04.webp" alt=""><span>04</span></a>
-      <a class="thumb" href="#slide-5"><img src="assets/smileaccess/slide05.webp" alt=""><span>05</span></a>
-      <a class="thumb" href="#slide-6"><img src="assets/smileaccess/slide06.webp" alt=""><span>06</span></a>
-      <a class="thumb" href="#slide-7"><img src="assets/smileaccess/slide07.webp" alt=""><span>07</span></a>
-      <a class="thumb" href="#slide-8"><img src="assets/smileaccess/slide08.webp" alt=""><span>08</span></a>
-      <a class="thumb" href="#slide-9"><img src="assets/smileaccess/slide09.webp" alt=""><span>09</span></a>
-      <a class="thumb" href="#slide-10"><img src="assets/smileaccess/slide10.webp" alt=""><span>10</span></a>
-      <a class="thumb" href="#slide-11"><img src="assets/smileaccess/slide11.webp" alt=""><span>11</span></a>
+      <a class="thumb" href="#slide-1"><img src="assets/slide01.webp" alt=""><span>01</span></a><a class="thumb" href="#slide-2"><img src="assets/slide02.webp" alt=""><span>02</span></a><a class="thumb" href="#slide-3"><img src="assets/slide03.webp" alt=""><span>03</span></a><a class="thumb" href="#slide-4"><img src="assets/slide04.webp" alt=""><span>04</span></a><a class="thumb" href="#slide-5"><img src="assets/slide05.webp" alt=""><span>05</span></a><a class="thumb" href="#slide-6"><img src="assets/slide06.webp" alt=""><span>06</span></a><a class="thumb" href="#slide-7"><img src="assets/slide07.webp" alt=""><span>07</span></a><a class="thumb" href="#slide-8"><img src="assets/slide08.webp" alt=""><span>08</span></a><a class="thumb" href="#slide-9"><img src="assets/slide09.webp" alt=""><span>09</span></a><a class="thumb" href="#slide-10"><img src="assets/slide10.webp" alt=""><span>10</span></a><a class="thumb" href="#slide-11"><img src="assets/slide11.webp" alt=""><span>11</span></a>
     </aside>
   </section>
-
   <section class="summary">
-    <div class="summary-card"><b>Problem</b><p>Patients face dental pain and financing humiliation at the same time.</p></div>
-    <div class="summary-card"><b>Solution</b><p>One intake triggers lender search, fallback options and clinic-managed funding paths.</p></div>
-    <div class="summary-card"><b>Market</b><p>Dental clinics lose treatments when financing turns diagnosed cases into ghost budgets.</p></div>
-    <div class="summary-card"><b>Workflow</b><p>Four escalation layers reduce uncertainty before the patient walks out.</p></div>
+    <div class="summary-card"><b>Problem</b><p>Patients face dental pain and financing humiliation at the same time.</p></div><div class="summary-card"><b>Solution</b><p>One intake triggers lender search, fallback options and clinic-managed funding paths.</p></div><div class="summary-card"><b>Market</b><p>Dental clinics lose treatments when financing turns diagnosed cases into ghost budgets.</p></div><div class="summary-card"><b>Workflow</b><p>Four escalation layers reduce uncertainty before the patient walks out.</p></div>
   </section>
 </main>
-
 <footer>© 2026 CatchDog LLC — Miami, FL</footer>
 </body>
 </html>
