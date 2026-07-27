@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Startups — CatchDog</title>
+<meta name="description" content="Practical advisory and mentoring for Latin American startups preparing for angel investors and pre-seed rounds.">
+<meta property="og:title" content="For Startups — CatchDog">
+<meta property="og:description" content="Practical support for Latin American founders raising an angel or pre-seed round.">
+<meta property="og:image" content="https://catchdog.net/og-image.png">
+<meta property="og:url" content="https://catchdog.net/startups.html">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg:#0c0c12; --bg2:#111118; --purple:#6B5CE7; --purple-light:#8B7CF8; --purple-pale:#C4BAFF; --white:#fff; --white70:rgba(255,255,255,.7); --white60:rgba(255,255,255,.6); --white40:rgba(255,255,255,.4); --border:rgba(255,255,255,.08); }
+  html { scroll-behavior: smooth; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); overflow-x:hidden; }
+  nav { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 2.5rem; border-bottom:.5px solid var(--border); position:sticky; top:0; background:rgba(12,12,18,.92); backdrop-filter:blur(12px); z-index:100; }
+  .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .nav-logo img { width:34px; height:34px; object-fit:contain; border-radius:7px; }
+  .nav-brand { font-size:17px; font-weight:600; color:var(--white); letter-spacing:-.3px; }
+  .nav-brand span { color:var(--purple-light); }
+  .nav-links { display:flex; gap:2rem; align-items:center; }
+  .nav-links a { color:var(--white60); text-decoration:none; font-size:14px; transition:color .2s; }
+  .nav-links a:hover, .nav-links a[aria-current="page"] { color:var(--white); }
+  .nav-cta { background:var(--purple); color:var(--white); padding:.5rem 1.2rem; border-radius:8px; font-size:14px; font-weight:500; text-decoration:none; transition:background .2s; }
+  .nav-cta:hover { background:var(--purple-light); }
+  .hero { padding:6rem 2.5rem 5rem; text-align:center; max-width:900px; margin:0 auto; }
+  .hero-badge, .section-label { color:var(--purple-pale); font-size:11px; letter-spacing:1.2px; text-transform:uppercase; font-weight:600; }
+  .hero-badge { display:inline-block; background:rgba(107,92,231,.12); border:.5px solid rgba(107,92,231,.4); padding:6px 16px; border-radius:20px; margin-bottom:1.8rem; }
+  .hero h1 { font-family:'Syne',sans-serif; font-size:clamp(45px,7vw,76px); font-weight:800; line-height:1.02; letter-spacing:-2.5px; margin-bottom:1.5rem; }
+  .hero h1 span { color:var(--purple-light); }
+  .hero p { font-size:18px; color:var(--white60); line-height:1.75; max-width:690px; margin:0 auto 2.3rem; }
+  .buttons { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary, .btn-secondary { padding:.9rem 2.2rem; border-radius:10px; font-size:15px; font-weight:600; text-decoration:none; display:inline-block; transition:all .2s; }
+  .btn-primary { background:var(--purple); color:var(--white); border:2px solid var(--purple-light); box-shadow:0 0 0 4px rgba(107,92,231,.15); }
+  .btn-primary:hover { background:var(--purple-light); transform:translateY(-1px); }
+  .btn-secondary { color:var(--white); border:2px solid rgba(255,255,255,.3); }
+  .btn-secondary:hover { border-color:rgba(255,255,255,.65); background:rgba(255,255,255,.05); }
+  .story, .offer, .path, .capital { max-width:1040px; margin:0 auto; padding:4.5rem 2.5rem; }
+  .story { display:grid; grid-template-columns:.85fr 1.15fr; gap:4rem; align-items:start; }
+  .section-label { color:var(--purple-light); margin-bottom:.8rem; }
+  h2 { font-family:'Syne',sans-serif; font-size:38px; line-height:1.15; letter-spacing:-1px; }
+  .story-copy p, .capital p { color:var(--white60); font-size:16px; line-height:1.8; margin-bottom:1rem; }
+  .offer-header, .path-header { text-align:center; max-width:720px; margin:0 auto 3rem; }
+  .section-sub { color:var(--white60); font-size:16px; line-height:1.7; margin-top:.8rem; }
+  .cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  .card { background:rgba(255,255,255,.03); border:.5px solid var(--border); border-radius:14px; padding:1.8rem; transition:border-color .2s,transform .2s; }
+  .card:hover { border-color:rgba(107,92,231,.45); transform:translateY(-2px); }
+  .card-number { width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:rgba(107,92,231,.12); border:.5px solid rgba(107,92,231,.35); color:var(--purple-pale); font-family:'Syne',sans-serif; font-weight:700; margin-bottom:1.2rem; }
+  .card h3 { font-family:'Syne',sans-serif; font-size:20px; margin-bottom:.7rem; }
+  .card p, .step p { color:var(--white60); font-size:14px; line-height:1.7; }
+  .steps { display:grid; grid-template-columns:repeat(3,1fr); background:rgba(255,255,255,.02); border:.5px solid var(--border); border-radius:16px; overflow:hidden; }
+  .step { padding:2rem; border-right:.5px solid var(--border); }
+  .step:last-child { border-right:none; }
+  .step span { color:var(--purple-light); font-size:12px; font-weight:600; }
+  .step h3 { font-family:'Syne',sans-serif; font-size:20px; margin:.65rem 0; }
+  .capital-inner { background:radial-gradient(circle at 80% 20%,rgba(107,92,231,.22),transparent 36%),var(--bg2); border:.5px solid rgba(107,92,231,.3); border-radius:18px; padding:3rem; display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:center; }
+  .capital h2 { margin-bottom:1rem; }
+  .capital-note { color:var(--white70); border-left:2px solid var(--purple-light); padding-left:1.2rem; line-height:1.7; }
+  .contact { text-align:center; padding:5rem 2.5rem; background:var(--bg2); border-top:.5px solid var(--border); }
+  .contact h2 { margin-bottom:.8rem; }
+  .contact p { color:var(--white60); margin-bottom:2rem; }
+  footer { display:flex; justify-content:space-between; padding:2rem 2.5rem; border-top:.5px solid var(--border); color:var(--white40); font-size:12px; }
+  @media (max-width:760px) {
+    nav { padding:1rem 1.2rem; }
+    .nav-links a:not([aria-current="page"]) { display:none; }
+    .nav-links { gap:0; }
+    .nav-links a[aria-current="page"] { font-size:13px; }
+    .hero { padding:4rem 1.2rem 3.5rem; }
+    .hero h1 { letter-spacing:-1.5px; }
+    .hero p { font-size:16px; }
+    .story, .offer, .path, .capital { padding:3rem 1.2rem; }
+    .story, .capital-inner { grid-template-columns:1fr; gap:1.5rem; }
+    h2 { font-size:30px; }
+    .cards, .steps { grid-template-columns:1fr; }
+    .step { border-right:none; border-bottom:.5px solid var(--border); }
+    .step:last-child { border-bottom:none; }
+    .capital-inner { padding:2rem; }
+    footer { flex-direction:column; text-align:center; gap:.6rem; }
+  }
+  @media (max-width:430px) { .nav-links { display:none; } .nav-cta { padding:.5rem .8rem; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><img src="logo_nav.png" alt="CatchDog" onerror="this.style.display='none'"><span class="nav-brand">Catch<span>Dog</span></span></a>
+  <div class="nav-links"><a href="index.html#hiw">How it works</a><a href="startups.html" aria-current="page">For Startups</a><a href="index.html#about">About</a><a href="index.html#blog">Blog</a></div>
+  <a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="nav-cta">Get started</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-badge">For Latin American founders</div>
+    <h1>Build a clearer path to <span>your first round.</span></h1>
+    <p>Practical advisory and mentoring for Latin American startups preparing to meet angel investors and raise a pre-seed round in Miami and the United States.</p>
+    <div class="buttons"><a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary">Tell us about your startup</a><a href="#support" class="btn-secondary">See how we help</a></div>
+  </section>
+
+  <section class="story">
+    <div><div class="section-label">We know the journey</div><h2>Starting in a new market is hard.</h2></div>
+    <div class="story-copy">
+      <p>CatchDog is a Miami-based startup founded by people from Latin America. We understand how difficult it can be to find the right resources, build a useful network and get early capital when you are entering a new ecosystem.</p>
+      <p>Our role is to help founders focus their story, understand the market and approach the right opportunities with clear materials and realistic expectations.</p>
+    </div>
+  </section>
+
+  <section class="offer" id="support">
+    <div class="offer-header"><div class="section-label">Practical founder support</div><h2>Get ready for the conversations that matter.</h2><p class="section-sub">Hands-on work that helps investors understand what you are building, why it matters and why your team can deliver it.</p></div>
+    <div class="cards">
+      <article class="card"><div class="card-number">01</div><h3>Sharpen your business story</h3><p>Turn a complex idea into a simple, credible explanation of the problem, solution, business model and reason to act now.</p></article>
+      <article class="card"><div class="card-number">02</div><h3>Build an investor-ready deck</h3><p>Create a useful pitch deck with a clear structure, relevant evidence and the information early-stage investors expect to see.</p></article>
+      <article class="card"><div class="card-number">03</div><h3>Understand your market</h3><p>Research your industry, competitors, customers and market dynamics so your strategy is grounded in facts rather than broad claims.</p></article>
+      <article class="card"><div class="card-number">04</div><h3>Find realistic opportunities</h3><p>Identify relevant investors, programs and introductions based on your sector, stage, geography and actual fundraising needs.</p></article>
+      <article class="card"><div class="card-number">05</div><h3>Present with clarity</h3><p>Practice the pitch, prepare for difficult questions and communicate your company with confidence in meetings and follow-ups.</p></article>
+      <article class="card"><div class="card-number">06</div><h3>Plan the next steps</h3><p>Leave with a practical fundraising plan: who to contact, what to improve and which milestones can make the next conversation stronger.</p></article>
+    </div>
+  </section>
+
+  <section class="path">
+    <div class="path-header"><div class="section-label">A focused process</div><h2>From raw idea to a credible investor conversation.</h2></div>
+    <div class="steps">
+      <article class="step"><span>STEP 01</span><h3>Diagnose</h3><p>We review your company, materials, stage and fundraising goal to identify the most important gaps.</p></article>
+      <article class="step"><span>STEP 02</span><h3>Prepare</h3><p>We work with you on the story, deck, market research, investor list and presentation.</p></article>
+      <article class="step"><span>STEP 03</span><h3>Move forward</h3><p>You approach the market with better materials, clearer targets and a realistic plan for the round.</p></article>
+    </div>
+  </section>
+
+  <section class="capital">
+    <div class="capital-inner">
+      <div><div class="section-label">Early support</div><h2>Sometimes the first check matters most.</h2><p>For a small number of startups that strongly match our interests, stage and values, CatchDog may consider a small first check to help the team begin its journey.</p></div>
+      <div class="capital-note">Advisory does not guarantee investment or introductions. Every opportunity is reviewed separately, and founders keep a clear view of what is realistic at each stage.</div>
+    </div>
+  </section>
+
+  <section class="contact">
+    <h2>Ready to make your story clearer?</h2>
+    <p>Tell us what you are building, where you are based and what round you are preparing for.</p>
+    <a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary">Start the conversation</a>
+  </section>
+</main>
+<footer><p>© 2026 CatchDog LLC — Miami, FL</p><p>Practical support for ambitious founders</p></footer>
+</body>
+</html>
