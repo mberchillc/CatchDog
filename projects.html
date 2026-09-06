@@ -52,7 +52,7 @@
   .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.28); }
   .image-screen { height: 292px; background: #fff; overflow: hidden; position: relative; }
   .image-screen img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
-  .image-screen::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 -45px 55px rgba(12,12,18,0.12); pointer-events: none; }
+  .project-card:last-child .image-screen { display: grid; place-items: center; background: #f4efe5; }  .project-card:last-child .image-screen img { display: none; }  .project-card:last-child .image-screen::before { content: 'T'; color: #5c2de1; font-family: 'Syne', sans-serif; font-size: 150px; font-weight: 800; line-height: 0.8; transform: translateY(-9px); }  .project-card:last-child .image-screen::after { content: 'TECH & SOCIETY'; inset: auto 0 28px; color: #111116; box-shadow: none; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; text-align: center; }  .image-screen::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 -45px 55px rgba(12,12,18,0.12); pointer-events: none; }
   .deck { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; transform: none; }
   .slide { min-height: 112px; border: 1px solid rgba(255,255,0.17); border-radius: 18px; padding: 16px; background: linear-gradient(145deg, rgba(56,31,104,0.95), rgba(23,16,56,0.96)); position: relative; overflow: hidden; }
   .slide::after { content: none; }
