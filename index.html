@@ -787,7 +787,7 @@
               <span class="blog-tag">${featuredPost.category}</span>
               <h2>${featuredPost.title}</h2>
               <p>${featuredPost.excerpt}</p>
-              <span class="blog-date">${formatDate(featuredPost.date)}</span>
+              <span class="blog-date">${formatDate(featuredPost.date, featuredPost.lang)}</span>
             </div>
           </a>
         `;
@@ -806,7 +806,7 @@
             <div class="blog-card-body">
               <h3>${post.title}</h3>
               <p>${post.excerpt}</p>
-              <span class="blog-card-date">${formatDate(post.date)}</span>
+              <span class="blog-card-date">${formatDate(post.date, post.lang)}</span>
             </div>
           </a>
         `).join('');
@@ -816,9 +816,9 @@
     }
   }
 
-  function formatDate(dateString) {
+  function formatDate(dateString, lang) {
     const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(lang === 'es' ? 'es-AR' : 'en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'

@@ -177,6 +177,14 @@
     display: block;
   }
 
+  .post-cover-caption {
+    display: none;
+    padding: 0.7rem 1rem;
+    color: var(--white40);
+    font-size: 12px;
+    text-align: right;
+  }
+
   .post-body {
     max-width: 780px;
     margin: 0 auto;
@@ -196,6 +204,12 @@
     line-height: 1.2;
     margin: 2.6rem 0 1rem;
     color: var(--white);
+  }
+
+  .post-body a {
+    color: var(--purple-light);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .post-body p:first-child::first-letter {
@@ -270,6 +284,7 @@
 
   <div class="post-cover" id="post-cover-wrap">
     <img id="post-cover" src="" alt="">
+    <p class="post-cover-caption" id="post-cover-caption"></p>
   </div>
 </div>
 
@@ -303,11 +318,22 @@
       document.title = `${post.title} — CatchDog Blog`;
       document.querySelector('meta[name="description"]').setAttribute('content', post.excerpt || '');
 
+      if (post.lang === 'es') {
+        document.documentElement.lang = 'es';
+        document.querySelector('.post-back').textContent = '← Volver al blog';
+        const navLabels = ['Cómo funciona', 'Para startups', 'Acerca de', 'Contacto', 'Blog'];
+        document.querySelectorAll('.nav-links a').forEach((link, index) => {
+          link.textContent = navLabels[index];
+        });
+        document.querySelector('.nav-cta').textContent = 'Empezar';
+        document.querySelector('footer p:last-child').textContent = 'Automatización inteligente para tu negocio';
+      }
+
       document.getElementById('post-category').textContent = post.category || '';
       document.getElementById('post-title').textContent = post.title || '';
       document.getElementById('post-excerpt').textContent = post.excerpt || '';
       document.getElementById('post-author').textContent = post.author || 'Mauro Berchi';
-      document.getElementById('post-date').textContent = formatDate(post.date);
+      document.getElementById('post-date').textContent = formatDate(post.date, post.lang);
       document.getElementById('post-read-time').textContent = post.read_time || '';
 
       const cover = document.getElementById('post-cover');
@@ -315,7 +341,12 @@
 
       if (post.cover) {
         cover.src = post.cover;
-        cover.alt = post.title;
+        cover.alt = post.cover_alt || post.title;
+        if (post.cover_caption) {
+          const caption = document.getElementById('post-cover-caption');
+          caption.textContent = post.cover_caption;
+          caption.style.display = 'block';
+        }
       } else {
         coverWrap.style.display = 'none';
       }
@@ -327,10 +358,10 @@
     }
   }
 
-  function formatDate(dateString) {
+  function formatDate(dateString, lang) {
     if (!dateString) return '';
     const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(lang === 'es' ? 'es-AR' : 'en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
