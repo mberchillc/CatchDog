@@ -64,6 +64,8 @@
   .nav-links { display: flex; gap: 2rem; }
   .nav-links a { color: var(--white60); text-decoration: none; font-size: 14px; transition: color 0.2s; }
   .nav-links a:hover { color: var(--white); }
+  .nav-links a.education-nav-link { color: var(--purple-pale); }
+  .nav-links a.education-nav-link:hover { color: var(--white); }
   .nav-cta {
     background: var(--purple);
     color: var(--white);
@@ -502,9 +504,17 @@
   color: #fff;
 }
  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .nav-links { gap: 0.8rem; }
+    .nav-links a { font-size: 12px; }
+  }
+  @media (max-width: 850px) {
+    .nav-links a:not(.education-nav-link) { display: none; }
+    .nav-actions .nav-cta { display: none; }
+  }
   @media (max-width: 640px) {
     nav { padding: 1rem 1.2rem; }
-    .nav-links { display: none; }
+    .nav-links { display: flex; }
     .hero { padding: 3.5rem 1.2rem 3rem; }
     .hero h1 { font-size: 40px; letter-spacing: -1px; }
     .hero p { font-size: 16px; }
@@ -532,6 +542,7 @@
   <div class="nav-links">
     <a href="#hiw" data-en="How it works" data-es="Cómo funciona">How it works</a>
 <a href="startups.html" data-en="For Startups" data-es="Para Startups">For Startups</a>
+<a href="educacion.html" class="education-nav-link" data-en="Education" data-es="Educación">Education</a>
 <a href="#about" data-en="About" data-es="Acerca de">About</a>
 <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
 <a href="#blog" data-en="Blog" data-es="Blog">Blog</a>

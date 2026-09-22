@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0c12">
+  <title>Educación e IA para escuelas — CatchDog</title>
+  <meta name="description" content="CatchDog acompaña a instituciones educativas con formación docente en IA, acuerdos de gobernanza y herramientas pedagógicas y de gestión hechas a medida.">
+  <link rel="canonical" href="https://catchdog.net/educacion.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CatchDog Education — IA con criterio humano para toda la escuela">
+  <meta property="og:description" content="Formación docente, gobernanza de IA y soluciones digitales a medida para enseñanza y gestión escolar.">
+  <meta property="og:url" content="https://catchdog.net/educacion.html">
+  <meta property="og:image" content="https://catchdog.net/assets/education/ia-en-la-escuela-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0c0c12; --bg2:#111118; --panel:#171720; --ink:#fff; --muted:#b5b4c0; --soft:#ded9ff; --purple:#6b5ce7; --purple2:#8b7cf8; --border:rgba(255,255,255,.12); }
+    *, *::before, *::after { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,Arial,sans-serif; line-height:1.6; overflow-x:hidden; }
+    a { color:inherit; }
+    img { max-width:100%; }
+    button { font:inherit; }
+    a:focus-visible, button:focus-visible { outline:2px solid var(--soft); outline-offset:4px; }
+    .skip-link { position:absolute; top:-70px; left:18px; z-index:200; background:#fff; color:#111; padding:10px 14px; border-radius:8px; }
+    .skip-link:focus { top:12px; }
+    .site-nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; gap:22px; padding:16px clamp(20px,3vw,48px); border-bottom:1px solid var(--border); background:rgba(12,12,18,.94); backdrop-filter:blur(16px); }
+    .nav-logo { display:flex; align-items:center; gap:10px; white-space:nowrap; text-decoration:none; }
+    .nav-logo img { width:34px; height:34px; object-fit:contain; border-radius:7px; }
+    .nav-brand { font-size:17px; font-weight:700; letter-spacing:-.3px; }
+    .nav-brand span { color:var(--purple2); }
+    .nav-links { display:flex; align-items:center; gap:clamp(14px,2vw,32px); }
+    .nav-links a { color:var(--muted); font-size:14px; text-decoration:none; white-space:nowrap; }
+    .nav-links a:hover, .nav-links a[aria-current="page"] { color:#fff; }
+    .nav-links a[aria-current="page"] { position:relative; }
+    .nav-links a[aria-current="page"]::after { content:""; position:absolute; left:0; right:0; bottom:-9px; height:2px; background:var(--purple2); }
+    .nav-actions { display:flex; align-items:center; gap:12px; }
+    .lang-switch { display:inline-flex; padding:3px; border:1px solid rgba(139,124,248,.45); border-radius:99px; background:rgba(255,255,255,.04); }
+    .lang-switch button { border:0; border-radius:99px; padding:6px 9px; color:var(--muted); background:transparent; font-size:11px; font-weight:700; cursor:pointer; }
+    .lang-switch button.active { color:#fff; background:var(--purple); }
+    .nav-cta { padding:9px 16px; background:var(--purple); border-radius:8px; text-decoration:none; font-size:13px; font-weight:700; white-space:nowrap; }
+    .nav-cta:hover, .button-primary:hover { background:var(--purple2); }
+    .wrap { width:min(1160px, calc(100% - 48px)); margin-inline:auto; }
+    .eyebrow { display:inline-flex; align-items:center; gap:10px; color:var(--soft); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+    .eyebrow::before { content:""; display:inline-block; width:18px; height:2px; background:var(--purple2); }
+    h1, h2, h3, p { margin-top:0; }
+    h1, h2, h3 { font-family:Syne,Inter,sans-serif; }
+    h1 { font-size:clamp(43px,5.7vw,78px); line-height:1.03; letter-spacing:-.055em; margin:20px 0 26px; }
+    h1 em { color:var(--soft); font-style:normal; }
+    h2 { font-size:clamp(31px,3.7vw,52px); line-height:1.11; letter-spacing:-.04em; margin:15px 0 20px; }
+    h3 { font-size:22px; line-height:1.2; letter-spacing:-.025em; }
+    .lead { color:var(--muted); font-size:clamp(17px,1.45vw,20px); line-height:1.7; max-width:690px; }
+    .button-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:30px; }
+    .button-primary, .button-secondary { display:inline-flex; align-items:center; justify-content:center; min-height:47px; padding:11px 20px; border-radius:10px; text-decoration:none; font-size:14px; font-weight:700; transition:background .2s,border-color .2s,transform .2s; }
+    .button-primary { background:var(--purple); border:1px solid var(--purple2); }
+    .button-secondary { border:1px solid rgba(255,255,255,.3); }
+    .button-secondary:hover { border-color:var(--soft); background:rgba(255,255,255,.06); }
+    .hero { background:radial-gradient(circle at 70% 27%,rgba(107,92,231,.18),transparent 36%),linear-gradient(180deg,#11111a 0%,var(--bg) 100%); border-bottom:1px solid var(--border); }
+    .hero-inner { min-height:640px; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:clamp(35px,5vw,80px); padding-top:72px; padding-bottom:82px; }
+    .hero-copy { position:relative; z-index:1; }
+    .hero-note { display:flex; align-items:center; gap:12px; color:var(--soft); font-size:12px; font-weight:700; letter-spacing:.06em; margin-top:44px; }
+    .hero-note > span:first-child { flex:0 0 32px; height:1px; background:var(--purple2); }
+    .school-map { position:relative; aspect-ratio:1.04; min-height:420px; border:1px solid rgba(139,124,248,.31); border-radius:28px; background:radial-gradient(circle at 50% 49%,rgba(107,92,231,.29),transparent 44%),linear-gradient(145deg,#1a1828,#12121a); overflow:hidden; box-shadow:0 30px 90px rgba(0,0,0,.28); }
+    .school-map::before { content:""; position:absolute; inset:18px; border:1px solid rgba(255,255,255,.06); border-radius:21px; pointer-events:none; }
+    .map-label { position:absolute; left:34px; top:27px; color:#bab3ff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.17em; }
+    .map-center { position:absolute; left:50%; top:52%; width:205px; height:205px; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px solid rgba(196,186,255,.7); border-radius:50%; background:radial-gradient(circle at 35% 25%,#6454d6,#342b79 75%); box-shadow:0 0 0 17px rgba(107,92,231,.1),0 0 0 48px rgba(107,92,231,.05); text-align:center; }
+    .map-center small { font-size:11px; font-weight:700; letter-spacing:.17em; text-transform:uppercase; color:#dfd9ff; }
+    .map-center strong { font-family:Syne,Inter,sans-serif; font-size:25px; line-height:1.05; max-width:135px; margin-top:8px; }
+    .map-node { position:absolute; display:flex; align-items:center; justify-content:center; width:135px; min-height:48px; padding:9px 12px; border:1px solid rgba(196,186,255,.35); border-radius:11px; background:rgba(19,18,31,.92); font-size:12px; font-weight:700; text-align:center; box-shadow:0 12px 35px rgba(0,0,0,.22); }
+    .node-1 { top:21%; left:7%; }.node-2 { top:21%; right:7%; }.node-3 { bottom:16%; left:7%; }.node-4 { bottom:16%; right:7%; }
+    .map-foot { position:absolute; right:29px; bottom:23px; color:rgba(255,255,255,.45); font-size:10px; letter-spacing:.08em; }
+    .section { padding:96px 0; }
+    .section-head { max-width:770px; margin-bottom:38px; }
+    .section-head p { color:var(--muted); font-size:17px; line-height:1.7; }
+    .service-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .service-card { min-height:435px; display:flex; flex-direction:column; padding:30px; border:1px solid var(--border); border-radius:18px; background:linear-gradient(155deg,rgba(139,124,248,.075),rgba(255,255,255,.025) 52%); }
+    .service-card:hover { border-color:rgba(139,124,248,.55); }
+    .service-num { font-family:Syne,Inter,sans-serif; color:var(--purple2); font-size:16px; font-weight:800; }
+    .service-card h3 { margin:44px 0 15px; }
+    .service-card p { color:var(--muted); font-size:14px; line-height:1.72; margin-bottom:22px; }
+    .service-card ul { margin:auto 0 0; padding:17px 0 0 18px; border-top:1px solid var(--border); color:var(--soft); font-size:13px; line-height:1.7; }
+    .service-card li+li { margin-top:8px; }
+    .principle-band { background:var(--bg2); border-block:1px solid var(--border); }
+    .principle-inner { display:grid; grid-template-columns:1fr 1.1fr; gap:64px; align-items:center; padding-block:77px; }
+    .principle-copy p { color:var(--muted); font-size:16px; line-height:1.75; }
+    .principle-list { display:grid; gap:10px; }
+    .principle-item { display:grid; grid-template-columns:30px 1fr; gap:15px; align-items:start; padding:18px 20px; background:rgba(255,255,255,.025); border:1px solid var(--border); border-radius:12px; }
+    .principle-item > span:first-child { display:grid; place-items:center; width:28px; height:28px; background:rgba(107,92,231,.2); border-radius:8px; color:var(--soft); font-weight:800; font-size:13px; }
+    .principle-item p { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
+    .principle-item strong { color:#fff; }
+    .cycle { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-top:44px; }
+    .cycle-step { position:relative; min-height:113px; padding:18px 12px; border:1px solid rgba(139,124,248,.35); border-radius:12px; background:linear-gradient(180deg,rgba(107,92,231,.11),rgba(255,255,255,.025)); }
+    .cycle-step small { display:block; color:var(--purple2); font-size:11px; font-weight:700; margin-bottom:15px; }
+    .cycle-step strong { display:block; font-family:Syne,Inter,sans-serif; font-size:14px; line-height:1.2; }
+    .cycle-caption { color:var(--muted); font-size:14px; margin-top:20px; }
+    .use-cases { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:46px; }
+    .use-case { border-top:1px solid var(--border); padding:23px 16px 17px 0; }
+    .use-case small { color:var(--purple2); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .use-case h3 { font-size:18px; margin:10px 0 8px; }
+    .use-case p { color:var(--muted); font-size:14px; line-height:1.65; margin:0; }
+    .workshop { background:linear-gradient(130deg,#1a172a,#111118 60%); border-block:1px solid var(--border); }
+    .workshop-inner { display:grid; grid-template-columns:1fr 1fr; gap:58px; align-items:center; }
+    .workshop-copy .lead { font-size:16px; }
+    .workshop-steps { display:grid; gap:13px; margin-top:27px; }
+    .workshop-step { display:flex; gap:13px; align-items:baseline; border-bottom:1px solid var(--border); padding-bottom:11px; }
+    .workshop-step b { color:var(--purple2); font-family:Syne,Inter,sans-serif; font-size:20px; }
+    .workshop-step span { font-size:14px; }
+    .workshop-visual { display:grid; gap:13px; }
+    .workshop-visual a { display:block; border:1px solid rgba(196,186,255,.35); border-radius:13px; overflow:hidden; background:#14141b; box-shadow:0 22px 55px rgba(0,0,0,.2); }
+    .workshop-visual img { display:block; width:100%; height:auto; }
+    .workshop-thumbs { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .workshop-thumbs a { box-shadow:none; }
+    .workshop-thumbs img { aspect-ratio:16/9; object-fit:cover; }
+    .image-note { color:var(--muted); font-size:12px; }
+    .approach { display:grid; grid-template-columns:.85fr 1.15fr; gap:75px; align-items:start; }
+    .approach p { color:var(--muted); font-size:16px; line-height:1.75; }
+    .approach-list { border-top:1px solid var(--border); }
+    .approach-row { display:grid; grid-template-columns:44px 1fr; gap:18px; padding:23px 0; border-bottom:1px solid var(--border); }
+    .approach-row b { color:var(--purple2); font-family:Syne,Inter,sans-serif; font-size:20px; }
+    .approach-row h3 { font-size:19px; margin:0 0 6px; }
+    .approach-row p { font-size:14px; margin:0; }
+    .founder { display:grid; grid-template-columns:100px 1fr; gap:24px; align-items:center; padding:28px; border:1px solid var(--border); border-radius:15px; background:rgba(255,255,255,.025); margin-bottom:90px; }
+    .founder img { width:100px; height:100px; object-fit:cover; border-radius:12px; filter:grayscale(.1); }
+    .founder strong { display:block; font-family:Syne,Inter,sans-serif; font-size:19px; margin:4px 0; }
+    .founder p { color:var(--muted); font-size:14px; line-height:1.6; margin:0; }
+    .contact { padding:92px 0; text-align:center; background:radial-gradient(circle at 50% -10%,rgba(107,92,231,.28),transparent 45%),#151420; border-top:1px solid var(--border); }
+    .contact h2 { max-width:760px; margin:17px auto 20px; }
+    .contact p { color:var(--muted); max-width:670px; margin:0 auto; }
+    .contact .button-row { justify-content:center; }
+    footer { display:flex; justify-content:space-between; gap:20px; padding:29px clamp(20px,3vw,48px); color:rgba(255,255,255,.48); font-size:12px; }
+    footer a { text-decoration:none; }
+    footer a:hover { color:#fff; }
+    @media(max-width:1000px) {
+      .nav-links { gap:13px; }.nav-links a { font-size:12px; }
+      .hero-inner { grid-template-columns:1fr .9fr; gap:28px; }
+      .school-map { min-height:0; width:100%; }
+      .map-node { width:104px; font-size:11px; }.map-center { width:168px; height:168px; }.map-center strong { font-size:20px; }
+      .cycle { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      .cycle-step { min-height:100px; }
+    }
+    @media(max-width:760px) {
+      .site-nav { gap:12px; }.nav-links a:not([aria-current="page"]) { display:none; }.nav-links a[aria-current="page"] { font-size:13px; }.nav-cta { display:none; }
+      .hero-inner { grid-template-columns:1fr; padding-top:57px; padding-bottom:65px; }.hero-note { margin-top:28px; }.school-map { min-height:390px; max-width:510px; width:100%; margin:auto; }
+      .section { padding:72px 0; }.service-grid { grid-template-columns:1fr; }.service-card { min-height:auto; }.service-card h3 { margin-top:26px; }
+      .principle-inner, .workshop-inner, .approach { grid-template-columns:1fr; gap:28px; }.principle-inner { padding-block:65px; }
+      .cycle { grid-template-columns:repeat(2,minmax(0,1fr)); }.use-cases { grid-template-columns:1fr; gap:0; }
+      .workshop-visual { max-width:610px; }.founder { margin-bottom:72px; }
+    }
+    @media(max-width:430px) {
+      .wrap { width:calc(100% - 36px); }.site-nav { padding:12px 15px; }.nav-logo img { width:29px; height:29px; }.nav-brand { font-size:15px; }
+      .hero-inner { padding-top:43px; }.school-map { min-height:320px; }.map-center { width:142px; height:142px; }.map-center strong { font-size:17px; }.map-node { width:84px; min-height:39px; padding:7px; font-size:9px; }.node-1,.node-3 { left:5%; }.node-2,.node-4 { right:5%; }
+      .founder { grid-template-columns:70px 1fr; gap:16px; padding:18px; }.founder img { width:70px; height:70px; }
+      footer { flex-direction:column; gap:8px; }
+    }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .button-primary,.button-secondary { transition:none; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Saltar al contenido</a>
+  <nav class="site-nav" aria-label="Navegación principal">
+    <a href="index.html" class="nav-logo" aria-label="CatchDog — inicio"><img src="logo_nav.png" alt="" width="34" height="34"><span class="nav-brand">Catch<span>Dog</span></span></a>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="navHome">Inicio</a>
+      <a href="educacion.html" aria-current="page" data-i18n="navEducation">Educación</a>
+      <a href="projects.html" data-i18n="navProjects">Proyectos</a>
+      <a href="index.html#about" data-i18n="navAbout">Acerca de</a>
+    </div>
+    <div class="nav-actions">
+      <div class="lang-switch" role="group" aria-label="Idioma / Language"><button type="button" data-lang="es" class="active" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+      <a class="nav-cta" href="mailto:catchdogllc@gmail.com?subject=CatchDog%20Education%20-%20Consulta" data-i18n="navContact">Conversemos</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <header class="hero">
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">CatchDog Education</span>
+          <h1><span data-i18n="hero1">La IA ya está en la escuela.</span><br><em data-i18n="hero2">Hagamos que sirva para aprender.</em></h1>
+          <p class="lead" data-i18n="heroLead">Acompañamos a las instituciones a formar docentes, acordar reglas claras y crear herramientas útiles para el aula y la gestión. La tecnología acelera; el criterio humano conduce.</p>
+          <div class="button-row"><a class="button-primary" href="mailto:catchdogllc@gmail.com?subject=CatchDog%20Education%20-%20Consulta" data-i18n="heroCta">Hablemos de tu institución</a><a class="button-secondary" href="#servicios" data-i18n="heroExplore">Explorar el enfoque</a></div>
+          <div class="hero-note"><span></span><span data-i18n="heroNote">Formación · Gobernanza · Soluciones a medida</span></div>
+        </div>
+        <div class="school-map" role="img" aria-label="El criterio humano conecta aula, docentes, dirección y gestión con inteligencia artificial">
+          <div class="map-label">CatchDog / Education</div>
+          <div class="map-center"><small>IA +</small><strong data-i18n="mapCenter">Criterio humano</strong></div>
+          <div class="map-node node-1" data-i18n="mapNode1">Aula y alumnos</div>
+          <div class="map-node node-2" data-i18n="mapNode2">Docentes</div>
+          <div class="map-node node-3" data-i18n="mapNode3">Dirección</div>
+          <div class="map-node node-4" data-i18n="mapNode4">Gestión</div>
+          <div class="map-foot">HUMAN IN THE LOOP</div>
+        </div>
+      </div>
+    </header>
+
+    <section id="servicios" class="section wrap" aria-labelledby="services-title">
+      <div class="section-head"><span class="eyebrow" data-i18n="servicesEyebrow">Tres formas de acompañar</span><h2 id="services-title" data-i18n="servicesTitle">De comprender la IA a incorporarla en toda la institución.</h2><p data-i18n="servicesIntro">Cada escuela parte de un lugar distinto. Podemos empezar por las personas, por sus acuerdos o por un problema concreto que necesita una herramienta.</p></div>
+      <div class="service-grid">
+        <article class="service-card"><span class="service-num">01 / FORMAR</span><h3 data-i18n="trainingTitle">Capacitación docente que se prueba en el aula</h3><p data-i18n="trainingBody">Explicamos cómo funciona la IA generativa y trabajamos con tareas reales. Cada docente aprende a analizar, crear, verificar y decidir cuándo una herramienta mejora el aprendizaje.</p><ul><li data-i18n="training1">Seminarios y talleres prácticos</li><li data-i18n="training2">Diseño de materiales, actividades y evaluaciones</li><li data-i18n="training3">Uso responsable de herramientas gratuitas o accesibles</li></ul></article>
+        <article class="service-card"><span class="service-num">02 / ACORDAR</span><h3 data-i18n="governanceTitle">Gobernanza de IA para la comunidad escolar</h3><p data-i18n="governanceBody">Facilitamos acuerdos que orientan a docentes, alumnos y directivos: qué usos se permiten, cómo se declara la asistencia de IA y qué decisiones requieren siempre intervención humana.</p><ul><li data-i18n="governance1">Criterios por edad, rol y tipo de actividad</li><li data-i18n="governance2">Autoría, evaluación y protección de datos</li><li data-i18n="governance3">Pilotos y revisión periódica de los acuerdos</li></ul></article>
+        <article class="service-card"><span class="service-num">03 / CONSTRUIR</span><h3 data-i18n="buildTitle">Herramientas a medida para enseñar y gestionar</h3><p data-i18n="buildBody">Actuamos como socio externo para resolver necesidades específicas: aplicaciones pedagógicas, automatizaciones, tableros e integraciones que conectan áreas y sistemas existentes.</p><ul><li data-i18n="build1">Recursos de estudio y práctica personalizados</li><li data-i18n="build2">Flujos de administración y contabilidad</li><li data-i18n="build3">Indicadores y comunicación entre áreas</li></ul></article>
+      </div>
+    </section>
+
+    <section class="principle-band" aria-labelledby="principle-title"><div class="wrap principle-inner"><div class="principle-copy"><span class="eyebrow" data-i18n="principleEyebrow">Nuestro principio</span><h2 id="principle-title" data-i18n="principleTitle">Human in the loop: personas dentro de cada decisión.</h2><p data-i18n="principleBody">La escuela define los objetivos, aporta contexto, revisa los resultados y conserva la responsabilidad pedagógica. La IA puede ampliar el análisis y la producción, pero el trabajo educativo sigue siendo una relación humana.</p></div><div class="principle-list"><div class="principle-item"><span>✓</span><p><strong data-i18n="principle1a">Docentes:</strong> <span data-i18n="principle1b">diseñan la actividad, comprueban fuentes y ajustan cada material al grupo.</span></p></div><div class="principle-item"><span>✓</span><p><strong data-i18n="principle2a">Alumnos:</strong> <span data-i18n="principle2b">usan la IA con propósitos explícitos y muestran qué hicieron ellos.</span></p></div><div class="principle-item"><span>✓</span><p><strong data-i18n="principle3a">Institución:</strong> <span data-i18n="principle3b">decide qué datos circulan, quién accede y cuándo se requiere autorización.</span></p></div></div></div></section>
+
+    <section class="section wrap" aria-labelledby="cycle-title"><div class="section-head"><span class="eyebrow" data-i18n="cycleEyebrow">El proceso pedagógico completo</span><h2 id="cycle-title" data-i18n="cycleTitle">La IA puede aportar valor antes, durante y después de la clase.</h2><p data-i18n="cycleIntro">No se reduce a pedirle respuestas a un chat. El docente puede usarla para comprender mejor una necesidad, diseñar una experiencia y observar qué sucedió.</p></div><div class="cycle" aria-label="Etapas del proceso pedagógico"><div class="cycle-step"><small>01</small><strong data-i18n="cycle1">Diagnosticar</strong></div><div class="cycle-step"><small>02</small><strong data-i18n="cycle2">Planificar</strong></div><div class="cycle-step"><small>03</small><strong data-i18n="cycle3">Preparar</strong></div><div class="cycle-step"><small>04</small><strong data-i18n="cycle4">Enseñar</strong></div><div class="cycle-step"><small>05</small><strong data-i18n="cycle5">Acompañar</strong></div><div class="cycle-step"><small>06</small><strong data-i18n="cycle6">Evaluar</strong></div><div class="cycle-step"><small>07</small><strong data-i18n="cycle7">Reflexionar</strong></div></div><p class="cycle-caption" data-i18n="cycleCaption">En cada etapa: objetivo pedagógico → apoyo de IA → revisión humana → decisión docente.</p><div class="use-cases"><article class="use-case"><small data-i18n="case1Tag">Para el aula</small><h3 data-i18n="case1Title">Una misma idea, varias formas de aprender</h3><p data-i18n="case1Body">Convertir un tema en una guía visual, preguntas graduadas y actividades de práctica; el docente selecciona y adapta.</p></article><article class="use-case"><small data-i18n="case2Tag">Para la dirección</small><h3 data-i18n="case2Title">Acuerdos que se pueden aplicar</h3><p data-i18n="case2Body">Definir cuándo puede usarse IA, cómo se reconoce su aporte y cómo cambia la evaluación según el objetivo.</p></article><article class="use-case"><small data-i18n="case3Tag">Para la administración</small><h3 data-i18n="case3Title">Menos trabajo repetitivo</h3><p data-i18n="case3Body">Ordenar consultas, preparar comunicaciones y conectar registros autorizados para reducir pasos manuales.</p></article><article class="use-case"><small data-i18n="case4Tag">Para la comunidad</small><h3 data-i18n="case4Title">Información que ayuda a decidir</h3><p data-i18n="case4Body">Crear indicadores agregados sobre participación y procesos institucionales, con controles de acceso y privacidad.</p></article></div></section>
+
+    <section class="section workshop" aria-labelledby="workshop-title"><div class="wrap workshop-inner"><div class="workshop-copy"><span class="eyebrow" data-i18n="workshopEyebrow">Un primer paso posible</span><h2 id="workshop-title" data-i18n="workshopTitle">IA en la escuela. Seminario–taller.</h2><p class="lead" data-i18n="workshopBody">Tres encuentros de dos horas para que el equipo docente deje atrás la confusión, pruebe usos valiosos y pueda diseñar un primer piloto con criterios propios.</p><div class="workshop-steps"><div class="workshop-step"><b>01</b><span data-i18n="workshop1">Comprender qué cambia y cómo funciona la IA generativa.</span></div><div class="workshop-step"><b>02</b><span data-i18n="workshop2">Aplicarla en tareas docentes y en el proceso pedagógico.</span></div><div class="workshop-step"><b>03</b><span data-i18n="workshop3">Diseñar acuerdos y un piloto institucional acotado.</span></div></div><div class="button-row"><a class="button-secondary" href="mailto:catchdogllc@gmail.com?subject=Seminario%20IA%20en%20la%20escuela" data-i18n="workshopCta">Consultar por el taller</a></div></div><div class="workshop-visual"><a href="assets/education/ia-en-la-escuela-cover.png" target="_blank" rel="noopener" aria-label="Ver portada del seminario IA en la escuela"><img src="assets/education/ia-en-la-escuela-cover.png" width="2560" height="1440" alt="Portada del seminario–taller IA en la escuela: comprender, aplicar y diseñar" loading="lazy"></a><div class="workshop-thumbs"><a href="assets/education/proceso-pedagogico.png" target="_blank" rel="noopener" aria-label="Ver placa del proceso pedagógico"><img src="assets/education/proceso-pedagogico.png" width="2560" height="1440" alt="Placa del taller con siete etapas del proceso pedagógico" loading="lazy"></a><a href="assets/education/piloto-institucional.png" target="_blank" rel="noopener" aria-label="Ver placa del piloto institucional"><img src="assets/education/piloto-institucional.png" width="2560" height="1440" alt="Placa del taller con un piloto institucional de cuatro semanas" loading="lazy"></a></div><span class="image-note" data-i18n="imageNote">Una muestra del material visual que llevamos al aula.</span></div></div></section>
+
+    <section class="section wrap" aria-labelledby="approach-title"><div class="approach"><div><span class="eyebrow" data-i18n="approachEyebrow">Tecnología que se adapta</span><h2 id="approach-title" data-i18n="approachTitle">La escuela no tiene que esperar un gran proyecto de software.</h2><p data-i18n="approachBody">Las plataformas de gestión resuelven mucho. CatchDog puede conectarlas con nuevos circuitos o construir una herramienta liviana para el problema que sigue sin resolver. En desafíos acotados, este modo de trabajo puede acortar plazos y bajar el costo de entrada frente a un desarrollo tradicional.</p></div><div class="approach-list"><div class="approach-row"><b>01</b><div><h3 data-i18n="approach1Title">Escuchamos el circuito real</h3><p data-i18n="approach1Body">Qué hacen las personas, qué sistemas ya tienen, dónde se pierde tiempo y qué datos se pueden usar.</p></div></div><div class="approach-row"><b>02</b><div><h3 data-i18n="approach2Title">Diseñamos un piloto pequeño</h3><p data-i18n="approach2Body">Una herramienta o automatización comprobable, con responsables humanos, límites claros y un costo proporcional.</p></div></div><div class="approach-row"><b>03</b><div><h3 data-i18n="approach3Title">Probamos, corregimos y conectamos</h3><p data-i18n="approach3Body">Observamos el uso, mejoramos el flujo y, si aporta valor, lo integramos al resto de la institución.</p></div></div></div></div></section>
+
+    <aside class="founder wrap" aria-label="Sobre el facilitador"><img src="mauro.png" width="100" height="100" alt="Mauro Berchi" loading="lazy"><div><span class="eyebrow">CatchDog / Mauro Berchi</span><strong data-i18n="founderTitle">Periodista e investigador de tecnología. Fundador de CatchDog.</strong><p data-i18n="founderBody">Traduzco cambios tecnológicos para personas e instituciones y construyo con IA. En educación, combino explicación, práctica y diseño de soluciones bajo criterio humano.</p></div></aside>
+
+    <section class="contact" aria-labelledby="contact-title"><div class="wrap"><span class="eyebrow" data-i18n="contactEyebrow">Empecemos por una conversación</span><h2 id="contact-title" data-i18n="contactTitle">¿Qué necesita resolver hoy tu institución?</h2><p data-i18n="contactBody">Puede ser una capacitación, un acuerdo de uso o un circuito que consume demasiado tiempo. Contanos el problema y definimos juntos un primer paso concreto.</p><div class="button-row"><a class="button-primary" href="mailto:catchdogllc@gmail.com?subject=CatchDog%20Education%20-%20Consulta" data-i18n="contactCta">Escribir a CatchDog</a></div></div></section>
+  </main>
+
+  <footer><span>© 2026 CatchDog LLC — Miami, FL</span><a href="index.html" data-i18n="footerHome">Volver a CatchDog</a></footer>
+  <script>
+    const english = {
+      skip:"Skip to content", navHome:"Home", navEducation:"Education", navProjects:"Projects", navAbout:"About", navContact:"Let's talk",
+      hero1:"AI is already in schools.", hero2:"Let's make it work for learning.", heroLead:"We help institutions train teachers, set clear rules and build useful tools for classrooms and operations. Technology accelerates; human judgment leads.", heroCta:"Tell us about your school", heroExplore:"Explore our approach", heroNote:"Training · Governance · Tailored tools",
+      mapCenter:"Human judgment", mapNode1:"Students & classrooms", mapNode2:"Teachers", mapNode3:"Leadership", mapNode4:"Operations",
+      servicesEyebrow:"Three ways to help", servicesTitle:"From understanding AI to using it across the institution.", servicesIntro:"Every school starts in a different place. We can begin with people, shared agreements or a specific problem that needs a tool.",
+      trainingTitle:"Teacher training grounded in classroom practice", trainingBody:"We explain how generative AI works and apply it to real tasks. Teachers learn to analyze, create, verify and decide when a tool improves learning.", training1:"Practical seminars and workshops", training2:"Learning materials, activities and assessments", training3:"Responsible use of free or affordable tools",
+      governanceTitle:"AI governance for the school community", governanceBody:"We help teachers, students and leaders establish shared rules: what uses are appropriate, how AI assistance is disclosed and which decisions always need human involvement.", governance1:"Guidelines by age, role and activity", governance2:"Authorship, assessment and data protection", governance3:"Pilots and regular policy reviews",
+      buildTitle:"Tailored tools for teaching and operations", buildBody:"We act as an external partner to solve specific needs: learning applications, automations, dashboards and integrations that connect teams and existing systems.", build1:"Personalized study and practice tools", build2:"Administrative and accounting workflows", build3:"Indicators and communication across teams",
+      principleEyebrow:"Our principle", principleTitle:"Human in the loop: people shape every decision.", principleBody:"The school sets goals, brings context, reviews outputs and keeps pedagogical responsibility. AI can expand analysis and production, but education remains a human relationship.", principle1a:"Teachers:", principle1b:"design the activity, check sources and adapt each resource to their group.", principle2a:"Students:", principle2b:"use AI for explicit purposes and show what they contributed.", principle3a:"Institution:", principle3b:"decides which data can be used, who has access and when authorization is required.",
+      cycleEyebrow:"The full learning process", cycleTitle:"AI can help before, during and after class.", cycleIntro:"It goes beyond asking a chatbot for answers. Teachers can use it to understand a need, design an experience and learn from what happened.", cycle1:"Diagnose", cycle2:"Plan", cycle3:"Prepare", cycle4:"Teach", cycle5:"Support", cycle6:"Assess", cycle7:"Reflect", cycleCaption:"At every stage: learning goal → AI support → human review → teacher decision.",
+      case1Tag:"For classrooms", case1Title:"One idea, several ways to learn", case1Body:"Turn a topic into a visual guide, graded questions and practice activities; the teacher selects and adapts.", case2Tag:"For leadership", case2Title:"Rules people can use", case2Body:"Define when AI is appropriate, how its contribution is acknowledged and how assessment changes with the learning goal.", case3Tag:"For administration", case3Title:"Less repetitive work", case3Body:"Organize inquiries, prepare communications and connect approved records to reduce manual steps.", case4Tag:"For the community", case4Title:"Information that improves decisions", case4Body:"Build aggregated indicators for participation and school processes, with access and privacy controls.",
+      workshopEyebrow:"One way to begin", workshopTitle:"AI at school. Seminar and workshop.", workshopBody:"Three two-hour sessions help teachers move beyond confusion, test valuable uses and design a first pilot on their own terms.", workshop1:"Understand what changes and how generative AI works.", workshop2:"Apply it to teaching tasks and the learning process.", workshop3:"Design shared guidelines and a focused institutional pilot.", workshopCta:"Ask about the workshop", imageNote:"A sample of the visual material we bring to the classroom.",
+      approachEyebrow:"Technology that adapts", approachTitle:"Schools need not wait for a large software project.", approachBody:"School management platforms already solve a great deal. CatchDog can connect them to new workflows or build a lightweight tool for the problem that remains. For focused challenges, this approach can shorten delivery times and lower the upfront cost compared with traditional development.", approach1Title:"Listen to the real workflow", approach1Body:"What people do, which systems they already use, where time is lost and which data can be used.", approach2Title:"Build a small pilot", approach2Body:"A testable tool or automation with human owners, clear limits and a proportional cost.", approach3Title:"Test, refine and connect", approach3Body:"We observe use, improve the workflow and, if it adds value, connect it across the institution.",
+      founderTitle:"Technology journalist and researcher. Founder of CatchDog.", founderBody:"I translate technological change for people and institutions, and I build with AI. In education, I combine explanation, practice and human-led solution design.",
+      contactEyebrow:"Let's start with a conversation", contactTitle:"What does your institution need to solve today?", contactBody:"It may be training, a shared AI policy or a workflow that takes too much time. Tell us about the problem and we'll define a concrete first step together.", contactCta:"Email CatchDog", footerHome:"Back to CatchDog"
+    };
+    const originals = new Map([...document.querySelectorAll('[data-i18n]')].map(el => [el, el.textContent]));
+    const languageButtons = [...document.querySelectorAll('.lang-switch button')];
+    function setLanguage(lang) {
+      const selected = lang === 'en' ? 'en' : 'es';
+      originals.forEach((spanish, element) => { element.textContent = selected === 'en' ? (english[element.dataset.i18n] || spanish) : spanish; });
+      languageButtons.forEach(button => { const active = button.dataset.lang === selected; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+      document.documentElement.lang = selected;
+      document.title = selected === 'en' ? 'Education and AI for schools — CatchDog' : 'Educación e IA para escuelas — CatchDog';
+      document.querySelector('meta[name="description"]').content = selected === 'en' ? 'CatchDog helps schools with AI teacher training, governance and tailored tools for learning and operations.' : 'CatchDog acompaña a instituciones educativas con formación docente en IA, acuerdos de gobernanza y herramientas pedagógicas y de gestión hechas a medida.';
+      try { localStorage.setItem('catchdogLang', selected); } catch (_) {}
+    }
+    languageButtons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+    let savedLanguage = 'es';
+    try { savedLanguage = localStorage.getItem('catchdogLang') || 'es'; } catch (_) {}
+    setLanguage(savedLanguage);
+  </script>
+</body>
+</html>
