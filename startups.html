@@ -34,6 +34,7 @@
   .hero-badge { display:inline-block; background:rgba(107,92,231,.12); border:.5px solid rgba(107,92,231,.4); padding:6px 16px; border-radius:20px; margin-bottom:1.8rem; }
   .hero h1 { font-family:'Syne',sans-serif; font-size:clamp(45px,7vw,76px); font-weight:800; line-height:1.02; letter-spacing:-2.5px; margin-bottom:1.5rem; }
   .hero h1 span { color:var(--purple-light); }
+  .hero h1 .hero-heading-first { color:var(--white); }
   .hero p { font-size:18px; color:var(--white60); line-height:1.75; max-width:690px; margin:0 auto 2.3rem; }
   .buttons { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
   .btn-primary, .btn-secondary { padding:.9rem 2.2rem; border-radius:10px; font-size:15px; font-weight:600; text-decoration:none; display:inline-block; transition:all .2s; }
@@ -97,54 +98,104 @@
 
 <main>
   <section class="hero">
-    <div class="hero-badge">For Latin American founders</div>
-    <h1>Build a clearer path to <span>your first round.</span></h1>
-    <p>Practical advisory and mentoring for Latin American startups preparing to meet angel investors and raise a pre-seed round in Miami and the United States.</p>
-    <div class="buttons"><a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary">Tell us about your startup</a><a href="#support" class="btn-secondary">See how we help</a></div>
+    <div class="hero-badge" data-i18n="heroBadge">For Latin American founders</div>
+    <h1><span class="hero-heading-first" data-i18n="heroTitle1">Build a clearer path to</span> <span data-i18n="heroTitle2">your first round.</span></h1>
+    <p data-i18n="heroLead">Practical advisory and mentoring for Latin American startups preparing to meet angel investors and raise a pre-seed round in Miami and the United States.</p>
+    <div class="buttons"><a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary" data-i18n="heroCta">Tell us about your startup</a><a href="#support" class="btn-secondary" data-i18n="heroExplore">See how we help</a></div>
   </section>
 
   <section class="story">
-    <div><div class="section-label">We know the journey</div><h2>Starting in a new market is hard.</h2></div>
+    <div><div class="section-label" data-i18n="storyLabel">We know the journey</div><h2 data-i18n="storyTitle">Starting in a new market is hard.</h2></div>
     <div class="story-copy">
-      <p>CatchDog is a Miami-based startup founded by people from Latin America. We understand how difficult it can be to find the right resources, build a useful network and get early capital when you are entering a new ecosystem.</p>
-      <p>Our role is to help founders focus their story, understand the market and approach the right opportunities with clear materials and realistic expectations.</p>
+      <p data-i18n="story1">CatchDog is a Miami-based startup founded by people from Latin America. We understand how difficult it can be to find the right resources, build a useful network and get early capital when you are entering a new ecosystem.</p>
+      <p data-i18n="story2">Our role is to help founders focus their story, understand the market and approach the right opportunities with clear materials and realistic expectations.</p>
     </div>
   </section>
 
   <section class="offer" id="support">
-    <div class="offer-header"><div class="section-label">Practical founder support</div><h2>Get ready for the conversations that matter.</h2><p class="section-sub">Hands-on work that helps investors understand what you are building, why it matters and why your team can deliver it.</p></div>
+    <div class="offer-header"><div class="section-label" data-i18n="offerLabel">Practical founder support</div><h2 data-i18n="offerTitle">Get ready for the conversations that matter.</h2><p class="section-sub" data-i18n="offerIntro">Hands-on work that helps investors understand what you are building, why it matters and why your team can deliver it.</p></div>
     <div class="cards">
-      <article class="card"><div class="card-number">01</div><h3>Sharpen your business story</h3><p>Turn a complex idea into a simple, credible explanation of the problem, solution, business model and reason to act now.</p></article>
-      <article class="card"><div class="card-number">02</div><h3>Build an investor-ready deck</h3><p>Create a useful pitch deck with a clear structure, relevant evidence and the information early-stage investors expect to see.</p></article>
-      <article class="card"><div class="card-number">03</div><h3>Understand your market</h3><p>Research your industry, competitors, customers and market dynamics so your strategy is grounded in facts rather than broad claims.</p></article>
-      <article class="card"><div class="card-number">04</div><h3>Find realistic opportunities</h3><p>Identify relevant investors, programs and introductions based on your sector, stage, geography and actual fundraising needs.</p></article>
-      <article class="card"><div class="card-number">05</div><h3>Present with clarity</h3><p>Practice the pitch, prepare for difficult questions and communicate your company with confidence in meetings and follow-ups.</p></article>
-      <article class="card"><div class="card-number">06</div><h3>Plan the next steps</h3><p>Leave with a practical fundraising plan: who to contact, what to improve and which milestones can make the next conversation stronger.</p></article>
+      <article class="card"><div class="card-number">01</div><h3 data-i18n="card1Title">Sharpen your business story</h3><p data-i18n="card1Body">Turn a complex idea into a simple, credible explanation of the problem, solution, business model and reason to act now.</p></article>
+      <article class="card"><div class="card-number">02</div><h3 data-i18n="card2Title">Build an investor-ready deck</h3><p data-i18n="card2Body">Create a useful pitch deck with a clear structure, relevant evidence and the information early-stage investors expect to see.</p></article>
+      <article class="card"><div class="card-number">03</div><h3 data-i18n="card3Title">Understand your market</h3><p data-i18n="card3Body">Research your industry, competitors, customers and market dynamics so your strategy is grounded in facts rather than broad claims.</p></article>
+      <article class="card"><div class="card-number">04</div><h3 data-i18n="card4Title">Find realistic opportunities</h3><p data-i18n="card4Body">Identify relevant investors, programs and introductions based on your sector, stage, geography and actual fundraising needs.</p></article>
+      <article class="card"><div class="card-number">05</div><h3 data-i18n="card5Title">Present with clarity</h3><p data-i18n="card5Body">Practice the pitch, prepare for difficult questions and communicate your company with confidence in meetings and follow-ups.</p></article>
+      <article class="card"><div class="card-number">06</div><h3 data-i18n="card6Title">Plan the next steps</h3><p data-i18n="card6Body">Leave with a practical fundraising plan: who to contact, what to improve and which milestones can make the next conversation stronger.</p></article>
     </div>
   </section>
 
   <section class="path">
-    <div class="path-header"><div class="section-label">A focused process</div><h2>From raw idea to a credible investor conversation.</h2></div>
+    <div class="path-header"><div class="section-label" data-i18n="pathLabel">A focused process</div><h2 data-i18n="pathTitle">From raw idea to a credible investor conversation.</h2></div>
     <div class="steps">
-      <article class="step"><span>STEP 01</span><h3>Diagnose</h3><p>We review your company, materials, stage and fundraising goal to identify the most important gaps.</p></article>
-      <article class="step"><span>STEP 02</span><h3>Prepare</h3><p>We work with you on the story, deck, market research, investor list and presentation.</p></article>
-      <article class="step"><span>STEP 03</span><h3>Move forward</h3><p>You approach the market with better materials, clearer targets and a realistic plan for the round.</p></article>
+      <article class="step"><span data-i18n="step1Label">STEP 01</span><h3 data-i18n="step1Title">Diagnose</h3><p data-i18n="step1Body">We review your company, materials, stage and fundraising goal to identify the most important gaps.</p></article>
+      <article class="step"><span data-i18n="step2Label">STEP 02</span><h3 data-i18n="step2Title">Prepare</h3><p data-i18n="step2Body">We work with you on the story, deck, market research, investor list and presentation.</p></article>
+      <article class="step"><span data-i18n="step3Label">STEP 03</span><h3 data-i18n="step3Title">Move forward</h3><p data-i18n="step3Body">You approach the market with better materials, clearer targets and a realistic plan for the round.</p></article>
     </div>
   </section>
 
   <section class="capital">
     <div class="capital-inner">
-      <div><div class="section-label">Early support</div><h2>Sometimes the first check matters most.</h2><p>For a small number of startups that strongly match our interests, stage and values, CatchDog may consider a small first check to help the team begin its journey.</p></div>
-      <div class="capital-note">Advisory does not guarantee investment or introductions. Every opportunity is reviewed separately, and founders keep a clear view of what is realistic at each stage.</div>
+      <div><div class="section-label" data-i18n="capitalLabel">Early support</div><h2 data-i18n="capitalTitle">Sometimes the first check matters most.</h2><p data-i18n="capitalBody">For a small number of startups that strongly match our interests, stage and values, CatchDog may consider a small first check to help the team begin its journey.</p></div>
+      <div class="capital-note" data-i18n="capitalNote">Advisory does not guarantee investment or introductions. Every opportunity is reviewed separately, and founders keep a clear view of what is realistic at each stage.</div>
     </div>
   </section>
 
   <section class="contact">
-    <h2>Ready to make your story clearer?</h2>
-    <p>Tell us what you are building, where you are based and what round you are preparing for.</p>
-    <a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary">Start the conversation</a>
+    <h2 data-i18n="contactTitle">Ready to make your story clearer?</h2>
+    <p data-i18n="contactBody">Tell us what you are building, where you are based and what round you are preparing for.</p>
+    <a href="mailto:catchdogllc@gmail.com?subject=Startup%20advisory" class="btn-primary" data-i18n="contactCta">Start the conversation</a>
   </section>
 </main>
-<footer><p>© 2026 CatchDog LLC — Miami, FL</p><p>Practical support for ambitious founders</p></footer>
+<footer><p>© 2026 CatchDog LLC — Miami, FL</p><p data-i18n="footerTagline">Practical support for ambitious founders</p></footer>
+<script>
+  const spanish = {
+    heroBadge:'Para fundadores de América Latina',
+    heroTitle1:'Tu camino hacia', heroTitle2:'la primera ronda.',
+    heroLead:'Asesoramiento práctico y mentoría para emprendimientos de América Latina que se preparan para conversar con inversores ángeles y levantar una ronda presemilla en Miami y Estados Unidos.',
+    heroCta:'Contanos sobre tu emprendimiento', heroExplore:'Cómo podemos ayudarte',
+    storyLabel:'Conocemos el camino', storyTitle:'Empezar en un mercado nuevo no es fácil.',
+    story1:'CatchDog es un emprendimiento con sede en Miami, fundado por personas de América Latina. Sabemos lo difícil que puede ser encontrar los recursos adecuados, construir una red útil y acceder a capital inicial al ingresar en un ecosistema nuevo.',
+    story2:'Ayudamos a los fundadores a contar con claridad qué están construyendo, comprender el mercado y acercarse a las oportunidades adecuadas con materiales sólidos y expectativas realistas.',
+    offerLabel:'Acompañamiento práctico', offerTitle:'Prepará las conversaciones que importan.',
+    offerIntro:'Trabajo concreto para que los inversores comprendan qué estás construyendo, por qué importa y por qué tu equipo puede llevarlo adelante.',
+    card1Title:'Afiná la historia de tu negocio', card1Body:'Transformá una idea compleja en una explicación simple y creíble del problema, la solución, el modelo de negocio y por qué este es el momento de actuar.',
+    card2Title:'Prepará una presentación para inversores', card2Body:'Creá una presentación con una estructura clara, evidencia pertinente y la información que esperan los inversores en etapas tempranas.',
+    card3Title:'Conocé tu mercado', card3Body:'Investigá tu sector, competidores, clientes y dinámica del mercado para basar tu estrategia en hechos, no en afirmaciones generales.',
+    card4Title:'Encontrá oportunidades realistas', card4Body:'Identificá inversores, programas y contactos pertinentes según tu sector, etapa, ubicación y necesidades reales de financiamiento.',
+    card5Title:'Presentá con claridad', card5Body:'Practicá tu presentación, preparate para preguntas difíciles y comunicá tu proyecto con confianza en reuniones y seguimientos.',
+    card6Title:'Planificá los próximos pasos', card6Body:'Llevate un plan práctico para buscar capital: a quién contactar, qué mejorar y qué hitos pueden fortalecer la próxima conversación.',
+    pathLabel:'Un proceso enfocado', pathTitle:'De la idea inicial a una conversación sólida con inversores.',
+    step1Label:'PASO 01', step1Title:'Diagnóstico', step1Body:'Revisamos tu emprendimiento, sus materiales, su etapa y el objetivo de financiamiento para detectar las brechas más importantes.',
+    step2Label:'PASO 02', step2Title:'Preparación', step2Body:'Trabajamos con vos en la historia, la presentación, la investigación de mercado, la lista de inversores y la exposición oral.',
+    step3Label:'PASO 03', step3Title:'Avanzar', step3Body:'Te acercás al mercado con mejores materiales, objetivos más claros y un plan realista para la ronda.',
+    capitalLabel:'Apoyo inicial', capitalTitle:'A veces, el primer aporte es el más importante.',
+    capitalBody:'En un número reducido de casos que encajen especialmente con nuestros intereses, etapa y valores, CatchDog puede considerar un pequeño aporte inicial para ayudar al equipo a comenzar.',
+    capitalNote:'El asesoramiento no garantiza inversión ni contactos con inversores. Cada oportunidad se evalúa por separado, y los fundadores mantienen una visión clara de lo que es realista en cada etapa.',
+    contactTitle:'¿Listo para contar mejor tu proyecto?', contactBody:'Contanos qué estás construyendo, dónde estás y qué ronda estás preparando.', contactCta:'Iniciemos la conversación',
+    footerTagline:'Apoyo práctico para fundadores con ambición'
+  };
+  const originalCopy = new Map([...document.querySelectorAll('main [data-i18n], footer [data-i18n]')].map(element => [element, element.textContent]));
+  function setLanguage(lang) {
+    const selected = lang === 'es' ? 'es' : 'en';
+    originalCopy.forEach((english, element) => { element.textContent = selected === 'es' ? (spanish[element.dataset.i18n] || english) : english; });
+    document.documentElement.lang = selected;
+    document.title = selected === 'es' ? 'Para emprendedores — CatchDog' : 'For Startups — CatchDog';
+    document.querySelector('meta[name="description"]').content = selected === 'es'
+      ? 'Asesoramiento práctico y mentoría para emprendimientos de América Latina que se preparan para inversores ángeles y rondas presemilla.'
+      : 'Practical advisory and mentoring for Latin American startups preparing for angel investors and pre-seed rounds.';
+    document.querySelector('meta[property="og:title"]').content = document.title;
+    document.querySelector('meta[property="og:description"]').content = selected === 'es'
+      ? 'Apoyo práctico para fundadores de América Latina que buscan una ronda ángel o presemilla.'
+      : 'Practical support for Latin American founders raising an angel or pre-seed round.';
+    document.querySelectorAll('main a[href^="mailto:catchdogllc@gmail.com?subject="]').forEach(link => {
+      link.href = 'mailto:catchdogllc@gmail.com?subject=' + (selected === 'es' ? 'Asesoramiento%20para%20emprendedores' : 'Startup%20advisory');
+    });
+    try { localStorage.setItem('catchdogLang', selected); } catch (_) {}
+    window.catchdogNavSetLanguage?.(selected);
+  }
+  let savedLanguage = 'en';
+  try { savedLanguage = localStorage.getItem('catchdogLang') || 'en'; } catch (_) {}
+  setLanguage(savedLanguage);
+</script>
 </body>
 </html>

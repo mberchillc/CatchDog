@@ -29,15 +29,17 @@
   else document.body.insertBefore(nav, document.body.firstChild);
 
   const path = window.location.pathname.toLowerCase();
-  const isPost = /^\/post(?:\.html)?$/.test(path) || path.startsWith('/posts/');
-  const active = path === '/educacion.html' ? 'education'
-    : path === '/startups.html' ? 'startups'
+  const isEducation = /^\/educacion(?:\.html)?\/?$/.test(path);
+  const isStartups = /^\/startups(?:\.html)?\/?$/.test(path);
+  const isPost = /^\/post(?:\.html)?\/?$/.test(path) || path.startsWith('/posts/');
+  const active = isEducation ? 'education'
+    : isStartups ? 'startups'
     : isPost ? 'blog' : null;
   if (active) nav.querySelector(`[data-key="${active}"]`).setAttribute('aria-current', 'page');
 
   const words = {
     en: { how:'How it works', startups:'For Startups', education:'Education', about:'About', contact:'Contact', blog:'Blog', cta:'Get started', menu:'Menu', navigation:'Main navigation' },
-    es: { how:'Cómo funciona', startups:'Para Startups', education:'Educación', about:'Acerca de', contact:'Contacto', blog:'Blog', cta:'Empezar', menu:'Menú', navigation:'Navegación principal' }
+    es: { how:'Cómo funciona', startups:'Para emprendedores', education:'Educación', about:'Acerca de', contact:'Contacto', blog:'Blog', cta:'Empezar', menu:'Menú', navigation:'Navegación principal' }
   };
   let currentLang = 'en';
   function setNavLanguage(lang) {
@@ -57,7 +59,7 @@
 
   let storedLang = 'en';
   try { storedLang = localStorage.getItem('catchdogLang') || 'en'; } catch (_) {}
-  const pageHasLanguage = path === '/' || path === '/index.html' || path === '/educacion.html';
+  const pageHasLanguage = path === '/' || path === '/index.html' || isEducation || isStartups;
   setNavLanguage(pageHasLanguage ? document.documentElement.lang : storedLang);
 
   nav.querySelectorAll('.cd-lang button').forEach(button => button.addEventListener('click', () => {
