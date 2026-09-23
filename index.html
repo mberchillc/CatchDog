@@ -770,7 +770,8 @@
       if (lang !== document.documentElement.lang) return;
 
       const publishedPosts = posts
-        .filter(post => post.published && post.cover && post.body && (post.lang || 'en') === lang)
+        .filter(post => post.published && post.cover && post.body)
+        .filter(post => !post.translation_slug || (post.lang || 'en') === lang)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const featuredPost = publishedPosts[0];
