@@ -257,6 +257,8 @@
     .post-body p { font-size: 15px; }
   }
 </style>
+<link rel="stylesheet" href="/site-nav.css">
+<script defer src="/site-nav.js"></script>
 </head>
 
 <body>
@@ -330,7 +332,11 @@
       document.title = `${post.title} — CatchDog Blog`;
       document.querySelector('meta[name="description"]').setAttribute('content', post.excerpt || '');
 
-      if (post.lang) localStorage.setItem('catchdogLang', post.lang);
+      if (post.lang) {
+        localStorage.setItem('catchdogLang', post.lang);
+        document.documentElement.lang = post.lang;
+        window.catchdogNavSetLanguage?.(post.lang);
+      }
 
       if (post.translation_slug) {
         const translation = document.getElementById('post-translation');
@@ -341,13 +347,7 @@
       }
 
       if (post.lang === 'es') {
-        document.documentElement.lang = 'es';
         document.querySelector('.post-back').textContent = '← Volver al blog';
-        const navLabels = ['Cómo funciona', 'Para startups', 'Acerca de', 'Contacto', 'Blog'];
-        document.querySelectorAll('.nav-links a').forEach((link, index) => {
-          link.textContent = navLabels[index];
-        });
-        document.querySelector('.nav-cta').textContent = 'Empezar';
         document.querySelector('footer p:last-child').textContent = 'Automatización inteligente para tu negocio';
       }
 
