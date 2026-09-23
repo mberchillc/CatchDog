@@ -1,5 +1,21 @@
 [
   {
+    "title": "Generative AI in Argentine schools: teach, don’t persecute",
+    "slug": "generative-ai-argentine-schools-teach-dont-persecute",
+    "excerpt": "Between persecution and naïve optimism, schools need clear rules, prepared teachers, and human oversight to use AI without surrendering learning.",
+    "category": "Education & AI",
+    "date": "2026-09-22",
+    "cover": "/images/blog/ia-generativa-escuela-argentina.png",
+    "cover_alt": "AI-generated illustrative image: Mauro Berchi and a teacher discuss an animal-classification table projected beside the ChatGPT logo in a classroom.",
+    "cover_caption": "Illustrative image generated with AI.",
+    "lang": "en",
+    "translation_slug": "ia-generativa-escuela-argentina-aprender-no-perseguir",
+    "author": "Mauro Berchi",
+    "read_time": "4 min read",
+    "published": true,
+    "body": "In Argentina, generative artificial intelligence is already part of the daily lives of students, teachers, and school leaders. It is on their phones and computers, and many versions are free. Yet part of the education debate still assumes that schools must either expel AI from the classroom or hand learning over to it. Neither choice makes sense. The useful questions are what a student needs to learn, when AI may help, and who is accountable for the outcome.\n\n## Between fear and fascination\n\nSome institutions respond by demonizing the technology and pursuing students who use it. This technophobic reflex is partly fed by extreme predictions about an AI that could annihilate humanity. The risks of rapid development deserve serious research and public debate. Turning the bleakest scenarios into a permanent policy of suspicion at school, however, does not help anyone teach. Neither does naïve techno-optimism: applauding every new capability without asking about its errors, costs, data practices, business interests, or the concentration of power behind it.\n\nAs the CatchDog Manifesto argues, our technological humanism places technology in historical perspective and examines it from several angles: anthropological, sociological, psychological, political, and economic. Generative AI is a new stage in the evolution of technique. It dramatically expands our ability to write, research, translate, program, and create. It can also deepen inequality, reproduce bias, and erode skills if it replaces exercises we still need to perform ourselves. Personal computers transformed schools without making teachers obsolete. AI raises a similar challenge, although its direct role in thought and production calls for new safeguards.\n\n## The honesty of learning\n\nThe ethical discussion begins with a simple question: did the student actually learn what the grade says they learned? Awarding a high mark for a polished assignment that its author cannot explain deceives the student. Using a chatbot to evade all responsibility is likewise a fraud against one’s own education. But punishing the mere use of an accessible tool, without prior rules or any distinction between assistance and substitution, creates another injustice. It drives use underground and damages the trust on which teaching depends.\n\nAn assignment might allow AI to explore sources or provide feedback while requiring students to disclose how they used it, verify its claims, and defend their choices in conversation. Another assignment may call for individual reading, writing, or problem-solving without assistance. Both are legitimate when their learning goals are clear. Evaluating the process—drafts, questions, revisions, and arguments—is more useful than trying to guess from a final text who wrote each sentence.\n\n## Prepared teachers, human decisions\n\nUNESCO’s <a href=\"https://www.unesco.org/en/articles/ai-competency-framework-teachers?hub=195885\" target=\"_blank\" rel=\"noopener noreferrer\">AI Competency Framework for Teachers</a> offers a better starting point than a blanket ban. It sets out fifteen competencies across five dimensions: a human-centred mindset, ethics, AI foundations and applications, AI pedagogy, and AI for professional learning. Its aim is not to delegate the classroom to a machine. It is to equip teachers to decide when a tool improves learning and when it gets in the way.\n\nAdoption should be gradual and appropriate to students’ ages. In the early years, reading, writing, numeracy, and a direct relationship with the world require hands-on experience and adult guidance. Later, AI can help students compare explanations, investigate questions, create work, and debate the technology’s limits. This is not a call to give every child unrestricted access to a general-purpose chatbot. Schools may reasonably limit tools by age, task, and setting while still teaching how they work. At every stage, data privacy, unequal access, and teachers’ professional autonomy matter. Indiscriminate bans favour those who can learn to use AI outside school; uncritical adoption leaves the most vulnerable exposed to error and dependence.\n\nSchool leaders also use computers and AI assistants. Transparency therefore cannot be demanded only of students. If an institution uses AI to plan lessons, summarize information, or manage operations, it should explain why, what data are involved, what standards apply, and who reviews the result. No system should decide a grade, a disciplinary measure, or a student’s educational path on its own.\n\nThe experience of <a href=\"https://www.ialab.com.ar/publicaciones\" target=\"_blank\" rel=\"noopener noreferrer\">UBA IALAB and Prometea</a> offers a useful lesson. In a sensitive field such as justice, automating tasks does not remove human responsibility for decisions. The lab is a valuable reference for thinking about governance and control, not a substitute for educational specialists, teachers, or school authorities. Schools need teams that understand both the technology and the realities of their students.\n\nWe cannot pretend AI is absent, nor ask young people still developing their judgment to resolve its ethical dilemmas alone. The answer is to establish clear rules, prepare teachers, bring in qualified experts, and keep meaningful human oversight. The best school neither persecutes technology nor surrenders to it. It puts technology to work for the common good—and checks, honestly, that students are still learning."
+  },
+  {
     "title": "IA generativa en la escuela argentina: aprender, no perseguir",
     "slug": "ia-generativa-escuela-argentina-aprender-no-perseguir",
     "excerpt": "Entre la persecución y el optimismo ingenuo, la escuela necesita reglas claras, docentes preparados y control humano para aprovechar la IA sin renunciar al aprendizaje.",
@@ -9,6 +25,7 @@
     "cover_alt": "Imagen ilustrativa generada con IA: Mauro Berchi y una docente analizan en el aula una tabla de clasificación de animales proyectada junto al logo de ChatGPT.",
     "cover_caption": "Imagen ilustrativa generada con IA.",
     "lang": "es",
+    "translation_slug": "generative-ai-argentine-schools-teach-dont-persecute",
     "author": "Mauro Berchi",
     "read_time": "4 min de lectura",
     "published": true,
@@ -40,7 +57,7 @@
     "excerpt": "Understanding AI output starts with understanding human behavior, not just parameters.",
     "category": "AI & Strategy",
     "date": "2026-03-28",
-    "published": true
+    "published": false
   },
   {
     "title": "Connecting your CRM to AI: a no-code guide for small teams",
@@ -48,7 +65,7 @@
     "excerpt": "Step by step: how to automate lead follow-up without writing a single line of code.",
     "category": "No-Code Automation",
     "date": "2026-03-15",
-    "published": true
+    "published": false
   },
   {
     "title": "You don't need to deal with technology ",

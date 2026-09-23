@@ -164,6 +164,16 @@
 
   .post-meta-author span { color: var(--white60); }
 
+  .post-translation {
+    display: none;
+    width: fit-content;
+    margin: -1.2rem 0 2rem;
+    color: var(--purple-pale);
+    font-size: 14px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
   .post-cover {
     width: 100%;
     border-radius: 16px;
@@ -282,6 +292,8 @@
     <span id="post-read-time"></span>
   </div>
 
+  <a class="post-translation" id="post-translation"></a>
+
   <div class="post-cover" id="post-cover-wrap">
     <img id="post-cover" src="" alt="">
     <p class="post-cover-caption" id="post-cover-caption"></p>
@@ -317,6 +329,16 @@
 
       document.title = `${post.title} — CatchDog Blog`;
       document.querySelector('meta[name="description"]').setAttribute('content', post.excerpt || '');
+
+      if (post.lang) localStorage.setItem('catchdogLang', post.lang);
+
+      if (post.translation_slug) {
+        const translation = document.getElementById('post-translation');
+        translation.href = `post.html?slug=${encodeURIComponent(post.translation_slug)}`;
+        translation.textContent = post.lang === 'es' ? 'Read in English →' : 'Leer en español →';
+        translation.lang = post.lang === 'es' ? 'en' : 'es';
+        translation.style.display = 'inline-block';
+      }
 
       if (post.lang === 'es') {
         document.documentElement.lang = 'es';

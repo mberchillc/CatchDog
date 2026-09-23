@@ -762,13 +762,15 @@
   setTimeout(runAnimation, 800);
 </script>
 <script>
-  async function loadBlogPosts() {
+  async function loadBlogPosts(lang) {
     try {
       const response = await fetch('posts.json');
       const posts = await response.json();
 
+      if (lang !== document.documentElement.lang) return;
+
       const publishedPosts = posts
-        .filter(post => post.published)
+        .filter(post => post.published && post.cover && post.body && (post.lang || 'en') === lang)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const featuredPost = publishedPosts[0];
@@ -825,7 +827,6 @@
     });
   }
 
-  loadBlogPosts();
 </script>
 <script>
   const langButtons = document.querySelectorAll(".lang-switch button");
@@ -842,6 +843,7 @@
 
     localStorage.setItem("catchdogLang", lang);
     document.documentElement.lang = lang;
+    loadBlogPosts(lang);
   }
 
   langButtons.forEach(button => {
