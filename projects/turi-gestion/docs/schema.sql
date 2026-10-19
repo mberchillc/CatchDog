@@ -1,0 +1,11 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE producers(id TEXT PRIMARY KEY,name TEXT NOT NULL,organization TEXT NOT NULL);
+CREATE TABLE companies(id TEXT PRIMARY KEY,name TEXT NOT NULL,portal_url TEXT NOT NULL);
+CREATE TABLE producer_companies(producer_id TEXT REFERENCES producers(id),company_id TEXT REFERENCES companies(id),demo_pas_code TEXT NOT NULL,PRIMARY KEY(producer_id,company_id));
+CREATE TABLE clients(id TEXT PRIMARY KEY,producer_id TEXT NOT NULL REFERENCES producers(id),name TEXT NOT NULL,email TEXT,marketing_consent INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE policies(id TEXT PRIMARY KEY,producer_id TEXT NOT NULL REFERENCES producers(id),client_id TEXT NOT NULL REFERENCES clients(id),company_id TEXT NOT NULL REFERENCES companies(id),category TEXT NOT NULL,risk TEXT NOT NULL,expiry TEXT NOT NULL,status TEXT NOT NULL,premium_demo INTEGER NOT NULL);
+CREATE TABLE alerts(id TEXT PRIMARY KEY,producer_id TEXT NOT NULL REFERENCES producers(id),policy_id TEXT REFERENCES policies(id),category TEXT NOT NULL,priority TEXT CHECK(priority IN ('red','yellow','green')),due_at TEXT NOT NULL,done INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE claims(id TEXT PRIMARY KEY,producer_id TEXT NOT NULL REFERENCES producers(id),policy_id TEXT NOT NULL REFERENCES policies(id),stage TEXT NOT NULL,last_update TEXT NOT NULL,next_action TEXT NOT NULL);
+CREATE TABLE drafts(id TEXT PRIMARY KEY,producer_id TEXT NOT NULL REFERENCES producers(id),client_id TEXT REFERENCES clients(id),version INTEGER NOT NULL DEFAULT 1,status TEXT NOT NULL CHECK(status IN ('pending','approved_demo','correction')),coverage_issued INTEGER NOT NULL DEFAULT 0 CHECK(coverage_issued=0));
+CREATE INDEX policies_by_producer_expiry ON policies(producer_id,expiry);
+CREATE INDEX alerts_by_producer_due ON alerts(producer_id,done,due_at);

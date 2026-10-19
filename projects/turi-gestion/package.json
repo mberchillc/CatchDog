@@ -1,0 +1,1 @@
+{"name":"turi-gestion-demo","private":true,"type":"module","scripts":{"test":"node tests/demo.test.cjs","check":"node --check dist/app.js"},"devDependencies":{"jsdom":"^30.1.3"}}

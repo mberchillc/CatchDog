@@ -1,0 +1,1 @@
+window.TURI_ASSETS = {};

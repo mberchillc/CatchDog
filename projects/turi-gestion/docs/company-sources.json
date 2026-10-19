@@ -1,0 +1,336 @@
+[
+  {
+    "id": "segunda",
+    "name": "La Segunda",
+    "source": "https://www.lasegunda.com.ar/",
+    "portal": "https://www.lasegunda.com.ar/",
+    "logo": "assets/companies/segunda.svg",
+    "candidates": [
+      "https://storage.googleapis.com/l2-designsystem-prod/logos-brand/SVG/l2-logo-hor-rbg-pos.svg",
+      "https://storage.googleapis.com/l2-designsystem-prod/logos-apps/SVG/l2_rec-logo-hor-byn-neg.svg",
+      "https://www.lasegunda.com.ar/favicon.ico"
+    ],
+    "links": [
+      "https://www.lasegunda.com.ar/empleo"
+    ]
+  },
+  {
+    "id": "mercantil",
+    "name": "Mercantil Andina",
+    "source": "https://mercantilandina.com.ar/",
+    "portal": "https://mercantilandina.com.ar/",
+    "logo": "assets/companies/mercantil.svg",
+    "candidates": [
+      "https://mercantilandina.com.ar/wp-content/uploads/2023/10/Logo.svg",
+      "https://mercantilandina.com.ar/wp-content/uploads/2023/08/logo-insurtech.png",
+      "https://mercantilandina.com.ar/wp-content/uploads/2023/08/Logo.svg",
+      "https://mercantilandina.com.ar/wp-content/uploads/2023/08/Logo-1.svg",
+      "https://mercantilandina.com.ar/wp-content/uploads/2023/08/ssnlogo.svg"
+    ],
+    "links": [
+      "https://mercantilandina.com.ar/",
+      "https://servicios.mercantilandina.com.ar/sigmav3/",
+      "https://mercantilandina.com.ar/",
+      "https://servicios.mercantilandina.com.ar/sigmav3/"
+    ]
+  },
+  {
+    "id": "federacion",
+    "name": "Federación Patronal",
+    "source": "https://www.fedpat.com.ar/",
+    "portal": "https://www.fedpat.com.ar/",
+    "logo": "assets/companies/federacion.webp",
+    "candidates": [
+      "https://www.fedpat.com.ar/wp-content/uploads/unlimited_elements/Logo-Retiro-Original-1024x256.png",
+      "https://www.fedpat.com.ar/wp-content/uploads/unlimited_elements/Logo-Reaseguros-Completo-2-1024x256.png",
+      "https://www.fedpat.com.ar/wp-content/uploads/unlimited_elements/Logo-Cooperativa-Original-2-1024x256.png",
+      "https://www.fedpat.com.ar/wp-content/uploads/2025/09/Logo-FEDPAT-SEGUROS-1024x271.png",
+      "https://www.fedpat.com.ar/wp-content/uploads/unlimited_elements/ssn-logo.png"
+    ],
+    "links": [
+      "https://online.fedpat.com.ar/Mapas/productores.xhtml",
+      "https://online.fedpat.com.ar/autogestion/ui#/login",
+      "https://online.fedpat.com.ar/autogestion/ui#/login",
+      "https://online.fedpat.com.ar/self/homeWin32.do",
+      "https://online.fedpat.com.ar/self/homeWin32.do",
+      "https://online.fedpat.com.ar/autogestion/ui#/login",
+      "https://www.fedpat.com.ar/institucional/quiero-ser-productor-de-federacion-patronal/"
+    ],
+    "logoSource": "https://www.fedpat.com.ar/wp-content/uploads/2025/09/Logo-FEDPAT-SEGUROS-1024x271.png"
+  },
+  {
+    "id": "rivadavia",
+    "name": "Rivadavia",
+    "source": "https://www.mutualrivadavia.com.ar/productores",
+    "portal": "https://www.mutualrivadavia.com.ar/productores",
+    "logo": "assets/companies/rivadavia.webp",
+    "candidates": [
+      "https://www.segurosrivadavia.com/favicon.ico",
+      "https://www.mutualrivadavia.com.ar/favicon.ico"
+    ],
+    "links": [
+      "https://www.mutualrivadavia.com.ar/cotizador",
+      "https://www.mutualrivadavia.com.ar/productores/solicitud-de-alta-pas",
+      "https://play.google.com/store/apps/details?id=com.rivadavia.productores_rivadavia&hl=es_AR",
+      "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P",
+      "https://www.mutualrivadavia.com.ar/productores",
+      "https://www.mutualrivadavia.com.ar/cotizador"
+    ]
+  },
+  {
+    "id": "sancor",
+    "name": "Sancor Seguros",
+    "source": "https://www.sancorseguros.com.ar/",
+    "portal": "https://www.sancorseguros.com.ar/",
+    "logo": "assets/companies/sancor.svg",
+    "candidates": [
+      "https://corporate-site-content.gruposancorseguros.com/SSA/Content/logo-PDP.jpg",
+      "https://www.sancorseguros.com.ar/favicon.ico",
+      "https://www.sancorseguros.com.ar/SSA/icons/1-Todo/logo-ssn.svg",
+      "https://www.sancorseguros.com.ar/SSA/icons/1-Todo/logo-footer-yt.svg",
+      "https://www.sancorseguros.com.ar/SSA/icons/1-Todo/logo-footer-in.svg"
+    ],
+    "links": [
+      "https://www.sancorseguros.com.ar/personas/salud/activa",
+      "https://www.sancorseguros.com.ar/asistencia-vehicular-diferencial",
+      "https://www.sancorseguros.com.ar/beneficios",
+      "https://www.sancorseguros.com.ar/autogestion",
+      "https://www.sancorseguros.com.ar/beneficia",
+      "https://www.sancorseguros.com.ar/blog",
+      "https://www.sancorseguros.com.ar/autogestion",
+      "https://www.sancorseguros.com.ar/beneficia",
+      "https://www.sancorseguros.com.ar/blog"
+    ],
+    "logoSource": "https://www.sancorseguros.com.ar/logo.svg"
+  },
+  {
+    "id": "cristobal",
+    "name": "San Cristóbal",
+    "source": "https://www.sancristobal.com.ar/institucional/",
+    "portal": "https://www.sancristobal.com.ar/institucional/",
+    "logo": "assets/companies/cristobal.svg",
+    "candidates": [
+      "https://www.sancristobal.com.ar/institucional/wp-content/themes/sancristobal_dev/images/logo-grupo.svg",
+      "https://www.sancristobal.com.ar/institucional/wp-content/themes/sancristobal_dev/images/Logo-SCSSFF.png",
+      "https://www.sancristobal.com.ar/institucional/wp-content/themes/sancristobal_dev/images/Logo-SCR.png",
+      "https://www.sancristobal.com.ar/institucional/wp-content/themes/sancristobal_dev/images/Logo-SCCM.png",
+      "https://www.sancristobal.com.ar/institucional/wp-content/themes/sancristobal_dev/images/Logo-Iunigo.png"
+    ],
+    "links": [
+      "https://productores.sancristobal.com.ar",
+      "https://autogestion.sancristobal.com.ar",
+      "https://www.sancristobal.com.ar/sitio-autogestion",
+      "https://www.sancristobal.com.ar/app-autogestion",
+      "https://pas360.gruposancristobal.com/",
+      "https://productores.sancristobal.com.ar/",
+      "http://www.sancristobal.com.ar/nuestros-productores/",
+      "https://autogestion.sancristobal.com.ar/",
+      "https://autogestion.sancristobal.com.ar/",
+      "https://productores.sancristobal.com.ar",
+      "https://autogestion.sancristobal.com.ar/ingresar",
+      "https://autogestion.sancristobal.com.ar/ingresar",
+      "https://www.sancristobal.com.ar/contacta-a-un-productor",
+      "https://www.sancristobal.com.ar/contacta-a-un-productor",
+      "https://www.sancristobal.com.ar/contacta-a-un-productor/",
+      "https://www.sancristobal.com.ar/sitio-autogestion",
+      "https://www.sancristobal.com.ar/app-autogestion",
+      "https://pas360.gruposancristobal.com/",
+      "https://www.sancristobal.com.ar/nuestros-productores/",
+      "https://autogestion.sancristobal.com.ar/ingresar",
+      "https://productores.sancristobal.com.ar"
+    ],
+    "logoSource": "https://webinstitucional.blob.core.windows.net/master/2022/10/Logo-SCS.svg"
+  },
+  {
+    "id": "zurich",
+    "name": "Zurich",
+    "source": "https://www.zurich.com.ar/",
+    "portal": "https://www.zurich.com.ar/",
+    "logo": "assets/companies/zurich.png",
+    "candidates": [],
+    "links": [],
+    "logoSource": "https://www.google.com/s2/favicons?domain=zurich.com.ar&sz=128"
+  },
+  {
+    "id": "allianz",
+    "name": "Allianz",
+    "source": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion.html",
+    "portal": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion.html",
+    "logo": "assets/companies/allianz.svg",
+    "candidates": [
+      "https://www.allianz.com.ar/content/dam/onemarketing/system/allianz-logo.svg",
+      "https://www.allianz.com.ar/content/dam/onemarketing/iberolatam/allianz-ar/favicon/AZ_Logo_positive_RGB.PNG/_jcr_content/renditions/cq5dam.web.180.180.png",
+      "https://www.allianz.com.ar/content/dam/onemarketing/iberolatam/allianz-ar/favicon/AZ_Logo_positive_RGB.PNG/_jcr_content/renditions/cq5dam.thumbnail.32.32.png",
+      "https://www.allianz.com.ar/content/dam/onemarketing/iberolatam/allianz-ar/favicon/AZ_Logo_positive_RGB.PNG/_jcr_content/renditions/cq5dam.thumbnail.16.16.png"
+    ],
+    "links": [
+      "https://www.allianz.com.ar/",
+      "https://www.allianz.com.ar/",
+      "https://www.allianz.com.ar/descubri-allianz/productores.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/mobilepas.html",
+      "https://www.allianz.com.ar/descubri-allianz/patrocinio-movimientos-olimpico-paralimpico.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores.html",
+      "https://www.allianz.com.ar/servicios/herramientas-gestion/miallianz.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
+      "https://www.allianz.com.ar/descubri-allianz/productores/oficinas-comerciales.html",
+      "https://www.allianz.com.ar/siniestros/siniestros-asegurados/talleres-confianza.html",
+      "https://www.allianz.com.ar/servicios/preguntas-frecuentes.html",
+      "https://www.allianz.com.ar/descubri-allianz/Blog.html",
+      "https://www.allianz.com.ar/compliance.html#legales",
+      "https://www.allianz.com.ar/compliance.html#compliance",
+      "https://www.allianz.com.ar/informacion-legal.html#politicadeprivacidad",
+      "https://www.allianz.com.ar/informacion-legal.html#copyright",
+      "https://www.allianz.com.ar/informacion-legal.html#politicadecookies",
+      "Tel:08102222243",
+      "https://www.allianz.com.ar/descubri-allianz/productores.html"
+    ]
+  },
+  {
+    "id": "provincia",
+    "name": "Provincia Seguros",
+    "source": "https://www.provinciaseguros.com.ar/",
+    "portal": "https://www.provinciaseguros.com.ar/",
+    "logo": "assets/companies/provincia.png",
+    "candidates": [
+      "https://www.provinciaseguros.com.ar/_nuxt/ssn-horizontal.D8ZHVOjU.png"
+    ],
+    "links": []
+  },
+  {
+    "id": "mapfre",
+    "name": "MAPFRE",
+    "source": "https://www.mapfre.com.ar/",
+    "portal": "https://www.mapfre.com.ar/",
+    "logo": "assets/companies/mapfre.webp",
+    "candidates": [
+      "https://www.mapfre.com.ar/media/logo-mapfre.png",
+      "https://www.mapfre.com.ar/media/favicon.png"
+    ],
+    "links": [
+      "https://www.mapfre.com.ar/productores/",
+      "https://www.mapfre.com.ar/productores/",
+      "https://www.mapfre.com.ar/productores/centros-gestion-pas/",
+      "https://www.mapfre.com.ar/productores/ser-productor/",
+      "https://mapfrenet.mapfre.com.ar/mapfrenet/",
+      "https://www.mapfre.com.ar/acceso-vida-online-productores/",
+      "https://www.mapfre.com.ar/productores/acceso-vida-online-productores/",
+      "https://www.mapfre.com.ar/sobre-mapfre-argentina/novedades/destacadas/mujeres-que-inspiran/",
+      "https://www.mapfre.com.ar/sobre-mapfre-argentina/novedades/destacadas/asistencia-hogar/",
+      "https://www.mapfre.com.ar/sobre-mapfre-argentina/novedades/destacadas/tecuidamos-beneficios/",
+      "https://www.mapfre.com.ar/seguros-autos/articulos/que-pasa-si-el-filtro-de-gasolina-esta-sucio/",
+      "https://www.mapfre.com.ar/seguros-autos/articulos/que-pasa-cuando-falla-el-catalizador-de-un-auto/",
+      "https://www.mapfre.com.ar/seguros-autos/articulos/que-es-y-cuando-cambiar-la-correa-de-distribucion-de-tu-auto/"
+    ]
+  },
+  {
+    "id": "holando",
+    "name": "La Holando",
+    "source": "https://www.laholando.com/",
+    "portal": "https://www.laholando.com/",
+    "logo": "assets/companies/holando.webp",
+    "candidates": [
+      "https://www.laholando.com/images/favicon.ico"
+    ],
+    "links": [
+      "https://www.laholando.com/lh-ate-sini-automotor.html",
+      "https://www.laholando.com/lh-ate-atencion.html"
+    ]
+  },
+  {
+    "id": "experta",
+    "name": "Experta",
+    "source": "https://www.experta.com.ar/index.php/productores/",
+    "portal": "https://www.experta.com.ar/index.php/productores/",
+    "logo": "assets/companies/experta.webp",
+    "candidates": [
+      "https://www.experta.com.ar/wp-content/uploads/2025/10/experta-seguros-logo.png",
+      "https://www.experta.com.ar/wp-content/uploads/2025/11/cropped-experta-seguros-favicon-32x32.png",
+      "https://www.experta.com.ar/wp-content/uploads/2025/11/cropped-experta-seguros-favicon-192x192.png",
+      "https://www.experta.com.ar/wp-content/uploads/2025/11/cropped-experta-seguros-favicon-180x180.png",
+      "https://www.experta.com.ar/wp-content/uploads/2025/10/experta-seguros-logo-blanco.png"
+    ],
+    "links": [
+      "mailto:%20pas360@experta.com.ar%20",
+      "https://www.experta.com.ar/index.php/productores/",
+      "https://www.experta.com.ar/index.php/productores/",
+      "https://www.experta.com.ar/index.php/productores/"
+    ]
+  },
+  {
+    "id": "triunfo",
+    "name": "Triunfo Seguros",
+    "source": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/",
+    "portal": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/",
+    "logo": "assets/companies/triunfo.webp",
+    "candidates": [
+      "https://triunfoseguros.com/wp-content/uploads/logo-rosa.png",
+      "https://triunfoseguros.com/wp-content/uploads/ssn_2026_logo.png",
+      "https://triunfoseguros.com/wp-content/uploads/logo-blanco.png",
+      "https://triunfoseguros.com/wp-content/uploads/isologo-64x64-1.png",
+      "https://triunfoseguros.com/wp-content/uploads/isologo-120x120-1.png"
+    ],
+    "links": [
+      "https://triunfoseguros.com/",
+      "https://triunfoseguros.com/comunidad-triunfo/productor/",
+      "https://triunfoseguros.com/",
+      "https://triunfoseguros.com/comunidad-triunfo/productor/",
+      "https://triunfoseguros.com/comunidad-triunfo/productor/",
+      "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/folletos-y-manuales/",
+      "https://triunfoseguros.com/wp-content/uploads/anti-fraude.pdf",
+      "https://triunfoseguros.com/atencion-al-cliente/solicitud-de-rescision",
+      "https://triunfoseguros.com/servicio-de-atencion-al-asegurado"
+    ],
+    "logoSource": "https://triunfoseguros.com/wp-content/uploads/isologo-120x120-1.png"
+  },
+  {
+    "id": "atm",
+    "name": "ATM Seguros",
+    "source": "https://atmseguros.com.ar/",
+    "portal": "https://atmseguros.com.ar/",
+    "logo": "assets/companies/atm.webp",
+    "candidates": [
+      "https://atmseguros.com.ar/wp-content/uploads/2025/03/cropped-favicon-32x32.png",
+      "https://atmseguros.com.ar/wp-content/uploads/2025/03/cropped-favicon-192x192.png",
+      "https://atmseguros.com.ar/wp-content/uploads/2025/03/cropped-favicon-180x180.png",
+      "https://atmseguros.com.ar/wp-content/uploads/2024/10/atm-2-90x51.png"
+    ],
+    "links": [
+      "https://extranet.atmseguros.com.ar/",
+      "https://atmseguros.com.ar/",
+      "https://extranet.atmseguros.com.ar/",
+      "https://extranet.atmseguros.com.ar/",
+      "https://extranet.atmseguros.com.ar/ATM_COM_PROD/servlet/ar.com.glmsa.seguros.comercial.hlogin",
+      "https://extranet.atmseguros.com.ar/",
+      "https://extranet.atmseguros.com.ar/",
+      "https://atmseguros.com.ar/el-nino-y-el-riesgo-climatico-que-revisar-en-el-seguro-del-auto-antes-de-una-tormenta/",
+      "https://atmseguros.com.ar/el-nino-y-el-riesgo-climatico-que-revisar-en-el-seguro-del-auto-antes-de-una-tormenta/",
+      "https://atmseguros.com.ar/cuando-todo-se-automatiza-el-valor-esta-en-quien-sabe-acompanar/",
+      "https://atmseguros.com.ar/cuando-todo-se-automatiza-el-valor-esta-en-quien-sabe-acompanar/",
+      "https://atmseguros.com.ar/el-cinturon-de-seguridad-el-invento-de-mas-de-60-anos-que-sigue-salvando-mas-vidas-que-cualquier-tecnologia/",
+      "https://atmseguros.com.ar/el-cinturon-de-seguridad-el-invento-de-mas-de-60-anos-que-sigue-salvando-mas-vidas-que-cualquier-tecnologia/"
+    ]
+  },
+  {
+    "id": "lps",
+    "name": "La Perseverancia",
+    "source": "https://lps.com.ar/",
+    "portal": "https://lps.com.ar/",
+    "logo": "assets/companies/lps.svg",
+    "candidates": [
+      "https://www.lps.com.ar/wp-content/uploads/2019/08/LPS-Website-lps-iso.svg",
+      "https://lps.com.ar/wp-content/uploads/2020/02/cropped-LPS-Website-lps-iso-32x32.png",
+      "https://lps.com.ar/wp-content/uploads/2020/02/cropped-LPS-Website-lps-iso-192x192.png"
+    ],
+    "links": [
+      "https://lps.com.ar/",
+      "https://lps.com.ar/",
+      "https://intranet.lps.com.ar/",
+      "https://www.lps.com.ar/productos/responsabilidad-civil-profesional/",
+      "https://www.lps.com.ar/novedades/202306/administrar-tu-seguro-nunca-fue-tan-facil/",
+      "https://www.lps.com.ar/novedades/202210/lps-lanza-sus-seguros-sustentables/",
+      "https://intranet.lps.com.ar"
+    ]
+  }
+]
