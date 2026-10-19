@@ -2,7 +2,7 @@
 
 Demo navegable centrada en la operación cotidiana del productor asesor de seguros. El punto de partida es el perfil de Daniel Stern, organización Turi, con 230 pólizas ficticias. Prioriza alertas, cartera, siniestros, administración y oportunidades comerciales.
 
-Demo privada: https://turi-gestion-demo.mb1312.chatgpt.site
+Demo con acceso por enlace: https://turi-gestion-demo.mb1312.chatgpt.site
 
 Acceso de muestra: **Dani / 1234**. Es una selección de recorrido en el navegador, no autenticación segura. No ingresar datos reales.
 
@@ -59,7 +59,7 @@ Para pruebas: instalar dependencias de desarrollo con `pnpm install`, luego `pnp
 
 Se verificaron los recorridos en JSDOM, la integridad de la fixture SQLite, los recursos locales y la generación del PDF. El PDF se abrió y renderizó para comprobar su marca de agua. La revisión visual del sitio en un navegador completo está pendiente: el entorno de construcción no dispone del controlador de navegador requerido.
 
-La publicación privada se gestiona con Sites sobre Cloudflare. El código para revisión se guarda en la rama `demo/turi-gestion` de `mberchillc/CatchDog`, bajo `projects/turi-gestion`. El `main` de CatchDog no se modifica.
+La publicación se gestiona con Sites sobre Cloudflare. El enlace abre sin cuenta de ChatGPT. El usuario Dani y la clave 1234 son parte del recorrido de muestra; no constituyen autenticación segura. El código para revisión se guarda en la rama `demo/turi-gestion` de `mberchillc/CatchDog`, bajo `projects/turi-gestion`. El `main` de CatchDog no se modifica.
 
 ## Fuentes de producto y diseño
 
