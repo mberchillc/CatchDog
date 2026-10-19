@@ -28,7 +28,8 @@ Acceso de muestra: **Dani / 1234**. Es una selección de recorrido en el navegad
 | Cartera | 230 pólizas, 230 clientes ficticios, búsqueda, filtros, fichas y exportación. |
 | Alertas | Siete avisos iniciales de muestra, fechas, prioridad, resolución, posposición e historial local. |
 | Siniestros | Cinco casos; contador desde el último avance, actualización de estado, notas y próximo paso. |
-| Cotización | URL propia del sitio, datos mínimos, ramas por seguro, ejemplos ficticios y derivación experta. |
+| Cotización | URL propia, datos mínimos y ejemplos ficticios. Años de auto de 2026 a 2000; “Modelo anterior” deriva a evaluación especial sin tarifa automática. |
+| Atención humana | Todos los botones de ayuda abren WhatsApp web o app en +54 9 11 3021-6824. El usuario envía su mensaje desde WhatsApp. |
 | Solicitud | Crea oportunidad, borrador y alerta del PAS en el mismo navegador. No notifica por correo. |
 | PDF | Documento ilustrativo con marca de agua y aviso de cobertura no emitida. No es una póliza. |
 | Revisión | Checklist e intención de la solicitud; aprobación simulada del propio PAS, sin emisión. |
@@ -57,7 +58,7 @@ La base relacional es una fixture validada. El sitio de esta versión usa datos 
 
 Para pruebas: instalar dependencias de desarrollo con `pnpm install`, luego `pnpm test` y `pnpm check`. Para servir el sitio en un entorno local, usar `dist` como raíz estática. No se requiere build del frontend.
 
-Se verificaron los recorridos en JSDOM, la integridad de la fixture SQLite, los recursos locales y la generación del PDF. El PDF se abrió y renderizó para comprobar su marca de agua. La revisión visual del sitio en un navegador completo está pendiente: el entorno de construcción no dispone del controlador de navegador requerido.
+Se verificaron los recorridos en JSDOM, la integridad de la fixture SQLite, los recursos locales y la generación del PDF. El PDF se abrió y renderizó para comprobar su marca de agua. La revisión visual completa está pendiente. Para estos ajustes se aprobaron 70 verificaciones de DOM y comportamiento; la vista previa no pudo iniciarse por una restricción del contenedor.
 
 La publicación se gestiona con Sites sobre Cloudflare. El enlace abre sin cuenta de ChatGPT. El usuario Dani y la clave 1234 son parte del recorrido de muestra; no constituyen autenticación segura. El código para revisión se guarda en la rama `demo/turi-gestion` de `mberchillc/CatchDog`, bajo `projects/turi-gestion`. El `main` de CatchDog no se modifica.
 
