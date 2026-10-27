@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CatchDog — Projects</title>
-<meta name="description" content="Selected CatchDog projects, including MIArgentina: an AI-first rebrand, website and automated content system delivered as one connected process.">
+<meta name="description" content="Selected CatchDog projects: Turi Gestión insurance producer platform, MIArgentina, Yanina Trainer, SmileAccess and Tech & Society.">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +74,17 @@
   footer { max-width: 1120px; margin: 0 auto; padding: 0 2.5rem 2.5rem; color: rgba(255,255,0.28); font-size: 12px; }
   @media (max-width: 820px) { nav { padding: 1rem 1.2rem; } .nav-links a:not(.nav-cta) { display: none; } main { padding: 3.5rem 1.2rem; } .grid { grid-template-columns: 1fr; } .project-card { min-height: auto; } .project-card.featured { grid-column: auto; display: flex; } .featured .project-visual { min-height: auto; border-right: 0; border-bottom: 1px solid var(--border); } .featured .project-body { padding: 28px; } .system-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .featured .project-visual { padding: 16px; } .delivery-system { padding: 18px; } .system-head img { width: 125px; } .system-flow { grid-template-columns: 1fr 1fr; } }
+
+  .turi-project { grid-column: 1 / -1; display:grid; grid-template-columns:1.12fr 1fr; min-height:600px; }
+  .turi-project .turi-visual { min-height:600px; background:radial-gradient(circle at 85% 10%,rgba(75,175,225,.22),transparent 55%),#17252f; display:flex; align-items:center; padding:30px 25px 100px; overflow:hidden; }
+  .turi-screen { border:1px solid rgba(255,255,255,.24);border-radius:13px;overflow:hidden;box-shadow:0 20px 45px #0006;background:#efebe5; }
+  .turi-screen img { display:block;width:100%;height:auto; }
+  .primary-screen {width:100%;transform:rotate(-3deg);}
+  .secondary-screen {position:absolute;width:66%;right:18px;bottom:56px;transform:rotate(5deg);}
+  .turi-stage {position:absolute;bottom:18px;left:25px;font-size:10px;letter-spacing:.5px;color:#c7dce5;}
+  .turi-note {font-size:.78rem!important;opacity:.75;margin-top:18px;}
+  @media(max-width:820px){.turi-project{display:flex;grid-column:auto}.turi-project .turi-visual{min-height:440px}.turi-project .project-body{padding:28px}}
+
 </style>
 <link rel="stylesheet" href="/site-nav.css">
 <script defer src="/site-nav.js"></script>
@@ -119,6 +130,25 @@
         <p class="desc">That mindset turned rebranding, a new website and the weekly <em>Con Sabor Argentino</em> publishing workflow—with a visible automation dashboard—into a single delivery completed in less than half the time of a traditional website rebuild.</p>
         <div class="chips"><span class="chip">AI-first</span><span class="chip">Rebranding</span><span class="chip">UX/UI</span><span class="chip">HTML + CSS</span><span class="chip">Content automation</span><span class="chip">Operations dashboard</span></div>
         <div class="actions"><a class="btn btn-primary" href="https://miargentina.us/" target="_blank" rel="noopener noreferrer">Open live site</a></div>
+      </div>
+    </article>
+
+
+    <article class="project-card turi-project" id="turi-gestion">
+      <div class="project-visual turi-visual">
+        <div class="turi-screen primary-screen"><img src="assets/turi-dashboard.svg" alt="Turi Gestión dashboard mockup: policies, claims and daily priorities" loading="lazy" width="1200" height="780"></div>
+        <div class="turi-screen secondary-screen"><img src="assets/turi-connections.svg" alt="Turi Gestión private workspace mockup: protected producer codes and connection status" loading="lazy" width="1200" height="780"></div>
+        <span class="turi-stage">Product in development · illustrative mockups</span>
+      </div>
+      <div class="project-body">
+        <div class="tagline">Insurtech · producer operations platform</div>
+        <h2>TURI Gestión: put the insurance producer first</h2>
+        <p class="desc">Built with an Argentine insurance team around a simple insight: the producer's daily work deserves better tools. Turi Gestión brings policies, claims, renewals, administration and sales into one clear workspace, with expert attention always within reach.</p>
+        <p class="desc">CatchDog connects product strategy, Turi's visual identity, UX/UI, a navigable demo and the first private pilot. Personal accounts, two-step verification and protected PAS codes prepare the next stage: validating each insurer connection and a traceable quotation workflow.</p>
+        <p class="mindset">One producer. One workspace. Technology with responsible human expertise.</p>
+        <div class="chips"><span class="chip">Product strategy</span><span class="chip">UX/UI</span><span class="chip">Producer dashboard</span><span class="chip">Claims workflow</span><span class="chip">Secure pilot</span><span class="chip">AI assistance roadmap</span></div>
+        <p class="desc turi-note">The public demo uses fictional data. Live insurer integrations and the full MVP are in development; saving a PAS code does not activate a quotation API.</p>
+        <div class="actions"><a class="btn btn-primary" href="https://turi-gestion-demo.mb1312.chatgpt.site/" target="_blank" rel="noopener noreferrer">Explore the demo</a></div>
       </div>
     </article>
 
