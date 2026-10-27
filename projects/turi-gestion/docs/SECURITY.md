@@ -8,7 +8,13 @@ No se utilizan las credenciales Dani/1234 de la maqueta para datos reales. Cada 
 
 Las contraseñas se procesan con HMAC y un pepper separado de la base, seguido de scrypt N=16384, r=8, p=5, sal aleatoria y 32 bytes de resultado. Es una de las configuraciones equivalentes publicadas por OWASP; permite limitar el uso de memoria en Workers. Las contraseñas no se cifran para su posterior lectura.
 
-Segundo factor TOTP de 6 dígitos, período de 30 segundos y ventana ±1. Se bloquea la reutilización del mismo intervalo. Ocho códigos de recuperación de un uso; se muestran una vez y se guardan como hashes. El secreto de TOTP se cifra, separado lógicamente de los accesos de compañías.
+Por pedido de Mauro, el ingreso utiliza usuario, contraseña y un código personal fijo de ocho dígitos, generado por Turi y confirmado en la misma pantalla. No requiere una app de autenticación. El código se guarda como HMAC con pepper y alcance por usuario, no en texto ni como secreto recuperable. Este esquema combina secretos de conocimiento; no se presenta como MFA. El código se puede reutilizar en los siguientes ingresos hasta una recuperación o reemplazo autorizado.
+
+Las cuentas ya creadas conservan su contraseña y completan el nuevo paso en una sesión validada con ella. Los endpoints antiguos de TOTP se retiran; al confirmar el nuevo código se vacían el secreto y los códigos de recuperación antiguos. La operación invalida sesiones anteriores.
+
+Recuperación por correo: primero se confirma un correo desde la sesión del titular. Los códigos enviados son aleatorios de seis dígitos, vencen a los 10 minutos, permiten como máximo cinco intentos y se consumen una sola vez. Se almacenan mediante HMAC; el destino se cifra en el desafío. La recuperación exige usuario y correo confirmado, permite definir una nueva contraseña y genera un nuevo código personal. Revoca las sesiones existentes. Un correo sin confirmar no permite recuperar una cuenta.
+
+El proveedor implementado es Resend mediante HTTPS. Se necesita configurar un remitente verificado y su API key como secretos de producción (`TURI_MAIL_FROM`, `RESEND_API_KEY`). **Ese envío real aún no está configurado.** La UI no ofrece falsas confirmaciones: el inicio de recuperación indica que el servicio no está habilitado. Las pruebas de entrega utilizan un proveedor simulado, sin enviar correos reales.
 
 Sesiones opacas de una hora como máximo y 15 minutos de inactividad; la sesión de configuración vence en 10 minutos. Cookie __Host-, HttpOnly, Secure y SameSite=Strict. CSRF y origen se validan en cada escritura. Límite de intentos por usuario/IP. Cada petición consulta el estado de la sesión en el servidor; la revocación del superadministrador es efectiva en la siguiente petición.
 
@@ -34,7 +40,7 @@ El espacio privado tiene CSP, no-referrer, bloqueo de iframes y respuestas de AP
 - Verificar retención y acceso a Time Travel de D1 en el entorno concreto. No se da por contratado un plazo por la documentación pública.
 - Probar una restauración en una base separada, con sus claves, y registrar fecha/resultado antes del 11/11. Nunca restaurar directamente sobre la base activa durante una prueba.
 - Invalidar sesiones después de un incidente o recuperación; reconciliar tareas externas antes de reanudarlas.
-- El olvido de contraseña todavía requiere un procedimiento de recuperación verificado; debe quedar implementado y probado antes del cierre del MVP. Los códigos de recuperación actuales sustituyen el segundo factor, no la contraseña.
+- Habilitar el servicio de correo, confirmar los destinatarios y probar entrega real antes de considerar disponible la recuperación. Un código fijo personal no es un código TOTP ni un segundo factor independiente.
 - Definir retención de auditoría y limpieza de límites temporales. Rotar llaves con migración versionada; no reemplazar una llave activa sin un plan de recifrado.
 - Revisión independiente de seguridad antes de exponer más usuarios, claves de compañía, documentos reales o decisiones automatizadas.
 

@@ -8,6 +8,13 @@
       "when": 1793102240521,
       "tag": "0000_motionless_betty_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793104615500,
+      "tag": "0001_funny_ironclad",
+      "breakpoints": true
     }
   ]
 }

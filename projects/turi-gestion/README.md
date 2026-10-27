@@ -8,9 +8,11 @@ Acceso de muestra: **Dani / 1234**. Es una selección de recorrido en el navegad
 
 ## Piloto privado · implementación del 27/10
 
-El acceso real se abre en `/privado/`. Hay dos roles: `dani` (productor) y `mauro` (superadministrador). Cada uno usa un enlace personal de activación, define una contraseña de 14 caracteres o más y configura TOTP. No se comparte la clave de la demo.
+El acceso real se abre en `/privado/`. Hay dos roles: `dani` (productor) y `mauro` (superadministrador). Cada uno usa un enlace personal de activación, define una contraseña de 14 caracteres o más y confirma el código personal de ocho dígitos generado por Turi. No se comparte la clave de la demo.
 
-Esta primera entrega implementa cuentas, sesiones, MFA, auditoría y hasta 10 códigos PAS cifrados por productor en D1. La cotización real, cartera sincronizada y documentos privados siguen el calendario de [ROADMAP](docs/ROADMAP.md). El registro de un código no implica integración con una aseguradora. La carga de contraseñas de portal y tokens está deshabilitada hasta validar cada conexión.
+Esta primera entrega implementa cuentas, sesiones, código personal, auditoría y hasta 10 códigos PAS cifrados por productor en D1. La cotización real, cartera sincronizada y documentos privados siguen el calendario de [ROADMAP](docs/ROADMAP.md). El registro de un código no implica integración con una aseguradora. La carga de contraseñas de portal y tokens está deshabilitada hasta validar cada conexión.
+
+La recuperación por correo tiene un circuito de confirmación y códigos de un uso. El envío real queda pendiente de configurar `RESEND_API_KEY` y `TURI_MAIL_FROM`; sin ellos la interfaz informa que todavía no está habilitado y no afirma haber enviado correos.
 
 Controles y límites: [SECURITY](docs/SECURITY.md). Variables secretas: ver `.env.example`; nunca guardar sus valores en este repositorio.
 
