@@ -37,9 +37,17 @@ La cuenta privada ya abre el tablero de trabajo, con navegación propia y datos 
 
 Mi día consolida pendientes, seguimientos de siniestros, pagos registrados y próximos vencimientos. Compañías permite relevar permiso, canal, documentación y avance técnico sin confundirlo con un conector habilitado. El PAS puede registrar la revisión de una propuesta vigente, sin emisión de cobertura.
 
-Esto adelanta la base de cartera y la ruta asistida previstas para el 04–08/11. Siguen pendientes: importación de cartera, formulario público conectado al PAS, archivos privados, notificaciones reales, servicio transaccional de correo, respaldo con restauración probada y los primeros conectores autorizados. La administración de esta etapa organiza tareas; no liquida comisiones ni presenta impuestos. La rama IA y marketing automatizado continúa después de validar la operación básica.
+Esto adelanta la base de cartera y la ruta asistida previstas para el 04–08/11. Siguen pendientes: importación de cartera, formulario público conectado al PAS, notificaciones reales, servicio transaccional de correo, respaldo con restauración probada y los primeros conectores autorizados. La administración de esta etapa organiza tareas; no liquida comisiones ni presenta impuestos. La rama IA y marketing automatizado continúa después de validar la operación básica.
 
-Siguiente trabajo: Dani registra las primeras compañías y aporta un caso anonimizado de renovación/cotización. Con ese caso se valida el recorrido asistido, se definen los campos del formulario público y se prepara la importación de su cartera. Antes del 03/11 debemos tener elegidas dos compañías, un ramo y el canal autorizado para probar.
+Siguiente trabajo: Dani registra las primeras compañías y aporta un caso anonimizado de renovación/cotización. Con ese caso se valida el recorrido asistido, se definen los campos del formulario público y se prepara la importación de su cartera. Tras el módulo documental se ajusta el cotizador para explorar por compañía y cobertura, según el pedido de Dani y la referencia PASAP. Antes del 03/11 debemos tener elegidas dos compañías, un ramo y el canal autorizado para probar.
+
+## Documentos incorporados el 27/10
+
+Documentos permite cargar y recuperar PDF y fotos, con cliente obligatorio y vínculos opcionales a póliza y siniestro. Cada PAS opera su propio espacio; el Superadministrador supervisa su organización. R2 conserva el original cifrado y D1 las relaciones y metadatos cifrados. Hay descarga, vista previa para JPG/PNG/WebP, edición de datos y papelera recuperable. HEIC/HEIF se guardan y descargan sin transformación.
+
+Límites iniciales: 10 MB por archivo, hasta 20 en cada carga y 1 GB / 1.000 archivos por cuenta, incluyendo papelera. Las pruebas verifican originales idénticos, aislamiento, carga múltiple, integridad, versiones, cuotas, concurrencia, fallos parciales y revocación de sesión durante una transferencia. Sigue pendiente la restauración de backup con objetos, base y claves, además del chat y lectura por IA.
+
+El próximo cambio del cotizador incorpora una etapa de exploración por cobertura y por compañía antes de comparar. No se limita la oferta a tres resultados. Ver [definición de exploración](QUOTE_EXPLORATION.md). La implementación de este ajuste queda después de documentos; las condiciones reales dependen de cada canal validado.
 
 ## Decisión obligatoria del 3 de noviembre
 

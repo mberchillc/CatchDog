@@ -1,6 +1,7 @@
 import { opaque,digest,equal,passwordHash,passwordValid,seal,unseal,personalCode,emailCode,normalizeCode,codeHash,NOW } from './security.js';
 import { mailReady,deliverCode } from './mail.js';
 import { workspaceApi } from './workspace.js';
+import { documentsApi,filesReady } from './documents.js';
 const COOKIE='__Host-turi_session';
 const SESSION_MS=60*60*1000,IDLE_MS=15*60*1000;
 export class HttpError extends Error{constructor(status,code,message){super(message);this.status=status;this.code=code}}
@@ -26,7 +27,7 @@ async function checkChallenge(env,id,code,kind,userId=null){const c=await stmt(e
 async function claimChallenge(env,c,updates){const claim=opaque(24);const gates=updates(claim);const result=await env.DB.batch([stmt(env,'UPDATE pilot_auth_challenges SET used_at=?,claim_token=? WHERE id=? AND used_at IS NULL AND expires_at>? AND sent_at IS NOT NULL',NOW(),claim,c.id,NOW()),...gates]);if(result[0].meta.changes!==1||result[1].meta.changes!==1)fail(400,'CODE_INVALID','El código no es válido o ya fue utilizado.');}
 export async function api(req,env,companies){
  const path=new URL(req.url).pathname;
- if(path==='/api/pilot/status'&&req.method==='GET')return json({stage:'workspace',accounts:ready(env)?'configured':'not_configured',accessMode:'personal_code',emailRecoveryAvailable:mailReady(env),connectionLimit:10,automaticQuotes:false,deadline:'2026-11-13'});
+ if(path==='/api/pilot/status'&&req.method==='GET')return json({stage:'workspace',accounts:ready(env)?'configured':'not_configured',accessMode:'personal_code',emailRecoveryAvailable:mailReady(env),fileStorageAvailable:filesReady(env),connectionLimit:10,automaticQuotes:false,deadline:'2026-11-13'});
  if(!ready(env))fail(503,'NOT_CONFIGURED','El espacio privado todavía no está habilitado.');
  if(!['GET','POST','DELETE'].includes(req.method))fail(405,'METHOD','Operación no disponible.');
  if(req.method!=='GET'&&req.headers.get('origin')!==new URL(req.url).origin)fail(403,'ORIGIN','Abrí el formulario desde Turi Gestión.');
@@ -65,6 +66,7 @@ export async function api(req,env,companies){
   const gate='EXISTS (SELECT 1 FROM pilot_auth_challenges WHERE id=? AND claim_token=?)';await claimChallenge(env,c,claim=>[stmt(env,'UPDATE pilot_users SET password_hash=?,access_code_hash=NULL,pending_code_hash=NULL,pending_code_ciphertext=NULL,pending_code_expires_at=NULL,mfa_secret=?,mfa_enabled=0,recovery_hashes=? WHERE id=? AND '+gate,hash,'','[]',u.id,c.id,claim),stmt(env,'DELETE FROM pilot_sessions WHERE user_id=? AND '+gate,u.id,c.id,claim)]);await audit(env,u,'auth.recovered_by_email');const s=await session(env,{id:u.id},false);const updated=await first(env,'SELECT * FROM pilot_users WHERE id=?',u.id);return json({user:userView(updated),csrf:s.csrf,requiresCodeSetup:true},200,{'Set-Cookie':cookie(s.token,600)});
  }
  const u=await current(req,env);
+ if(path==='/api/pilot/documents'||path.startsWith('/api/pilot/documents/'))return documentsApi(req,env,u,{json,fail,stmt,first,all,run,audit,body,rate,current});
  if(path.startsWith('/api/pilot/work/'))return workspaceApi(req,env,u,companies,{json,fail,stmt,first,all,run,audit,body,rate});
  if(path==='/api/pilot/auth/email/start'&&req.method==='POST'){
   if(!mailReady(env))fail(503,'EMAIL_NOT_CONFIGURED','La recuperación por correo todavía no está habilitada.');const b=await body(req),email=normalizeEmail(b.email);if(!email)fail(400,'EMAIL_INVALID','Revisá el correo electrónico.');await rate(env,'email-verify:'+u.id,3,3600000);const id=await newChallenge(env,u,'verify_email',email);return json({challengeId:id,message:'Enviamos un código para confirmar tu correo.'});

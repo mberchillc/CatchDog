@@ -22,3 +22,7 @@ export const personalCode=()=>String(randomInt(0,100000000)).padStart(8,'0');
 export const emailCode=()=>String(randomInt(0,1000000)).padStart(6,'0');
 export const normalizeCode=v=>String(v??'').replace(/[\s-]/g,'');
 export const codeHash=(env,scope,code)=>createHmac('sha256',env.TURI_AUTH_PEPPER).update(scope+'|'+code).digest('hex');
+
+// Binary originals are encrypted separately from their private metadata.
+export async function sealFile(env,bytes,aad){const key=await crypto.subtle.importKey('raw',Buffer.from(env.TURI_VAULT_KEY,'base64'),'AES-GCM',false,['encrypt']);const iv=randomBytes(12);const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:enc.encode(aad)},key,bytes));const out=new Uint8Array(17+cipher.length);out.set([84,85,82,73,1]);out.set(iv,5);out.set(cipher,17);return out;}
+export async function unsealFile(env,bytes,aad){const b=new Uint8Array(bytes);if(b.length<33||b[0]!==84||b[1]!==85||b[2]!==82||b[3]!==73||b[4]!==1)throw new Error('FILE_ENCRYPTION_VERSION');const key=await crypto.subtle.importKey('raw',Buffer.from(env.TURI_VAULT_KEY,'base64'),'AES-GCM',false,['decrypt']);return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b.subarray(5,17),additionalData:enc.encode(aad)},key,b.subarray(17)));}

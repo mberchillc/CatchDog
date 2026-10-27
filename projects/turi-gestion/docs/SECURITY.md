@@ -44,13 +44,27 @@ Las modificaciones requieren la versión esperada. Solicitudes y propuestas cerr
 
 El relevamiento de una compañía separa permiso, canal y avance técnico. No permite declarar una integración automática como conectada. Si cambia la versión del código PAS, el relevamiento se muestra pendiente de revisar. Sus notas y el enlace de documentación se cifran; no deben contener contraseñas ni tokens.
 
-La primera versión admite hasta 500 registros por sección y organización, con capacidad comprobada en la inserción. No incluye adjuntos, exportaciones ni importación masiva de registros privados. No hay enlace público que pueda escribir en una cartera privada. Las fechas del tablero derivan de registros internos; no se han conectado avisos de aseguradoras.
+La primera versión admite hasta 500 registros por sección y organización, con capacidad comprobada en la inserción. No incluye exportaciones ni importación masiva de registros privados. Los documentos se gestionan en el módulo privado descrito debajo. No hay enlace público que pueda escribir en una cartera privada. Las fechas del tablero derivan de registros internos; no se han conectado avisos de aseguradoras.
+
+## PDF y fotos privados
+
+El original se cifra con AES-256-GCM antes de guardarse en R2, con nonce aleatorio y autenticación de organización, propietario e ID. El blob binario tiene una cabecera de versión; el tamaño y SHA-256 del original se verifican al recibirlo y al devolverlo. Nombre, descripción, categoría, notas y checksum van en metadatos cifrados en D1. Las claves físicas son aleatorias y no incluyen nombres o códigos PAS. No existe una URL pública ni un endpoint de bucket accesible desde el navegador.
+
+Lecturas, vistas previas y escrituras requieren sesión completa. El PAS sólo opera sobre sus archivos; el Superadministrador opera dentro de su organización. Cada relación comprueba cliente, póliza y siniestro de la misma cuenta. Se revalida la sesión y el expediente después de leer una carga, antes de confirmarla. No se aceptan credenciales o cambio de propietario desde el formulario. CSRF y origen se verifican también para el cuerpo binario.
+
+Se permite PDF, JPEG, PNG, WebP y HEIC/HEIF, con extensión y firma básica concordantes. El lector del cuerpo aplica un límite de 10 MB sin confiar en Content-Length. Se compara el hash declarado con los bytes recibidos. Los PDFs se descargan con Content-Disposition attachment; la vista previa sólo permite JPEG/PNG/WebP. Descargas y APIs llevan no-store y nosniff. La imagen de vista previa se conserva sólo en memoria del navegador y su URL temporal se revoca al cerrar.
+
+Cada cuenta dispone de 1 GB y 1.000 archivos, incluyendo papelera y reservas activas. La capacidad se verifica dentro de la escritura SQL; sólo se admite una transferencia activa por cuenta y dos en todo el piloto para acotar memoria del Worker. Las reservas vencen a los 15 minutos. La confirmación de D1 y auditoría es atómica; si un intento falla, se libera la reserva y se intenta quitar su blob. Una confirmación perdida se reconcilia antes de borrar para preservar un archivo ya confirmado. Un intento vencido no puede sobrescribir o eliminar el que lo reemplaza.
+
+La papelera es reversible e impide la descarga hasta restaurar. No hay borrado definitivo, purga ni retención automática todavía. Nombres y contenidos no van a auditoría ni a registros de errores; sólo actor, acción, ID y fecha. Las pruebas de almacenamiento usan un bucket simulado, incluyendo errores de escritura, alteraciones y confirmaciones perdidas. No se han conectado antivirus, OCR ni un proveedor de IA. La validación de firma no sustituye un análisis antimalware.
+
+R2 conserva originales, pero no se da por probada una estrategia independiente de backup. La prueba de recuperación del MVP debe incluir D1, objetos y las claves que permiten descifrarlos; restaurar sólo la base deja archivos inaccesibles. Definir retención, purga y reconciliación de reservas/blobs antes de ampliar el piloto.
 
 ## Recuperación y operación antes de ampliar el piloto
 
-- Definir con Mauro la custodia y recuperación de TURI_VAULT_KEY y TURI_AUTH_PEPPER. Sin la llave no se recuperan códigos cifrados. La copia de base por sí sola no alcanza.
+- Definir con Mauro la custodia y recuperación de TURI_VAULT_KEY y TURI_AUTH_PEPPER. Sin la llave no se recuperan códigos, registros ni archivos cifrados. La copia de base por sí sola no alcanza.
 - Verificar retención y acceso a Time Travel de D1 en el entorno concreto. No se da por contratado un plazo por la documentación pública.
-- Probar una restauración en una base separada, con sus claves, y registrar fecha/resultado antes del 11/11. Nunca restaurar directamente sobre la base activa durante una prueba.
+- Probar una restauración en una base separada, con sus claves y objetos, y registrar fecha/resultado antes del 11/11. Nunca restaurar directamente sobre la base activa durante una prueba.
 - Invalidar sesiones después de un incidente o recuperación; reconciliar tareas externas antes de reanudarlas.
 - Habilitar el servicio de correo, confirmar los destinatarios y probar entrega real antes de considerar disponible la recuperación. Un código fijo personal no es un código TOTP ni un segundo factor independiente.
 - Definir retención de auditoría y limpieza de límites temporales. Rotar llaves con migración versionada; no reemplazar una llave activa sin un plan de recifrado.
@@ -62,4 +76,6 @@ La primera versión admite hasta 500 registros por sección y organización, con
 - OWASP Cryptographic Storage Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html
 - Cloudflare Workers crypto: https://developers.cloudflare.com/workers/runtime-apis/nodejs/crypto/
 - D1: https://developers.cloudflare.com/d1/worker-api/d1-database/
+- OWASP File Upload: https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html
+- Cloudflare R2 Workers API: https://developers.cloudflare.com/r2/api/workers/workers-api-reference/
 - D1 Time Travel: https://developers.cloudflare.com/d1/reference/time-travel/
