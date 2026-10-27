@@ -1,0 +1,1 @@
+ALTER TABLE `pilot_users` ADD `pending_code_ciphertext` text;
