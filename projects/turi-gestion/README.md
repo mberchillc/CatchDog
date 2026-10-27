@@ -10,13 +10,32 @@ Acceso de muestra: **Dani / 1234**. Es una selección de recorrido en el navegad
 
 El acceso real se abre en `/privado/`. Hay dos roles: `dani` (productor) y `mauro` (superadministrador). Cada uno usa un enlace personal de activación, define una contraseña de 14 caracteres o más y confirma el código personal de ocho dígitos generado por Turi. No se comparte la clave de la demo.
 
-Esta primera entrega implementa cuentas, sesiones, código personal, auditoría y hasta 10 códigos PAS cifrados por productor en D1. La cotización real, cartera sincronizada y documentos privados siguen el calendario de [ROADMAP](docs/ROADMAP.md). El registro de un código no implica integración con una aseguradora. La carga de contraseñas de portal y tokens está deshabilitada hasta validar cada conexión.
+El espacio privado abre directamente un entorno operativo con navegación propia: Mi día, Clientes, Pólizas, Siniestros, Cotizaciones, Agenda y administración, Compañías, Productores (superadmin) y Actividad. Las altas y modificaciones se guardan en D1, con atribución al titular de la cartera. Empieza vacío; no importa las 230 pólizas ficticias de la demo.
+
+Ya permite registrar clientes y consentimiento comercial, pólizas existentes, expedientes de siniestro con próximo paso, tareas por área, pedidos de cotización y propuestas recibidas de compañías. Mi día consolida tareas, seguimientos de siniestros, pagos pendientes registrados y próximos vencimientos. No recibe todavía comunicaciones push de aseguradoras.
+
+Las propuestas se comparan con moneda, importe, período, cobertura, franquicia, fuente y vigencia. Sólo el productor titular puede aprobar la revisión de una propuesta vigente; esa aprobación no emite una póliza ni otorga cobertura. El superadministrador puede operar y supervisar registros de la organización, filtrar por cuenta y cargar gestiones atribuidas a un productor activo, sin leer sus códigos PAS.
+
+Compañías conserva hasta 10 códigos PAS cifrados por productor y agrega relevamiento de permiso, canal, documentación y avance técnico. Reemplazar un código deja su relevamiento pendiente de revisión. Ninguna ficha puede declarar un conector operativo sólo por guardar datos. Las APIs, adjuntos privados y el formulario público conectado siguen el calendario de [ROADMAP](docs/ROADMAP.md). La carga de contraseñas de portal y tokens está deshabilitada hasta validar cada conexión.
 
 La recuperación por correo tiene un circuito de confirmación y códigos de un uso. El envío real queda pendiente de configurar `RESEND_API_KEY` y `TURI_MAIL_FROM`; sin ellos la interfaz informa que todavía no está habilitado y no afirma haber enviado correos.
 
 Controles y límites: [SECURITY](docs/SECURITY.md). Variables secretas: ver `.env.example`; nunca guardar sus valores en este repositorio.
 
-## Recorrido de revisión
+## Revisión del espacio privado
+
+1. Ingresar en `/privado/` con la cuenta propia. Se conserva usuario, contraseña y código personal sin vencimiento.
+2. Crear un cliente desde Mi día. El superadministrador elige la cuenta responsable; por defecto usa su propio espacio.
+3. Registrar una póliza existente para ese cliente, o crear una tarea con fecha y prioridad.
+4. Abrir un siniestro vinculado a la póliza y registrar el próximo seguimiento.
+5. Crear una solicitud de cotización; abrir su expediente y cargar propuestas transcritas de una fuente verificable. Comparar condiciones y periodicidad del importe.
+6. Desde la cuenta del PAS titular, revisar una propuesta vigente y registrar su aprobación. La emisión se completa fuera de este piloto en la compañía.
+7. Dani registra sus códigos en Compañías; ambos pueden relevar el permiso y los próximos pasos de la integración. El administrador supervisa sin revelar códigos.
+8. Recargar o ingresar desde otra computadora para recuperar los registros del servidor. Actividad conserva actor, fecha e identificador sin contenido de formularios.
+
+Límite inicial: 500 registros por sección y organización. No hay importación masiva, archivos adjuntos ni integración contable/fiscal todavía. Agenda permite seguir tareas administrativas; no liquida comisiones ni presenta impuestos.
+
+## Recorrido de revisión de la demo pública
 
 1. Elegir **Soy productor** e ingresar con Dani / 1234.
 2. En **Mi día**, abrir una alerta, ver su fuente, preparar un mensaje, posponerla o marcarla resuelta.
@@ -54,7 +73,7 @@ La marca y la tipografía se basan en el sitio de Turi. El retrato fue suministr
 
 ## Estructura
 
-- `public/`: maqueta y frontend privado; `worker/`: backend de cuentas y conexiones. `dist/` es salida generada, no fuente.
+- `public/`: maqueta y frontend privado; `worker/`: backend de cuentas, conexiones y operación. `dist/` es salida generada, no fuente.
 - `docs/schema.sql`: modelo relacional inicial para productores, compañías, códigos propios, clientes, pólizas, alertas, siniestros y borradores.
 - `docs/seed.sql`: fixture SQLite completa con datos ficticios. Incluye el esquema; no ejecutar después de `schema.sql` en la misma base sin limpiar.
 - `scripts-data.py`: genera la fixture y el dataset del frontend.
@@ -62,13 +81,15 @@ La marca y la tipografía se basan en el sitio de Turi. El retrato fue suministr
 - `docs/ROADMAP.md`: etapas y criterios para pasar del prototipo al piloto.
 - `tests/demo.test.cjs`: pruebas de DOM y recorridos con JSDOM.
 
-La maqueta conserva su fixture en el navegador. El espacio privado utiliza tablas propias en D1 para cuentas, sesiones, conexiones y auditoría; no importa automáticamente la cartera ficticia.
+La maqueta conserva su fixture en el navegador. El espacio privado utiliza tablas propias en D1 para cuentas, sesiones, conexiones, auditoría, clientes, pólizas, siniestros, tareas, pedidos, propuestas y relevamientos; no importa automáticamente la cartera ficticia.
 
 ## Desarrollo y validación
 
-Para pruebas: `pnpm install`, `node scripts/build-worker.mjs`, `node tests/demo.test.cjs` y `node --test tests/security.test.mjs`. Para cambios de esquema: `node node_modules/drizzle-kit/bin.cjs generate`. El build incrusta los recursos de `public/` en el Worker y conserva la configuración de D1; las migraciones se publican con el flujo Sites.
+Para pruebas: `pnpm install`, `node scripts/build-worker.mjs`, `node tests/demo.test.cjs` y `node --test tests/security.test.mjs tests/workspace.test.mjs`. Para cambios de esquema: `node node_modules/drizzle-kit/bin.cjs generate`. El build incrusta los recursos de `public/` en el Worker y conserva la configuración de D1; las migraciones se publican con el flujo Sites.
 
-Se verificaron los recorridos en JSDOM, la integridad de la fixture SQLite, los recursos locales y la generación del PDF. El PDF se abrió y renderizó para comprobar su marca de agua. La revisión visual completa está pendiente. Para estos ajustes se aprobaron 70 verificaciones de DOM y comportamiento; la vista previa no pudo iniciarse por una restricción del contenedor.
+La demo conserva 70 verificaciones funcionales. El acceso y la operación privada pasan 25 escenarios de seguridad e integración con el Worker y migraciones reales en SQLite: permisos, cifrado, relaciones, versiones, CSRF, recuperación con correo simulado y recorridos de Superadministrador y PAS. El flujo del PAS cubre pedido → propuesta → aprobación sin emisión. El PDF ilustrativo de la demo ya fue renderizado para revisar su marca de agua.
+
+La interfaz privada se revisó visualmente en Chrome con vistas estáticas de QA, aisladas de la base de producción. Para repetir: `node scripts/build-worker.mjs`, `node tests/render-workspace.mjs`, luego `sites-preview start /workspace/sites/turi-gestion` en el entorno administrado. El adaptador `scripts/dev.mjs` sirve el mismo Worker con una base en memoria y cuentas ficticias locales; `/_visual/home` y las demás vistas de QA son estáticas. Ni las fixtures ni sus credenciales funcionan en producción. No se iniciaron sesiones con las contraseñas personales de Mauro o Dani.
 
 La publicación se gestiona con Sites sobre Cloudflare. El enlace abre sin cuenta de ChatGPT. El usuario Dani y la clave 1234 son parte del recorrido de muestra; no constituyen autenticación segura. El código para revisión se guarda en la rama `demo/turi-gestion` de `mberchillc/CatchDog`, bajo `projects/turi-gestion`. El `main` de CatchDog no se modifica.
 

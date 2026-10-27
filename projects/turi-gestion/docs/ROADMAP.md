@@ -31,6 +31,16 @@ Un piloto privado para Daniel: cuenta propia, código personal de acceso, hasta 
 - La carga de claves y tokens de portales queda bloqueada hasta validar cada conector y el flujo desplegado. En esta primera entrega se registran códigos PAS.
 - Caso Turi Gestión con mockups en Desarrollos de CatchDog, identificado como producto en desarrollo.
 
+## Entorno operativo incorporado el 27/10
+
+La cuenta privada ya abre el tablero de trabajo, con navegación propia y datos persistidos en D1. Clientes, pólizas existentes, siniestros, tareas, pedidos de cotización y propuestas recibidas pueden crearse y modificarse. Los datos personales, condiciones e importes se cifran. El Superadministrador supervisa la organización y conserva la atribución de cada cuenta; el PAS opera su propia cartera.
+
+Mi día consolida pendientes, seguimientos de siniestros, pagos registrados y próximos vencimientos. Compañías permite relevar permiso, canal, documentación y avance técnico sin confundirlo con un conector habilitado. El PAS puede registrar la revisión de una propuesta vigente, sin emisión de cobertura.
+
+Esto adelanta la base de cartera y la ruta asistida previstas para el 04–08/11. Siguen pendientes: importación de cartera, formulario público conectado al PAS, archivos privados, notificaciones reales, servicio transaccional de correo, respaldo con restauración probada y los primeros conectores autorizados. La administración de esta etapa organiza tareas; no liquida comisiones ni presenta impuestos. La rama IA y marketing automatizado continúa después de validar la operación básica.
+
+Siguiente trabajo: Dani registra las primeras compañías y aporta un caso anonimizado de renovación/cotización. Con ese caso se valida el recorrido asistido, se definen los campos del formulario público y se prepara la importación de su cartera. Antes del 03/11 debemos tener elegidas dos compañías, un ramo y el canal autorizado para probar.
+
 ## Decisión obligatoria del 3 de noviembre
 
 Para cada candidata necesitamos: compañía y ramo, titular del código, acceso vigente, canal técnico, documentación, permiso para integrar, datos requeridos y forma de probar. Si no hay acceso verificable, esa compañía no entra como cotizador automático en el MVP del 13/11. Su gestión queda asistida: registro del pedido, enlace al portal, propuesta adjunta, comparación y seguimiento. No se sortea un CAPTCHA ni se promete SSO a partir de un código PAS.

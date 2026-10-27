@@ -18,7 +18,7 @@ El proveedor implementado es Resend mediante HTTPS. Se necesita configurar un re
 
 Sesiones opacas de una hora como máximo y 15 minutos de inactividad; la sesión de configuración vence en 10 minutos. Cookie __Host-, HttpOnly, Secure y SameSite=Strict. CSRF y origen se validan en cada escritura. Límite de intentos por usuario/IP. Cada petición consulta el estado de la sesión en el servidor; la revocación del superadministrador es efectiva en la siguiente petición.
 
-El productor puede operar sólo sobre sus conexiones. El superadministrador supervisa metadatos y actividad de su organización, sin lectura de códigos ni credenciales. No hay endpoint de revelación ni exportación de secretos al navegador.
+El productor puede operar sólo sobre sus conexiones y registros de cartera. El superadministrador supervisa metadatos, actividad y registros operativos de su organización, y puede cargar gestiones para cuentas activas de ella. No puede leer códigos PAS ni credenciales. No hay endpoint de revelación ni exportación de secretos al navegador.
 
 ## Códigos y conexiones
 
@@ -32,7 +32,19 @@ La primera fase sólo admite códigos PAS. Contraseñas de portal y tokens perma
 
 La auditoría registra actor, acción, identificador y fecha. No incluye códigos, claves, contenido de formularios ni tokens de sesión. Los errores públicos son genéricos; no se imprimen cuerpos de solicitudes ni errores de base con parámetros. Los intentos se agrupan en claves hash temporales; no se conserva la IP en texto en esa tabla.
 
-El espacio privado tiene CSP, no-referrer, bloqueo de iframes y respuestas de API sin caché. Ninguna IA recibe códigos o credenciales. La demo pública contiene sólo los datos ficticios anteriores; la cartera real y documentos privados se incorporan en la siguiente fase con permisos de backend.
+El espacio privado tiene CSP, no-referrer, bloqueo de iframes y respuestas de API sin caché. Ninguna IA recibe códigos o credenciales. La demo pública conserva sólo sus datos ficticios; el espacio privado comienza sin ellos.
+
+## Registros operativos
+
+Clientes, pólizas, siniestros, tareas, solicitudes y propuestas incluyen organización y cuenta responsable. El servidor comprueba el propietario también al crear relaciones: un productor no puede vincular un cliente o una póliza ajenos, aunque conozca el ID. El superadministrador sólo opera dentro de su organización. La atribución de un registro existente no se puede cambiar desde el formulario o el API.
+
+Nombre, contacto, consentimiento, número de póliza, riesgo, importes, cobertura, franquicia, notas y referencias se cifran mediante AES-256-GCM. Cada payload se autentica con organización, propietario, tipo e ID del registro. Las respuestas sólo se descifran después de autorizar la consulta. Las claves siguen fuera de la base y del navegador.
+
+Las modificaciones requieren la versión esperada. Solicitudes y propuestas cerradas no se modifican. La aprobación exige que el actor sea el PAS titular, contacto del cliente, propuesta vigente y confirmación explícita. La escritura valida las versiones de solicitud y propuesta en la misma sentencia; no se acepta una aprobación sobre una propuesta cambiada. Registrar una revisión no emite ni confirma cobertura legal.
+
+El relevamiento de una compañía separa permiso, canal y avance técnico. No permite declarar una integración automática como conectada. Si cambia la versión del código PAS, el relevamiento se muestra pendiente de revisar. Sus notas y el enlace de documentación se cifran; no deben contener contraseñas ni tokens.
+
+La primera versión admite hasta 500 registros por sección y organización, con capacidad comprobada en la inserción. No incluye adjuntos, exportaciones ni importación masiva de registros privados. No hay enlace público que pueda escribir en una cartera privada. Las fechas del tablero derivan de registros internos; no se han conectado avisos de aseguradoras.
 
 ## Recuperación y operación antes de ampliar el piloto
 
