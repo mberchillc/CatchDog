@@ -20,6 +20,8 @@ Compañías conserva hasta 10 códigos PAS cifrados por productor y agrega relev
 
 La recuperación por correo tiene un circuito de confirmación y códigos de un uso. El envío real queda pendiente de configurar `RESEND_API_KEY` y `TURI_MAIL_FROM`; sin ellos la interfaz informa que todavía no está habilitado y no afirma haber enviado correos.
 
+Si el código ya fue confirmado, dejarlo vacío no lo vuelve a mostrar: el ingreso informa que es obligatorio. Mientras no haya correo transaccional, el propietario del sitio puede emitir fuera del sitio un enlace individual de recuperación, con token de un uso y contraseña actual. Reemplaza sólo el código, revoca sesiones anteriores y conserva contraseña y datos. El titular copia y confirma el nuevo código desde su navegador.
+
 Controles y límites: [SECURITY](docs/SECURITY.md). Variables secretas: ver `.env.example`; nunca guardar sus valores en este repositorio.
 
 ## Revisión del espacio privado
@@ -102,9 +104,9 @@ La maqueta conserva su fixture en el navegador. El espacio privado utiliza tabla
 
 ## Desarrollo y validación
 
-Para pruebas: `pnpm install`, `node scripts/build-worker.mjs`, `node tests/demo.test.cjs` y `node --test tests/security.test.mjs tests/workspace.test.mjs tests/documents.test.mjs`. Para cambios de esquema: `node node_modules/drizzle-kit/bin.cjs generate`. El build incrusta los recursos de `public/` en el Worker y conserva la configuración de D1; las migraciones se publican con el flujo Sites.
+Para pruebas: `pnpm install`, `node scripts/build-worker.mjs`, `node tests/demo.test.cjs` y `node --test tests/security.test.mjs tests/workspace.test.mjs tests/documents.test.mjs tests/recovery-link.test.mjs`. Para cambios de esquema: `node node_modules/drizzle-kit/bin.cjs generate`. El build incrusta los recursos de `public/` en el Worker y conserva la configuración de D1; las migraciones se publican con el flujo Sites.
 
-La demo conserva 70 verificaciones funcionales. El acceso y la operación privada pasan 41 escenarios de seguridad e integración con el Worker y migraciones reales en SQLite: permisos, cifrado, relaciones, versiones, CSRF, recuperación con correo simulado y recorridos de Superadministrador y PAS. El flujo del PAS cubre pedido → propuesta → aprobación sin emisión. Los archivos tienen 16 escenarios propios: aislamiento, original idéntico, formatos, integridad, cuotas, reintentos, cargas simultáneas, fallos de DB/R2, revocación durante transferencia y recorrido de interfaz. R2 se simula en las pruebas; la conexión de producción se verifica al desplegar. El PDF ilustrativo de la demo ya fue renderizado para revisar su marca de agua.
+La demo conserva 70 verificaciones funcionales. El acceso y la operación privada pasan 47 escenarios de seguridad e integración con el Worker y migraciones reales en SQLite: permisos, cifrado, relaciones, versiones, CSRF, recuperación con correo simulado y recorridos de Superadministrador y PAS. El flujo del PAS cubre pedido → propuesta → aprobación sin emisión. Los archivos tienen 16 escenarios propios: aislamiento, original idéntico, formatos, integridad, cuotas, reintentos, cargas simultáneas, fallos de DB/R2, revocación durante transferencia y recorrido de interfaz. R2 se simula en las pruebas; la conexión de producción se verifica al desplegar. El PDF ilustrativo de la demo ya fue renderizado para revisar su marca de agua.
 
 La interfaz privada se revisó visualmente en Chrome con vistas estáticas de QA, aisladas de la base de producción. Para repetir: `node scripts/build-worker.mjs`, `node tests/render-workspace.mjs`, luego `sites-preview start /workspace/sites/turi-gestion` en el entorno administrado. El adaptador `scripts/dev.mjs` sirve el mismo Worker con una base y bucket en memoria y cuentas ficticias locales; `/_visual/home` y las demás vistas de QA son estáticas. Ni las fixtures ni sus credenciales funcionan en producción. No se iniciaron sesiones con las contraseñas personales de Mauro o Dani.
 

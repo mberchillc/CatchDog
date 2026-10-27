@@ -42,10 +42,29 @@ export async function api(req,env,companies){
  if(path==='/api/pilot/auth/login'&&req.method==='POST'){
   const b=await body(req),username=clean(b.username,40).toLowerCase();await rate(env,'login-ip:'+ip,30);await rate(env,'login-user:'+username,8);
   const u=await first(env,'SELECT * FROM pilot_users WHERE username=?',username);const dummy='scrypt$16384$8$5$0000000000000000000000$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';const valid=passwordValid(b.password,u?.password_hash||dummy,env.TURI_AUTH_PEPPER);const code=normalizeCode(b.code);
-  if(!u||!valid||u.disabled||(u.access_code_hash&&(!/^\d{8}$/.test(code)||!equal(u.access_code_hash,codeHash(env,'access:'+u.id,code)))))fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
+  if(!u||!valid||u.disabled)fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
+  if(u.access_code_hash&&!code)fail(401,'CODE_REQUIRED','Tu usuario y contraseña son correctos. El código personal ya está activado y es obligatorio. Si no lo conservás, necesitás recuperarlo.');
+  if(u.access_code_hash&&(!/^\d{8}$/.test(code)||!equal(u.access_code_hash,codeHash(env,'access:'+u.id,code))))fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
   const complete=!!u.access_code_hash;const s=await session(env,u,complete);await audit(env,u,'auth.login');return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:!complete},200,{'Set-Cookie':cookie(s.token,complete?3600:600)});
  }
  if(path==='/api/pilot/auth/me'&&req.method==='GET'){const u=await current(req,env,false);return json({user:userView(u),csrf:u.csrf,requiresCodeSetup:!u.access_code_hash,emailRecoveryAvailable:mailReady(env)});}
+ if(path==='/api/pilot/auth/code/owner-recovery'&&req.method==='POST'){
+  const b=await body(req),username=clean(b.username,40).toLowerCase();await rate(env,'owner-code-recover-ip:'+ip,12);await rate(env,'owner-code-recover-user:'+username,8);
+  const token=typeof b.token==='string'?b.token:'',hash=digest(token);let grants=[];try{grants=JSON.parse(env.TURI_CODE_RECOVERY_GRANTS||'[]')}catch{}
+  const grant=Array.isArray(grants)&&grants.find(g=>g.username===username&&g.expiresAt>NOW()&&typeof g.id==='string'&&g.id.length<=80&&equal(g.tokenHash,hash));
+  if(!grant||token.length<32||token.length>128)fail(403,'RECOVERY_LINK_INVALID','El enlace de recuperación no es válido o ya venció. Solicitá uno nuevo.');
+  const u=await first(env,'SELECT * FROM pilot_users WHERE id=? AND username=? AND tenant_id=?',grant.userId,username,grant.tenantId);
+  if(!u||u.disabled||!passwordValid(b.password,u.password_hash,env.TURI_AUTH_PEPPER))fail(401,'RECOVERY_PASSWORD','Revisá tu contraseña actual. Este enlace no cambia tu contraseña.');
+  await run(env,'INSERT OR IGNORE INTO pilot_auth_challenges (id,user_id,kind,value_hash,attempts,expires_at,created_at) VALUES (?,?,?,?,0,?,?)',grant.id,u.id,'owner_code_recovery',hash,grant.expiresAt,NOW());
+  const claim=opaque(24),gate='EXISTS (SELECT 1 FROM pilot_auth_challenges WHERE id=? AND user_id=? AND claim_token=?)';
+  const result=await env.DB.batch([
+   stmt(env,'UPDATE pilot_auth_challenges SET used_at=?,claim_token=? WHERE id=? AND kind=? AND value_hash=? AND used_at IS NULL AND expires_at>? AND EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND password_hash=? AND disabled=0)',NOW(),claim,grant.id,'owner_code_recovery',hash,NOW(),u.id,u.password_hash),
+   stmt(env,'UPDATE pilot_users SET access_code_hash=NULL,pending_code_hash=NULL,pending_code_ciphertext=NULL,pending_code_expires_at=NULL,mfa_secret=?,mfa_enabled=0,recovery_hashes=?,last_totp_step=-1 WHERE id=? AND tenant_id=? AND password_hash=? AND '+gate,'','[]',u.id,u.tenant_id,u.password_hash,grant.id,u.id,claim),
+   stmt(env,'DELETE FROM pilot_sessions WHERE user_id=? AND '+gate,u.id,grant.id,u.id,claim)
+  ]);
+  if(result[0].meta.changes!==1||result[1].meta.changes!==1)fail(403,'RECOVERY_LINK_USED','Este enlace ya se usó o tu acceso cambió. Ingresá con tu código personal nuevo.');
+  await audit(env,u,'auth.code_recovered_by_owner');const s=await session(env,u,false),updated=await first(env,'SELECT * FROM pilot_users WHERE id=?',u.id);return json({user:userView(updated),csrf:s.csrf,requiresCodeSetup:true},200,{'Set-Cookie':cookie(s.token,600)});
+ }
  if(path.startsWith('/api/pilot/auth/mfa/'))fail(410,'ACCESS_UPDATED','Actualizá la página. Ahora ingresás con tu código personal, sin app de autenticación.');
  if(path==='/api/pilot/auth/code/prepare'&&req.method==='POST'){
   const u=await current(req,env,false);await rate(env,'code-prepare:'+u.id,12);let row=await first(env,'SELECT * FROM pilot_users WHERE id=?',u.id);if(row.access_code_hash)fail(409,'CODE_CONFIGURED','Tu código personal ya está configurado.');

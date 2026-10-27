@@ -20,6 +20,14 @@ Sesiones opacas de una hora como máximo y 15 minutos de inactividad; la sesión
 
 El productor puede operar sólo sobre sus conexiones y registros de cartera. El superadministrador supervisa metadatos, actividad y registros operativos de su organización, y puede cargar gestiones para cuentas activas de ella. No puede leer códigos PAS ni credenciales. No hay endpoint de revelación ni exportación de secretos al navegador.
 
+## Recuperación individual gestionada por el propietario
+
+Durante el piloto, mientras no haya envío transaccional, el propietario del sitio puede autorizar un enlace individual para reemplazar un código perdido. La autorización se configura fuera del sitio, mediante la conexión autenticada del propietario, como secreto `TURI_CODE_RECOVERY_GRANTS`. Contiene ID, cuenta exacta, organización, hash de un token aleatorio de 256 bits y vencimiento. El sitio no emite esos permisos desde una ruta pública. El token original no se guarda en Git, base de datos ni configuración pública.
+
+El enlace lleva el token en el fragmento y lo elimina del historial visible al abrir. Su titular debe ingresar además la contraseña actual. La operación no cambia contraseña, correo, rol, cartera ni documentos. Un desafío de D1 consume el permiso una sola vez, de forma atómica con la invalidación del código anterior y la revocación de sesiones. La nueva sesión sólo permite configurar el código, sin acceso a datos hasta confirmarlo. Se conservan los límites de intentos; un permiso vencido, usado, ajeno o de una cuenta suspendida no permite recuperar el acceso.
+
+El usuario recibe un código personal nuevo, fijo y sin vencimiento, con un botón para copiarlo antes de confirmar. El enlace de recuperación sí tiene vencimiento y un solo uso. No se presenta como recuperación por correo ni como segundo factor independiente. Las autorizaciones deben retirarse de la configuración cuando ya no se necesiten.
+
 ## Códigos y conexiones
 
 Cifrado AES-256-GCM con nonce aleatorio por versión. La autenticación del cifrado incluye organización, productor, compañía y versión; mover un dato cifrado a otra cuenta o compañía invalida su lectura. La llave se configura como secreto del entorno; no forma parte de GitHub, HTML, localStorage ni la base de datos.
@@ -56,7 +64,7 @@ Se permite PDF, JPEG, PNG, WebP y HEIC/HEIF, con extensión y firma básica conc
 
 Cada cuenta dispone de 1 GB y 1.000 archivos, incluyendo papelera y reservas activas. La capacidad se verifica dentro de la escritura SQL; sólo se admite una transferencia activa por cuenta y dos en todo el piloto para acotar memoria del Worker. Las reservas vencen a los 15 minutos. La confirmación de D1 y auditoría es atómica; si un intento falla, se libera la reserva y se intenta quitar su blob. Una confirmación perdida se reconcilia antes de borrar para preservar un archivo ya confirmado. Un intento vencido no puede sobrescribir o eliminar el que lo reemplaza.
 
-La papelera es reversible e impide la descarga hasta restaurar. No hay borrado definitivo, purga ni retención automática todavía. Nombres y contenidos no van a auditoría ni a registros de errores; sólo actor, acción, ID y fecha. Las pruebas de almacenamiento usan un bucket simulado, incluyendo errores de escritura, alteraciones y confirmaciones perdidas. No se han conectado antivirus, OCR ni un proveedor de IA. La validación de firma no sustituye un análisis antimalware.
+La papelera es reversible e impide la descarga hasta restaurar. No hay borrado definitivo, purga ni retención automática todavía. Los metadatos de carga viajan en el cuerpo binario, fuera de las cabeceras que puede registrar el proveedor. Nombres y contenidos no van a auditoría ni a registros de errores; sólo actor, acción, ID y fecha. Las pruebas de almacenamiento usan un bucket simulado, incluyendo errores de escritura, alteraciones y confirmaciones perdidas. No se han conectado antivirus, OCR ni un proveedor de IA. La validación de firma no sustituye un análisis antimalware.
 
 R2 conserva originales, pero no se da por probada una estrategia independiente de backup. La prueba de recuperación del MVP debe incluir D1, objetos y las claves que permiten descifrarlos; restaurar sólo la base deja archivos inaccesibles. Definir retención, purga y reconciliación de reservas/blobs antes de ampliar el piloto.
 
