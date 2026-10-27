@@ -1,32 +1,51 @@
-# Etapas de TURI Gestión
+# Turi Gestión · MVP al 13 de noviembre de 2026
 
-La demo permite revisar la disposición de las herramientas y ensayar la rutina con Daniel. El próximo paso es observar una jornada real y acordar una primera automatización medible.
+Fecha de inicio: 27/10/2026. Responsable de producto: Mauro Berchi. Socio y validador operativo: Daniel Stern. Implementación: CatchDog con Codex. Las fechas son hitos de trabajo; los accesos externos dependen de cada aseguradora.
 
-| Etapa | Entrega | Condición para avanzar |
-| --- | --- | --- |
-| Maqueta actual | Tablero, cartera, siniestros, administración, captación y agente contextual de muestra. | Daniel prueba los recorridos y valida prioridades, palabras y distribución. |
-| Piloto operativo | Autenticación real, permisos por productor, API propia y persistencia D1. | Comprobar aislamiento, auditoría, restauración y atribución al código PAS. |
-| Primera fuente de alertas | Un buzón autorizado o API de una compañía. Normalización, deduplicación, fechas y vínculo al expediente. | Medir que la novedad llega completa, conserva la fuente y no duplica tareas; mostrar fallos y última actualización. |
-| Gestión documental | Adjuntos durables y privados, extracción con fuentes y confirmación de datos dudosos. | Validar formatos, acceso, retención y que los requisitos pendientes estén reunidos antes de aprobar. |
-| Agente con herramientas | Un proveedor inicial, recuperación de contexto y acciones acotadas sobre el backend. | Confirmar permisos, presupuesto, registro de acciones y aprobación del PAS para decisiones que lo requieran. |
-| Primera cotización real | Un producto de una compañía con autorización y requisitos documentados. | Validar precios, monedas, vigencias, coberturas, errores, límites e idempotencia. |
-| Administración conectada | Conciliación de una liquidación real y exportaciones para control. | Validar reglas por régimen y jurisdicción con la documentación y responsables correspondientes. |
-| Escala | Más compañías, productores y procesos según uso observado. | No agregar integración sin sostener aislamiento, trazabilidad y recuperación. |
+## Resultado que vamos a entregar
 
-## Orden propuesto para el piloto
+Un piloto privado para Daniel: cuenta propia, verificación en dos pasos, hasta 10 códigos PAS resguardados, cartera y expedientes básicos, bandeja de tareas y un recorrido de cotización trazable. Mauro tendrá cuenta de superadministrador para supervisar usuarios, estados y auditoría. El PAS aprueba cada solicitud antes de avanzar a una emisión real.
 
-Primero alertas de vencimiento y pagos, luego seguimiento de siniestros. Continuar con liquidaciones y comprobantes. Marketing y asistencia IA aprovechan el contexto ya ordenado. La cotización integrada depende de permisos y capacidades concretas de cada compañía.
+**10 códigos cargados no equivalen a 10 integraciones.** El código PAS identifica al productor; la cotización puede requerir un usuario de portal, autorización, un token/API o un acuerdo de integración. La meta inicial es validar 1–2 conexiones para un producto concreto. Sólo se anuncian como conectadas cuando pasan pruebas reales con Daniel. El resto usa un recorrido asistido claramente indicado.
 
-Para cada fuente, decidir entre API, correo autorizado o un proceso asistido. Un enlace a un portal no equivale a integración; no se da por disponible una API por lo que afirma una página comercial. La automatización de portales se evalúa aparte con autorización, términos y compatibilidad técnica.
+## Calendario y condiciones de entrega
 
-## Seguridad y atribución
+| Fechas | Hito | Trabajo | Responsable / evidencia para cerrar |
+| --- | --- | --- | --- |
+| 27–30/10 | Cuentas y conexiones | Espacio privado, activaciones individuales, contraseña propia, 2FA, permisos en servidor, base relacional, cifrado y auditoría. Dani registra hasta 10 compañías con sus códigos. | CatchDog implementa; Mauro y Dani activan sus cuentas y verifican los primeros registros. El 1234 de la demo no habilita el piloto. |
+| 31/10–03/11 | Acceso real por compañía | Relevar las 10 compañías; distinguir código PAS, usuario, autorización y canal. Elegir dos compañías y un ramo inicial. Conseguir documentación, permisos y ambiente de prueba. | Dani aporta el canal y la autorización; CatchDog valida técnicamente. Cada compañía tiene estado y evidencia. Decisión de alcance el 03/11. |
+| 04–08/11 | Operación de punta a punta | Conectar cartera básica y tareas al backend. Formulario único de cotización, trabajos por compañía, comparación de propuestas y estados de error. Adjuntos y borradores privados; aprobación del PAS. Carga asistida donde no hay integración habilitada. | CatchDog implementa; Dani prueba un caso normal, uno especial y una compañía sin respuesta. No se mezclan precios de muestra con propuestas reales. |
+| 09–11/11 | Pruebas con Dani | Probar otra computadora, aislamiento de cuentas, recuperación de acceso, vencimiento de sesiones y restauración de una copia. Validar códigos sin alteraciones y atribución del PAS. Medir tiempos de una renovación y una cotización. | Dani valida la operación; Mauro acepta el alcance. Revisión de seguridad y privacidad antes de habilitar claves o tokens de compañías. |
+| 12/11 | Cierre | Corregir incidencias que impiden trabajar, congelar alcance, registrar versión y preparar guía breve. | Sin fallos críticos abiertos; evidencia de pruebas y limitaciones visibles. |
+| 13/11 | Entrega MVP | Piloto utilizable, cuentas activas, compañías relevadas, cotización integrada donde haya permiso y recorrido asistido para el resto. Manual y lista priorizada de la siguiente versión. | Demostración conjunta con un caso acordado y aceptación de Mauro y Daniel. |
 
-La clave de demo debe eliminarse antes de usar datos reales. Autenticación y autorización se resuelven en servidor. Las claves de aseguradoras y de IA se almacenan con protección y alcance por productor; nunca en el navegador ni en GitHub. Cada operación conserva su PAS, compañía, código verificado, versión y registro de aprobación. Cambios relevantes requieren revisión de la versión vigente.
+## Lo que comenzamos a implementar el 27/10
 
-Documentos y conversaciones pertenecen al productor autorizado. No se comparten contextos entre cuentas. Consentimiento de marketing, atención del seguro y permisos de integración son decisiones separadas.
+- Espacio privado separado de la demo pública, sin exigir cuenta de ChatGPT.
+- Usuarios `dani` (productor) y `mauro` (superadministrador), activados mediante enlaces personales de un solo uso. Cada uno elige su contraseña y configura TOTP.
+- Base relacional para usuarios, sesiones, conexiones, auditoría y límites de intentos.
+- Códigos PAS cifrados con AES-256-GCM en el servidor, aislados por productor y compañía. Hasta 10 compañías distintas por productor, con control de versiones para reemplazos.
+- Sesiones con cookies HttpOnly/Secure, 2FA obligatorio, cierre por inactividad y revocación desde el superadministrador.
+- El superadministrador supervisa metadatos y actividad; no puede leer códigos o contraseñas del productor.
+- La carga de claves y tokens de portales queda bloqueada hasta validar cada conector y el flujo desplegado. En esta primera entrega se registran códigos PAS.
+- Caso Turi Gestión con mockups en Desarrollos de CatchDog, identificado como producto en desarrollo.
 
-Se requieren copias de base y documentos, prueba de restauración y reconciliación de operaciones externas antes de reactivar tareas. La exportación del navegador de esta demo no sustituye ese respaldo.
+## Decisión obligatoria del 3 de noviembre
 
-## Revisión con Daniel
+Para cada candidata necesitamos: compañía y ramo, titular del código, acceso vigente, canal técnico, documentación, permiso para integrar, datos requeridos y forma de probar. Si no hay acceso verificable, esa compañía no entra como cotizador automático en el MVP del 13/11. Su gestión queda asistida: registro del pedido, enlace al portal, propuesta adjunta, comparación y seguimiento. No se sortea un CAPTCHA ni se promete SSO a partir de un código PAS.
 
-Probar una renovación, un impago y un siniestro sin movimiento. Medir minutos activos y cantidad de entradas a otros sistemas; distinguir espera de compañía de trabajo manual. Recoger tres ejemplos de avisos reales con datos anonimizados antes de diseñar el primer conector. Confirmar qué acciones prepara el agente y cuáles requieren decisión profesional.
+## Criterios de aceptación
+
+1. Dani y Mauro ingresan con cuentas diferentes, contraseña propia y segundo factor.
+2. Un usuario sin sesión o de otro productor no puede leer, modificar ni borrar conexiones ajenas.
+3. Dani registra, reemplaza y quita hasta 10 códigos; se conservan ceros iniciales y atribución. Las respuestas y auditorías no exponen códigos completos.
+4. Cada compañía muestra por separado: código registrado, permiso revisado, conector probado y cotización disponible. No hay “conectado” sólo por guardar datos.
+5. Un pedido produce propuestas comparables con compañía, cobertura, precio/moneda, vigencia, franquicia, fecha y fuente. Un fallo parcial no cancela ni falsea otras respuestas.
+6. La ruta asistida es operativa y visible cuando una integración no está habilitada.
+7. No se emite cobertura por el último clic del cliente. El PDF conserva “Pendiente de aprobación / Esto no es una póliza”.
+8. Copias y recuperación: restauración comprobada, custodio de claves definido y retención documentada. No alcanza con exportar localStorage.
+9. La demo pública y el piloto privado se distinguen; el piloto no muestra precios ficticios como tarifas reales.
+
+## Próxima versión, después del MVP
+
+Más compañías y ramos, comunicaciones push consolidadas, automatización contable, lectura avanzada de documentos y agente conversacional con herramientas. La maqueta actual muestra la visión; sus módulos no se consideran conectados sólo por verse en pantalla.

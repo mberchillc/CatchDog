@@ -6,6 +6,14 @@ Demo con acceso por enlace: https://turi-gestion-demo.mb1312.chatgpt.site
 
 Acceso de muestra: **Dani / 1234**. Es una selección de recorrido en el navegador, no autenticación segura. No ingresar datos reales.
 
+## Piloto privado · implementación del 27/10
+
+El acceso real se abre en `/privado/`. Hay dos roles: `dani` (productor) y `mauro` (superadministrador). Cada uno usa un enlace personal de activación, define una contraseña de 14 caracteres o más y configura TOTP. No se comparte la clave de la demo.
+
+Esta primera entrega implementa cuentas, sesiones, MFA, auditoría y hasta 10 códigos PAS cifrados por productor en D1. La cotización real, cartera sincronizada y documentos privados siguen el calendario de [ROADMAP](docs/ROADMAP.md). El registro de un código no implica integración con una aseguradora. La carga de contraseñas de portal y tokens está deshabilitada hasta validar cada conexión.
+
+Controles y límites: [SECURITY](docs/SECURITY.md). Variables secretas: ver `.env.example`; nunca guardar sus valores en este repositorio.
+
 ## Recorrido de revisión
 
 1. Elegir **Soy productor** e ingresar con Dani / 1234.
@@ -44,7 +52,7 @@ La marca y la tipografía se basan en el sitio de Turi. El retrato fue suministr
 
 ## Estructura
 
-- `dist/`: sitio estático, sin dependencia de ejecución de terceros.
+- `public/`: maqueta y frontend privado; `worker/`: backend de cuentas y conexiones. `dist/` es salida generada, no fuente.
 - `docs/schema.sql`: modelo relacional inicial para productores, compañías, códigos propios, clientes, pólizas, alertas, siniestros y borradores.
 - `docs/seed.sql`: fixture SQLite completa con datos ficticios. Incluye el esquema; no ejecutar después de `schema.sql` en la misma base sin limpiar.
 - `scripts-data.py`: genera la fixture y el dataset del frontend.
@@ -52,11 +60,11 @@ La marca y la tipografía se basan en el sitio de Turi. El retrato fue suministr
 - `docs/ROADMAP.md`: etapas y criterios para pasar del prototipo al piloto.
 - `tests/demo.test.cjs`: pruebas de DOM y recorridos con JSDOM.
 
-La base relacional es una fixture validada. El sitio de esta versión usa datos en el navegador; no se desplegó una base D1 remota.
+La maqueta conserva su fixture en el navegador. El espacio privado utiliza tablas propias en D1 para cuentas, sesiones, conexiones y auditoría; no importa automáticamente la cartera ficticia.
 
 ## Desarrollo y validación
 
-Para pruebas: instalar dependencias de desarrollo con `pnpm install`, luego `pnpm test` y `pnpm check`. Para servir el sitio en un entorno local, usar `dist` como raíz estática. No se requiere build del frontend.
+Para pruebas: `pnpm install`, `node scripts/build-worker.mjs`, `node tests/demo.test.cjs` y `node --test tests/security.test.mjs`. Para cambios de esquema: `node node_modules/drizzle-kit/bin.cjs generate`. El build incrusta los recursos de `public/` en el Worker y conserva la configuración de D1; las migraciones se publican con el flujo Sites.
 
 Se verificaron los recorridos en JSDOM, la integridad de la fixture SQLite, los recursos locales y la generación del PDF. El PDF se abrió y renderizó para comprobar su marca de agua. La revisión visual completa está pendiente. Para estos ajustes se aprobaron 70 verificaciones de DOM y comportamiento; la vista previa no pudo iniciarse por una restricción del contenedor.
 

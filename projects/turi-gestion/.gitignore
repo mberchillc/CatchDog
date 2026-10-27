@@ -4,3 +4,12 @@ node_modules/
 *.sqlite
 *.sqlite3
 qa/
+
+# Worker build output; sources live in public/ and worker/.
+/dist/
+/worker/assets.generated.js
+
+.env*
+!.env.example
+.dev.vars*
+.wrangler/
