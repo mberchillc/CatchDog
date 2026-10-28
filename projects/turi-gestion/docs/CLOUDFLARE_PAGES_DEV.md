@@ -1,6 +1,10 @@
 # Entorno de desarrollo en Cloudflare Pages
 
-Proyecto: `turi-gestion-dev`, cuenta Cloudflare de CatchDog. El entorno tiene D1 y R2 propios; no usa la base, los documentos ni las claves del sitio en Sites.
+Proyecto: `turi-gestion-dev`, cuenta Cloudflare de CatchDog.
+
+Ingreso de productores: https://turi-gestion-dev.pages.dev/privado/
+
+Administración: https://turi-gestion-dev.pages.dev/admin/ El entorno tiene D1 y R2 propios; no usa la base, los documentos ni las claves del sitio en Sites.
 
 ## Git y compilación
 

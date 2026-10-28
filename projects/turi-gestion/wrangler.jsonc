@@ -18,5 +18,9 @@
       "binding": "BUCKET",
       "bucket_name": "turi-gestion-dev-documentos"
     }
-  ]
+  ],
+  "vars": {
+    "NODE_VERSION": "24",
+    "SKIP_DEPENDENCY_INSTALL": "1"
+  }
 }
