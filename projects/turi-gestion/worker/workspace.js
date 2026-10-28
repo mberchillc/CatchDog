@@ -2,6 +2,7 @@ import { opaque,seal,unseal,NOW } from './security.js';
 
 // All tables/columns below are code-owned allowlists; input is always bound.
 const WORK_TYPES={clients:'work_clients',policies:'work_policies',claims:'work_claims',tasks:'work_tasks',quotes:'work_quotes',offers:'work_offers'};
+const WORK_COVERAGE_GROUPS=['unclassified','liability','third_party','third_party_full','comprehensive','fire_theft','other'];
 const WORK_BRANCHES=['Autos','Motos','Hogar','Comercio','Caución','Accidentes personales','Responsabilidad civil','Vida','Salud','ART','Transporte','Otros'];
 export async function workspaceApi(req,env,u,companies,helpers){
  const {json,fail,stmt,first,all,run,audit,body,rate}=helpers;
@@ -85,13 +86,13 @@ export async function workspaceApi(req,env,u,companies,helpers){
  if(type==='quotes'){
   if(existing&&['approved','rejected'].includes(existing.status))fail(409,'QUOTE_CLOSED','La solicitud está cerrada. Creá una nueva para recotizar.');
   await get('clients',b.clientId,owner);const status=choice(b.status,['draft','requested','comparing','approval','rejected']);
-  return save(type,b,existing,{client_id:b.clientId,branch:choice(b.branch,WORK_BRANCHES),status},{risk:text(b.risk,400,true),notes:text(b.notes,3000),source:'Solicitud interna · gestión asistida'},owner);
+  const prior=existing?await view('quotes',existing):{};const followup=b.companyFollowup===undefined?(prior.companyFollowup||[]):b.companyFollowup;if(!Array.isArray(followup)||followup.length>companies.length)fail(400,'FIELD','Revisá el seguimiento de compañías.');const seen=new Set();const companyFollowup=followup.map(row=>{if(!row||typeof row!=='object'||Array.isArray(row))fail(400,'FIELD','Revisá el seguimiento de compañías.');const companyId=company(row.companyId);if(seen.has(companyId))fail(400,'FIELD','La compañía ya figura en el seguimiento.');seen.add(companyId);return {companyId,status:choice(row.status,['pending','error','no_offer']),note:text(row.note,600)};});return save(type,b,existing,{client_id:b.clientId,branch:choice(b.branch,WORK_BRANCHES),status},{risk:text(b.risk,400,true),notes:text(b.notes,3000),companyFollowup,source:'Solicitud interna · gestión asistida'},owner);
  }
  if(type==='offers'){
   const quote=await get('quotes',b.quoteId,owner);if(['approved','rejected'].includes(quote.status))fail(409,'QUOTE_CLOSED','La solicitud está cerrada.');if(existing&&existing.quote_id!==quote.id)fail(400,'RELATION','La propuesta no puede cambiar de solicitud.');
   const price=amount(b.premiumCents);if(price===0)fail(400,'AMOUNT','Ingresá el importe de la propuesta.');
-  const reference=text(b.sourceReference,400,true);
-  return save(type,b,existing,{quote_id:quote.id,company_id:company(b.companyId),valid_until:day(b.validUntil)},{premiumCents:price,currency:choice(b.currency,['ARS','USD']),period:choice(b.period,['monthly','annual','single']),coverage:text(b.coverage,1500,true),deductible:text(b.deductible,600,true),sourceReference:reference,notes:text(b.notes,2000),source:'Carga asistida · informada por el productor'},owner);
+  const reference=text(b.sourceReference,400,true),prior=existing?await view('offers',existing):{},coverageCategory=choice(b.coverageCategory===undefined?(prior.coverageCategory||'unclassified'):b.coverageCategory,WORK_COVERAGE_GROUPS),limits=text(b.limits===undefined?prior.limits:b.limits,1500);
+  return save(type,b,existing,{quote_id:quote.id,company_id:company(b.companyId),valid_until:day(b.validUntil)},{premiumCents:price,currency:choice(b.currency,['ARS','USD']),period:choice(b.period,['monthly','annual','single']),coverageCategory,limits,coverage:text(b.coverage,1500,true),deductible:text(b.deductible,600,true),sourceReference:reference,notes:text(b.notes,2000),source:'Carga asistida · informada por el productor'},owner);
  }
  fail(404,'NOT_FOUND','La operación no está disponible.');
 }

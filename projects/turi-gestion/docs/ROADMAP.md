@@ -26,7 +26,7 @@ Un piloto privado para Daniel: cuenta propia, código personal de acceso, hasta 
 - Base relacional para usuarios, sesiones, conexiones, auditoría y límites de intentos.
 - Códigos PAS cifrados con AES-256-GCM en el servidor, aislados por productor y compañía. Hasta 10 compañías distintas por productor, con control de versiones para reemplazos.
 - Sesiones con cookies HttpOnly/Secure, código personal obligatorio, cierre por inactividad y revocación desde el superadministrador.
-- Recuperación por correo con códigos de un uso y verificación de titularidad. El envío real está pendiente de conectar el servicio transaccional.
+- Recuperación por correo con códigos de un uso y verificación de titularidad. El envío real se activó el 28/10 mediante Resend, incluido el entorno de Cloudflare dev.
 - El superadministrador supervisa metadatos y actividad; no puede leer códigos o contraseñas del productor.
 - La carga de claves y tokens de portales queda bloqueada hasta validar cada conector y el flujo desplegado. En esta primera entrega se registran códigos PAS.
 - Caso Turi Gestión con mockups en Desarrollos de CatchDog, identificado como producto en desarrollo.
@@ -37,7 +37,7 @@ La cuenta privada ya abre el tablero de trabajo, con navegación propia y datos 
 
 Mi día consolida pendientes, seguimientos de siniestros, pagos registrados y próximos vencimientos. Compañías permite relevar permiso, canal, documentación y avance técnico sin confundirlo con un conector habilitado. El PAS puede registrar la revisión de una propuesta vigente, sin emisión de cobertura.
 
-Esto adelanta la base de cartera y la ruta asistida previstas para el 04–08/11. Siguen pendientes: importación de cartera, formulario público conectado al PAS, notificaciones reales, servicio transaccional de correo, respaldo con restauración probada y los primeros conectores autorizados. La administración de esta etapa organiza tareas; no liquida comisiones ni presenta impuestos. La rama IA y marketing automatizado continúa después de validar la operación básica.
+Esto adelanta la base de cartera y la ruta asistida previstas para el 04–08/11. Siguen pendientes: importación de cartera, formulario público conectado al PAS, notificaciones operativas, respaldo con restauración probada y los primeros conectores autorizados. La administración de esta etapa organiza tareas; no liquida comisiones ni presenta impuestos. La rama IA y marketing automatizado continúa después de validar la operación básica.
 
 Siguiente trabajo: Dani registra las primeras compañías y aporta un caso anonimizado de renovación/cotización. Con ese caso se valida el recorrido asistido, se definen los campos del formulario público y se prepara la importación de su cartera. Tras el módulo documental se ajusta el cotizador para explorar por compañía y cobertura, según el pedido de Dani y la referencia PASAP. Antes del 03/11 debemos tener elegidas dos compañías, un ramo y el canal autorizado para probar.
 
@@ -68,3 +68,9 @@ Para cada candidata necesitamos: compañía y ramo, titular del código, acceso 
 ## Próxima versión, después del MVP
 
 Más compañías y ramos, comunicaciones push consolidadas, automatización contable, lectura avanzada de documentos y agente conversacional con herramientas. La maqueta actual muestra la visión; sus módulos no se consideran conectados sólo por verse en pantalla.
+
+## Avance del 28/10 · Explorador de cotizaciones
+
+Implementado en el espacio PAS: filtros por compañía/cobertura/vigencia, selección sin recorte a tres propuestas y comparación con condiciones originales. Las monedas y períodos se separan. El PAS registra los pendientes e incidencias por compañía y confirma la categoría de búsqueda. Las propuestas vencidas no habilitan aprobación y las versiones modificadas salen de la selección hasta nueva revisión.
+
+El entorno de pruebas está en https://turi-gestion-dev.pages.dev/privado/ y se publica desde GitHub. Resend, cuentas PAS de prueba, documentos múltiples y miniaturas ya están activos. La prueba del explorador conserva la ruta asistida; no activa integraciones ni la emisión. El siguiente hito es relevar las compañías con Dani y elegir dos y un ramo antes del 03/11. El formulario público conectado y la importación de cartera siguen pendientes.

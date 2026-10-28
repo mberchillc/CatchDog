@@ -1,6 +1,6 @@
 # Exploración del cotizador por cobertura y compañía
 
-Pedido de Daniel Stern transmitido por Mauro el 27/10/2026. Prioridad: después de publicar PDF y fotos privados. Esta definición no modifica todavía el cotizador publicado ni declara nuevos conectores.
+Pedido de Daniel Stern transmitido por Mauro el 27/10/2026. Prioridad: después de publicar PDF y fotos privados. El explorador se implementó en el espacio privado del PAS de Cloudflare dev el 28/10/2026. Trabaja sobre propuestas registradas y conserva la aprobación del productor; la conexión del formulario público y los conectores de aseguradoras siguen en sus etapas previstas.
 
 ## Cambio acordado
 
@@ -32,3 +32,13 @@ La decisión de Turi sobre explorar por compañía/cobertura proviene del mensaj
 - Precios de diferente moneda o período no se ordenan como si fueran equivalentes.
 - Selección, comparación y borrador conservan las condiciones y fuentes de esa versión.
 - Cualquier CTA de atención humana continúa hacia https://wa.me/5491130216824.
+
+## Implementación del 28/10/2026
+
+- Cotizaciones → Ver expediente: filtros combinables de compañía, categoría de cobertura y vigencia; recuento del conjunto completo y opción para quitar filtros.
+- Selección de propuestas conservada al filtrar y comparación lado a lado, sin limitar la oferta a tres resultados. La selección se revisa cuando cambia la versión de una propuesta.
+- Los importes se agrupan por moneda y período; la comparación avisa cuando difieren. Se muestran cobertura original, límites, franquicia, vigencia, fuente, notas y estado.
+- La categoría de búsqueda la confirma el PAS al registrar o editar una propuesta. Los registros anteriores quedan sin clasificar hasta esa revisión; no se infieren equivalencias a partir de palabras similares.
+- Seguimiento manual por compañía: pendientes, incidencias y ausencia de propuesta. El recuento de propuestas recibidas se obtiene del expediente. No se afirma una consulta automática que no ocurrió.
+- Campos nuevos opcionales dentro de los payloads cifrados existentes; sin migración destructiva ni cambios a contraseñas, sesiones o atribución. Ediciones antiguas conservan los campos nuevos.
+- Verificadas 41 pruebas de exploración, operación, permisos, documentos y alta de PAS. QA de navegador con seis propuestas claramente ficticias en una base local aislada.
