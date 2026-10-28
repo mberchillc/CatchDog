@@ -21,6 +21,7 @@
   ],
   "vars": {
     "NODE_VERSION": "24",
-    "SKIP_DEPENDENCY_INSTALL": "1"
+    "SKIP_DEPENDENCY_INSTALL": "1",
+    "TURI_PUBLIC_URL": "https://turi-gestion-dev.pages.dev"
   }
 }

@@ -25,7 +25,8 @@ El empaquetado utiliza el mismo Worker y los mismos recursos del MVP mediante el
 - R2 privado: `turi-gestion-dev-documentos`, binding `BUCKET`.
 - Secretos obligatorios: `TURI_AUTH_PEPPER` y `TURI_VAULT_KEY`.
 - Para el primer ingreso del administrador: permiso temporal `TURI_ADMIN_PASSWORD_RESET_GRANTS`, ligado a la cuenta creada sólo en dev. El titular elige su contraseña mediante el enlace personal; no hay contraseña administrativa predeterminada.
-- Correo opcional: `RESEND_API_KEY` y `TURI_MAIL_FROM` deben configurarse para habilitar confirmación y recuperación por email en este entorno.
+- Correo: `RESEND_API_KEY` y `TURI_MAIL_FROM` se configuraron como secretos cifrados del entorno de desarrollo. La clave de Resend tiene sólo permiso de envío para `notificaciones.catchdog.net`; el remitente es `Turi Gestión <acceso@notificaciones.catchdog.net>`.
+- `TURI_PUBLIC_URL=https://turi-gestion-dev.pages.dev` hace que el texto del correo enlace al entorno correcto.
 
 Las migraciones de `drizzle/` se aplican únicamente a esta base con `wrangler d1 migrations apply turi-gestion-dev-db --remote`. No apuntar ese comando a una base ajena.
 
@@ -36,3 +37,5 @@ El administrador entra por `/admin/`, crea los PAS de prueba desde Productores y
 Verificar en cada publicación: ingreso de PAS, creación de cliente, subida de un PDF, descarga del original y rechazo de acceso a administración desde la cuenta PAS. El flujo también se verificó con Wrangler Pages y el motor local de Cloudflare, usando D1 y R2 locales.
 
 La raíz `/` conserva la demo ilustrativa; para evaluar las funciones que guardan registros, compartir `/privado/`.
+
+Validación de correo (28/10/2026): las 12 pruebas de recuperación pasan, incluidos códigos incorrectos, vencidos, uso único, límites de intentos, revocación de sesiones y enlaces por entorno.

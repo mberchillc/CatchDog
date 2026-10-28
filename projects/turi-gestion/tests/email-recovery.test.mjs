@@ -60,3 +60,7 @@ test('interfaz completa: correo sin usuario → código → contraseña → nuev
 test('interfaz sin remitente muestra el formulario y el bloqueo real, sin derivar a WhatsApp ni afirmar envíos',async t=>{
  const h=await fixture(t,{configured:false}),dom=await ui(h,new Map()),w=dom.window;await wait(w,()=>w.document.querySelector('#login'));w.document.querySelector('[data-action="recover"]').click();const f=w.document.querySelector('#recovery-start');assert.ok(f.elements.email);assert.equal(f.querySelector('button[type="submit"]').disabled,true);assert.equal(f.querySelector('a[href*="wa.me"]'),null);assert.ok(f.textContent.includes('pendiente de activación'));assert.equal(h.sent.length,0);w.close();
 });
+
+test('el correo conserva el enlace del entorno donde se solicita la recuperación',async t=>{
+ const h=await fixture(t);h.env.TURI_PUBLIC_URL='https://turi-gestion-dev.pages.dev';await h.start();assert.ok(h.sent[0].text.includes('https://turi-gestion-dev.pages.dev/privado/'));assert.ok(!h.sent[0].text.includes('chatgpt.site'));delete h.env.TURI_PUBLIC_URL;await h.start();assert.ok(h.sent[1].text.includes('https://turi-gestion-demo.mb1312.chatgpt.site/privado/'));
+});
