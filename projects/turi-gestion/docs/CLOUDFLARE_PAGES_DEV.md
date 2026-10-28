@@ -39,3 +39,11 @@ Verificar en cada publicación: ingreso de PAS, creación de cliente, subida de 
 La raíz `/` conserva la demo ilustrativa; para evaluar las funciones que guardan registros, compartir `/privado/`.
 
 Validación de correo (28/10/2026): las 12 pruebas de recuperación pasan, incluidos códigos incorrectos, vencidos, uso único, límites de intentos, revocación de sesiones y enlaces por entorno.
+
+## Carga múltiple y cuentas de prueba
+
+Las cuentas de Sites y Cloudflare son independientes. Crear los PAS desde la administración del mismo entorno donde se harán las pruebas. El PAS de prueba solicitado se habilitó con rol productor en Cloudflare sin importar datos de Sites.
+
+Documentos permite reunir hasta 20 archivos por lote, hasta 10 MB por archivo, seleccionando varios juntos, agregando selecciones sucesivas o arrastrando archivos. La bandeja muestra miniaturas, permite quitar pendientes y conserva la selección al fallar. Reintentar omite los confirmados y conserva el identificador de los intentos pendientes. Los formatos aceptados y el almacenamiento cifrado original se conservan. HEIC/HEIF se previsualizan cuando el navegador puede decodificarlos; si no, se informa y se permite guardar el original.
+
+Validación (28/10/2026): 19 pruebas de documentos y selección pasan, incluida carga múltiple contra el backend, aislamiento por PAS, originales, vistas previas, límites, rechazo de contenido no permitido y recuperación tras interrupción.
