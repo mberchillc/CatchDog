@@ -58,3 +58,7 @@ Sites sigue alojando la web pública actual; `.openai/hosting.json` conserva su 
 Para compartir un enlace independiente con terceros se debe alojar el servidor en un equipo o servicio con HTTPS, almacenamiento persistente y copia de seguridad. La guía independiente describe la configuración. La configuración de la web publicada y sus datos no se migran automáticamente.
 
 La demo pública (`/`) es ilustrativa y usa Dani / 1234 con 230 pólizas ficticias en el navegador. Las funciones del MVP que guardan registros están en `/privado/` y `/admin/`.
+
+## Desarrollo en Cloudflare Pages
+
+La configuración del entorno de prueba está en [CLOUDFLARE_PAGES_DEV](docs/CLOUDFLARE_PAGES_DEV.md). `npm run build:pages` empaqueta el mismo MVP para Cloudflare Pages con D1 y R2 separados. La rama de desarrollo y sus futuras actualizaciones se conectan desde GitHub; los secretos se guardan en Cloudflare.

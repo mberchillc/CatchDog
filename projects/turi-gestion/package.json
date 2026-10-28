@@ -13,7 +13,8 @@
     "test:documents": "node --test tests/documents.test.mjs",
     "prestart": "node scripts/build-worker.mjs",
     "start": "node scripts/serve.mjs",
-    "test:private": "node --test tests/*.test.mjs"
+    "test:private": "node --test tests/*.test.mjs",
+    "build:pages": "node scripts/build-pages.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.3",

@@ -18,3 +18,6 @@ qa/
 .turi-data/
 *.sqlite-wal
 *.sqlite-shm
+
+# Cloudflare Pages build output.
+dist-pages/

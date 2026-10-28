@@ -1,0 +1,22 @@
+{
+  "name": "turi-gestion-dev",
+  "pages_build_output_dir": "./dist-pages",
+  "compatibility_date": "2026-10-28",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "turi-gestion-dev-db",
+      "database_id": "cfb25a7f-8919-428d-a67b-dd34183505a0",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "turi-gestion-dev-documentos"
+    }
+  ]
+}

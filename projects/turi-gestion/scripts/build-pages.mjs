@@ -1,0 +1,11 @@
+import {spawnSync} from 'node:child_process';
+import {mkdir,rm,copyFile,writeFile,stat} from 'node:fs/promises';
+import {resolve,dirname,basename} from 'node:path';
+const root=resolve('.'),out=resolve(root,'dist-pages');
+if(dirname(out)!==root||basename(out)!=='dist-pages')throw Error('Output outside project');
+const build=spawnSync(process.execPath,['scripts/build-worker.mjs'],{stdio:'inherit'});if(build.status!==0)process.exit(build.status||1);
+await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
+await copyFile('dist/server/index.js',resolve(out,'_worker.js'));
+await copyFile('public/index.html',resolve(out,'index.html'));
+await writeFile(resolve(out,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:[]},null,2));
+console.log('Cloudflare Pages preparado: mismo Worker y recursos del MVP ('+(await stat(resolve(out,'_worker.js'))).size+' bytes).');
