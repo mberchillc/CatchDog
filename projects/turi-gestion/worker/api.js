@@ -4,6 +4,8 @@ import { workspaceApi } from './workspace.js';
 import { documentsApi,filesReady } from './documents.js';
 const COOKIE='__Host-turi_session';
 const RESET_COOKIE='__Host-turi_reset';
+const ADMIN_RESET_COOKIE='__Host-turi_admin_reset';
+const adminResetCookie=(value,maxAge)=>`${ADMIN_RESET_COOKIE}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
 const SESSION_MS=60*60*1000,IDLE_MS=15*60*1000;
 export class HttpError extends Error{constructor(status,code,message){super(message);this.status=status;this.code=code}}
 const fail=(status,code,message)=>{throw new HttpError(status,code,message)};
@@ -23,8 +25,8 @@ const clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
 const normalizeEmail=v=>{const s=clean(v,320).toLowerCase();return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)?s:null};
 async function body(req){if(!req.headers.get('content-type')?.startsWith('application/json'))fail(415,'JSON_REQUIRED','Usá un formulario de la plataforma.');const reader=req.body?.getReader();if(!reader)fail(400,'BODY_REQUIRED','Faltan datos.');let total=0,chunks=[];while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>24576){await reader.cancel();fail(413,'BODY_LIMIT','El formulario es demasiado grande.')}chunks.push(value)}const bytes=new Uint8Array(total);let i=0;for(const c of chunks){bytes.set(c,i);i+=c.byteLength}try{return JSON.parse(new TextDecoder().decode(bytes))}catch{fail(400,'JSON_INVALID','No pudimos leer el formulario.')}}
 async function rate(env,key,max=8,period=15*60*1000){const bucket=Math.floor(NOW()/period);const k=digest(env.TURI_AUTH_PEPPER+'|'+key+'|'+bucket);const r=await stmt(env,'INSERT INTO pilot_rate_limits (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 RETURNING count',k,(bucket+1)*period).first();if(r.count>max)fail(429,'RATE_LIMIT','Demasiados intentos. Esperá unos minutos y volvé a intentar.');}
-async function current(req,env,complete=true){const token=req.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);if(!token||token.length>128)fail(401,'SIGN_IN','Ingresá con tu usuario y contraseña.');const s=await first(env,'SELECT s.*,u.username,u.name,u.role,u.tenant_id,u.access_code_hash,u.email,u.email_verified,u.disabled FROM pilot_sessions s JOIN pilot_users u ON u.id=s.user_id WHERE s.id=?',digest(token));if(!s||s.disabled||s.expires_at<NOW()||s.last_seen<NOW()-IDLE_MS)fail(401,'SIGN_IN','Tu sesión terminó. Volvé a ingresar.');if(complete&&(!s.mfa||!s.access_code_hash))fail(403,'CODE_SETUP_REQUIRED','Confirmá tu código personal para continuar.');if(req.method!=='GET'&&!equal(s.csrf,req.headers.get('x-turi-csrf')||''))fail(403,'CSRF','Actualizá la página para continuar.');await run(env,'UPDATE pilot_sessions SET last_seen=? WHERE id=?',NOW(),s.id);return {...s,session_id:s.id,id:s.user_id};}
-async function session(env,u,complete){const token=opaque(),csrf=opaque();await run(env,'INSERT INTO pilot_sessions (id,user_id,csrf,mfa,expires_at,last_seen) VALUES (?,?,?,?,?,?)',digest(token),u.id,csrf,complete?1:0,NOW()+(complete?SESSION_MS:10*60*1000),NOW());return {token,csrf};}
+async function current(req,env,complete=true){const token=req.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);if(!token||token.length>128)fail(401,'SIGN_IN','Ingresá con tu usuario y contraseña.');const s=await first(env,'SELECT s.*,u.username,u.name,u.role,u.tenant_id,u.access_code_hash,u.email,u.email_verified,u.disabled FROM pilot_sessions s JOIN pilot_users u ON u.id=s.user_id WHERE s.id=?',digest(token));if(!s||s.disabled||s.expires_at<NOW()||s.last_seen<NOW()-IDLE_MS)fail(401,'SIGN_IN','Tu sesión terminó. Volvé a ingresar.');const adminPasswordSession=token.startsWith('admin.')&&s.role==='superadmin';if(token.startsWith('admin.')&&!adminPasswordSession)fail(401,'SIGN_IN','Tu sesión terminó. Volvé a ingresar.');if(complete&&(!s.mfa||(!s.access_code_hash&&!adminPasswordSession)))fail(403,'CODE_SETUP_REQUIRED','Confirmá tu código personal para continuar.');if(req.method!=='GET'&&!equal(s.csrf,req.headers.get('x-turi-csrf')||''))fail(403,'CSRF','Actualizá la página para continuar.');await run(env,'UPDATE pilot_sessions SET last_seen=? WHERE id=?',NOW(),s.id);return {...s,adminPasswordSession,session_id:s.id,id:s.user_id};}
+async function session(env,u,complete,adminPasswordOnly=false){const token=(adminPasswordOnly?'admin.':'')+opaque(),csrf=opaque();await run(env,'INSERT INTO pilot_sessions (id,user_id,csrf,mfa,expires_at,last_seen) VALUES (?,?,?,?,?,?)',digest(token),u.id,csrf,complete?1:0,NOW()+(complete?SESSION_MS:10*60*1000),NOW());return {token,csrf};}
 function onlyProducer(u){if(u.role!=='producer')fail(403,'PRODUCER_ONLY','Los accesos pertenecen al productor. El administrador puede supervisar su estado.');}
 async function newChallenge(env,u,kind,email){const id=opaque(24),code=emailCode(),payload=await seal(env,{email,...(kind==='recovery'?{credentialVersion:credentialVersion(u)}:{})},'challenge:'+id);await run(env,'INSERT INTO pilot_auth_challenges (id,user_id,kind,value_hash,payload,attempts,expires_at,created_at) VALUES (?,?,?,?,?,0,?,?)',id,u.id,kind,codeHash(env,'challenge:'+id,code),payload,NOW()+10*60*1000,NOW());try{await deliverCode(env,{id,email,code,kind});await run(env,'UPDATE pilot_auth_challenges SET sent_at=? WHERE id=?',NOW(),id);}catch{await run(env,'UPDATE pilot_auth_challenges SET used_at=? WHERE id=?',NOW(),id);fail(502,'EMAIL_DELIVERY','No pudimos enviar el código. Volvé a intentar en unos minutos.');}return id;}
 async function checkChallenge(env,id,code,kind,userId=null){const c=await stmt(env,'UPDATE pilot_auth_challenges SET attempts=attempts+1 WHERE id=? AND kind=? AND used_at IS NULL AND sent_at IS NOT NULL AND expires_at>? AND attempts<5 RETURNING *',clean(id,80),kind,NOW()).first();const normalized=normalizeCode(code);if(!c||(userId&&c.user_id!==userId)||!/^\d{6}$/.test(normalized)||!equal(c.value_hash,codeHash(env,'challenge:'+c.id,normalized)))fail(400,'CODE_INVALID','El código no es válido o venció. Solicitá uno nuevo.');return c;}
@@ -32,6 +34,20 @@ async function claimChallenge(env,c,updates,guard=null){const claim=opaque(24);c
 const recoveryGuard=(u,email)=>({sql:'EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND password_hash=? AND access_code_hash IS ? AND email=? AND email_verified=1 AND disabled=0)',values:[u.id,u.password_hash,u.access_code_hash,email]});
 async function recoveryAccount(env,c){let p;try{p=await unseal(env,c.payload,'challenge:'+c.id)}catch{fail(400,'CODE_INVALID','El código no es válido o venció. Solicitá uno nuevo.')}const u=await first(env,'SELECT * FROM pilot_users WHERE id=?',c.user_id);if(!u||u.disabled||!u.email_verified||p.email!==u.email||!equal(p.credentialVersion,credentialVersion(u)))fail(400,'CODE_INVALID','El acceso cambió. Solicitá un código de recuperación nuevo.');return {u,p};}
 async function resetState(req,env){const value=readCookie(req,RESET_COOKIE);if(!/^[A-Za-z0-9_-]{32}\.[A-Za-z0-9_-]{43}$/.test(value))fail(400,'RESET_INVALID','Ingresá primero el código que recibiste por correo.');const [id,token]=value.split('.'),c=await first(env,'SELECT * FROM pilot_auth_challenges WHERE id=? AND kind=? AND used_at IS NULL AND sent_at IS NOT NULL AND expires_at>?',id,'password_reset',NOW());if(!c||!equal(c.value_hash,codeHash(env,'password-reset:'+id,token)))fail(400,'RESET_INVALID','El permiso para crear tu contraseña venció. Solicitá otro código.');return {c,...await recoveryAccount(env,c)};}
+const adminResetInvalid=()=>fail(403,'ADMIN_RESET_INVALID','Este permiso venció, ya fue utilizado o tu acceso cambió. Abrí un enlace personal vigente para crear tu contraseña.');
+async function adminResetGrant(req,env,b={}){
+ const value=readCookie(req,ADMIN_RESET_COOKIE),parts=value.split('.');
+ const explicit=Object.hasOwn(b,'token'),token=explicit?(typeof b.token==='string'?b.token:''):(parts.length===2?parts[1]:''),username=explicit?clean(b.username,40).toLowerCase():null;
+ const hash=digest(token);let grants=[];try{grants=JSON.parse(env.TURI_ADMIN_PASSWORD_RESET_GRANTS||'[]')}catch{}
+ const grant=Array.isArray(grants)&&grants.find(g=>(explicit?g.username===username:g.id===parts[0])&&Number.isFinite(g.expiresAt)&&g.expiresAt>NOW()&&typeof g.id==='string'&&/^[A-Za-z0-9_-]{8,80}$/.test(g.id)&&typeof g.expectedPasswordHash==='string'&&equal(g.tokenHash,hash));
+ if(!/^[A-Za-z0-9_-]{43}$/.test(token)||!grant)adminResetInvalid();
+ const u=await first(env,'SELECT * FROM pilot_users WHERE id=? AND username=? AND tenant_id=?',grant.userId,grant.username,grant.tenantId);
+ if(!u||u.disabled||u.role!=='superadmin'||!equal(u.password_hash,grant.expectedPasswordHash))adminResetInvalid();
+ const used=await first(env,'SELECT * FROM pilot_auth_challenges WHERE id=?',grant.id);
+ if(used&&(used.used_at||used.user_id!==u.id||used.kind!=='owner_admin_password_reset'||!equal(used.value_hash,hash)))adminResetInvalid();
+ return {u,grant,hash,token};
+}
+function producerInvitations(env){try{const values=JSON.parse(env.TURI_PAS_INVITATIONS||'[]');return Array.isArray(values)?values.filter(i=>i&&i.role==='producer'):[]}catch{return []}}
 export async function api(req,env,companies){
  const path=new URL(req.url).pathname;
  if(path==='/api/pilot/status'&&req.method==='GET')return json({stage:'workspace',accounts:ready(env)?'configured':'not_configured',accessMode:'personal_code',emailRecoveryAvailable:mailReady(env),fileStorageAvailable:filesReady(env),connectionLimit:10,automaticQuotes:false,deadline:'2026-11-13'});
@@ -40,21 +56,45 @@ export async function api(req,env,companies){
  if(req.method!=='GET'&&req.headers.get('origin')!==new URL(req.url).origin)fail(403,'ORIGIN','Abrí el formulario desde Turi Gestión.');
  const ip=req.headers.get('cf-connecting-ip')||'unknown';
  if(path==='/api/pilot/auth/activate'&&req.method==='POST'){
-  await rate(env,'activate-ip:'+ip,12);const b=await body(req);const username=clean(b.username,40).toLowerCase();const invites=JSON.parse(env.TURI_INVITATIONS||'[]');const invite=invites.find(i=>i.username===username&&i.expiresAt>NOW()&&equal(i.tokenHash,digest(String(b.token||''))));
+  await rate(env,'activate-ip:'+ip,12);const b=await body(req);const username=clean(b.username,40).toLowerCase();const invites=[...JSON.parse(env.TURI_INVITATIONS||'[]'),...producerInvitations(env)];const invite=invites.find(i=>i.username===username&&i.expiresAt>NOW()&&equal(i.tokenHash,digest(String(b.token||''))));
   if(!invite)fail(403,'INVITE_INVALID','El enlace de activación no es válido o venció.');if(await first(env,'SELECT id FROM pilot_users WHERE username=?',username))fail(409,'ALREADY_ACTIVATED','La cuenta ya está creada. Ingresá con tu usuario y contraseña.');
   let hash;try{hash=passwordHash(b.password,env.TURI_AUTH_PEPPER)}catch{fail(400,'PASSWORD_LENGTH','Elegí una contraseña de entre 14 y 128 caracteres. Podés usar una frase.');}
   const u={id:invite.id,username,name:invite.name,role:invite.role,tenant_id:invite.tenantId||'TURI'};
   await run(env,'INSERT INTO pilot_users (id,username,name,role,tenant_id,password_hash,mfa_secret,mfa_enabled,recovery_hashes,last_totp_step,disabled,created_at) VALUES (?,?,?,?,?,?,?,0,?,-1,0,?)',u.id,username,u.name,u.role,u.tenant_id,hash,'','[]',NOW());await audit(env,u,'auth.activated');const s=await session(env,u,false);return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:true},201,{'Set-Cookie':cookie(s.token,600)});
  }
- if(path==='/api/pilot/auth/login'&&req.method==='POST'){
+ if((path==='/api/pilot/auth/login'||path==='/api/pilot/auth/admin/login')&&req.method==='POST'){
+  const adminEntry=path==='/api/pilot/auth/admin/login';
   const b=await body(req),username=clean(b.username,40).toLowerCase();await rate(env,'login-ip:'+ip,30);await rate(env,'login-user:'+username,8);
   const u=await first(env,'SELECT * FROM pilot_users WHERE username=?',username);const dummy='scrypt$16384$8$5$0000000000000000000000$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';const valid=passwordValid(b.password,u?.password_hash||dummy,env.TURI_AUTH_PEPPER);const code=normalizeCode(b.code);
-  if(!u||!valid||u.disabled)fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
-  if(u.access_code_hash&&!code)fail(401,'CODE_REQUIRED','Tu usuario y contraseña son correctos. El código personal ya está activado y es obligatorio. Si no lo conservás, necesitás recuperarlo.');
-  if(u.access_code_hash&&(!/^\d{8}$/.test(code)||!equal(u.access_code_hash,codeHash(env,'access:'+u.id,code))))fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
-  const complete=!!u.access_code_hash;const s=await session(env,u,complete);await audit(env,u,'auth.login');return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:!complete},200,{'Set-Cookie':cookie(s.token,complete?3600:600)});
+  if(!u||!valid||u.disabled||(adminEntry&&u.role!=='superadmin'))fail(401,'LOGIN_INVALID',adminEntry?'Revisá tu usuario y contraseña.':'Revisá tu usuario, contraseña y código personal.');
+  const adminPasswordOnly=u.role==='superadmin';
+  if(!adminPasswordOnly&&u.access_code_hash&&!code)fail(401,'CODE_REQUIRED','Tu usuario y contraseña son correctos. El código personal ya está activado y es obligatorio. Si no lo conservás, necesitás recuperarlo.');
+  if(!adminPasswordOnly&&u.access_code_hash&&(!/^\d{8}$/.test(code)||!equal(u.access_code_hash,codeHash(env,'access:'+u.id,code))))fail(401,'LOGIN_INVALID','Revisá tu usuario, contraseña y código personal.');
+  const complete=adminPasswordOnly||!!u.access_code_hash;const s=await session(env,u,complete,adminPasswordOnly);await audit(env,u,adminPasswordOnly?'auth.admin_login':'auth.login');return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:!complete},200,{'Set-Cookie':cookie(s.token,complete?3600:600)});
  }
- if(path==='/api/pilot/auth/me'&&req.method==='GET'){const u=await current(req,env,false);return json({user:userView(u),csrf:u.csrf,requiresCodeSetup:!u.access_code_hash,emailRecoveryAvailable:mailReady(env)});}
+ if(path==='/api/pilot/auth/admin/owner-reset/prepare'&&req.method==='POST'){
+  await rate(env,'owner-admin-prepare-ip:'+ip,20);const b=await body(req),state=await adminResetGrant(req,env,b);
+  return json({username:state.u.username,expiresAt:state.grant.expiresAt},200,{'Set-Cookie':adminResetCookie(state.grant.id+'.'+state.token,Math.max(1,Math.floor((state.grant.expiresAt-NOW())/1000)))});
+ }
+ if(path==='/api/pilot/auth/admin/owner-reset/state'&&req.method==='GET'){
+  const state=await adminResetGrant(req,env);return json({username:state.u.username,expiresAt:state.grant.expiresAt});
+ }
+ if(path==='/api/pilot/auth/admin/owner-reset'&&req.method==='POST'){
+  const b=await body(req);await rate(env,'owner-admin-reset-ip:'+ip,12);const suppliedUser=clean(b.username,40).toLowerCase();if(suppliedUser)await rate(env,'owner-admin-reset-user:'+suppliedUser,8);
+  const {u,grant,hash}=await adminResetGrant(req,env,b);const username=u.username;if(!suppliedUser)await rate(env,'owner-admin-reset-user:'+username,8);
+  let nextHash;try{nextHash=passwordHash(b.password,env.TURI_AUTH_PEPPER)}catch{fail(400,'PASSWORD_LENGTH','Elegí una contraseña de entre 14 y 128 caracteres. Podés usar una frase.');}
+  await run(env,'INSERT OR IGNORE INTO pilot_auth_challenges (id,user_id,kind,value_hash,attempts,expires_at,created_at) VALUES (?,?,?,?,0,?,?)',grant.id,u.id,'owner_admin_password_reset',hash,grant.expiresAt,NOW());
+  const claim=opaque(24),gate='EXISTS (SELECT 1 FROM pilot_auth_challenges WHERE id=? AND user_id=? AND claim_token=?)';
+  const result=await env.DB.batch([
+   stmt(env,'UPDATE pilot_auth_challenges SET used_at=?,claim_token=? WHERE id=? AND user_id=? AND kind=? AND value_hash=? AND used_at IS NULL AND expires_at>? AND EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND username=? AND tenant_id=? AND role=? AND password_hash=? AND disabled=0)',NOW(),claim,grant.id,u.id,'owner_admin_password_reset',hash,NOW(),u.id,username,u.tenant_id,'superadmin',u.password_hash),
+   stmt(env,'UPDATE pilot_users SET password_hash=? WHERE id=? AND tenant_id=? AND role=? AND password_hash=? AND disabled=0 AND '+gate,nextHash,u.id,u.tenant_id,'superadmin',u.password_hash,grant.id,u.id,claim),
+   stmt(env,'DELETE FROM pilot_sessions WHERE user_id=? AND '+gate,u.id,grant.id,u.id,claim),
+   stmt(env,'UPDATE pilot_auth_challenges SET used_at=? WHERE user_id=? AND used_at IS NULL AND '+gate,NOW(),u.id,grant.id,u.id,claim)
+  ]);
+  if(result[0].meta.changes!==1||result[1].meta.changes!==1)adminResetInvalid();
+  await audit(env,u,'auth.admin_password_set_by_owner');const s=await session(env,u,true,true);return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:false},200,{'Set-Cookie':cookie(s.token,3600)});
+ }
+ if(path==='/api/pilot/auth/me'&&req.method==='GET'){const u=await current(req,env,false);return json({user:userView(u),csrf:u.csrf,requiresCodeSetup:!u.access_code_hash&&!u.adminPasswordSession,emailRecoveryAvailable:mailReady(env)});}
  if(path==='/api/pilot/auth/code/owner-recovery'&&req.method==='POST'){
   const b=await body(req),username=clean(b.username,40).toLowerCase();await rate(env,'owner-code-recover-ip:'+ip,12);await rate(env,'owner-code-recover-user:'+username,8);
   const token=typeof b.token==='string'?b.token:'',hash=digest(token);let grants=[];try{grants=JSON.parse(env.TURI_CODE_RECOVERY_GRANTS||'[]')}catch{}
@@ -122,6 +162,20 @@ export async function api(req,env,companies){
   onlyProducer(u);const id=path.split('/').pop();const r=await run(env,'DELETE FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);if(r.meta.changes!==1)fail(404,'NOT_FOUND','No encontramos ese acceso.');await audit(env,u,'connection.deleted',id);return json({ok:true});
  }
  if(path==='/api/pilot/audit'&&req.method==='GET'){const rows=u.role==='superadmin'?await all(env,'SELECT action,actor_id,record_id,created_at FROM pilot_audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 100',u.tenant_id):await all(env,'SELECT action,actor_id,record_id,created_at FROM pilot_audit WHERE tenant_id=? AND actor_id=? ORDER BY created_at DESC LIMIT 100',u.tenant_id,u.id);return json({events:rows});}
+ if(path==='/api/pilot/admin/producers'&&req.method==='POST'){
+  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Sólo el superadministrador puede crear un PAS de prueba.');await rate(env,'admin-create-producer:'+u.id,20,3600000);
+  const b=await body(req),username=typeof b.username==='string'?b.username.trim().toLowerCase():'';
+  if(!/^[a-z][a-z0-9._-]{2,39}$/.test(username))fail(400,'USERNAME','Elegí un usuario de 3 a 40 caracteres: letras, números, punto, guion o guion bajo.');
+  if(typeof b.passwordConfirmation!=='string'||b.password!==b.passwordConfirmation)fail(400,'PASSWORD_CONFIRMATION','Las contraseñas no coinciden.');
+  let hash;try{hash=passwordHash(b.password,env.TURI_AUTH_PEPPER)}catch{fail(400,'PASSWORD_LENGTH','Elegí una contraseña de entre 14 y 128 caracteres. Podés usar una frase.');}
+  const code=personalCode(),pas={id:'PAS-'+opaque(16),username,name:clean(b.name,120)||'PAS de prueba',role:'producer',tenant_id:u.tenant_id,access_code_hash:null,email:null,email_verified:0};pas.access_code_hash=codeHash(env,'access:'+pas.id,code);
+  const result=await env.DB.batch([
+   stmt(env,'INSERT INTO pilot_users (id,username,name,role,tenant_id,password_hash,mfa_secret,mfa_enabled,recovery_hashes,last_totp_step,disabled,created_at,access_code_hash) SELECT ?,?,?,?,?,?,?,0,?,-1,0,?,? WHERE EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND tenant_id=? AND role=? AND disabled=0) ON CONFLICT(username) DO NOTHING',pas.id,username,pas.name,'producer',u.tenant_id,hash,'','[]',NOW(),pas.access_code_hash,u.id,u.tenant_id,'superadmin'),
+   stmt(env,'INSERT INTO pilot_audit (id,tenant_id,actor_id,action,record_id,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND tenant_id=?)',opaque(16),u.tenant_id,u.id,'admin.producer_created',pas.id,NOW(),pas.id,u.tenant_id)
+  ]);
+  if(result[0].meta.changes!==1)fail(409,'USERNAME_IN_USE','Ese usuario ya existe o tu permiso cambió. Elegí otro usuario o volvé a ingresar.');
+  return json({user:userView(pas),accessCode:code.slice(0,4)+'-'+code.slice(4)},201);
+ }
  if(path==='/api/pilot/admin/overview'&&req.method==='GET'){
   if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta sección pertenece al superadministrador.');const users=await all(env,'SELECT id,username,name,role,(access_code_hash IS NOT NULL) AS code_configured,email_verified,disabled,created_at FROM pilot_users WHERE tenant_id=?',u.tenant_id);const connections=await all(env,'SELECT id,producer_id,company_id,method,status,version,authorized,updated_at FROM pilot_connections WHERE tenant_id=?',u.tenant_id);return json({users,connections,deadline:'2026-11-13',automaticQuotes:false});
  }

@@ -13,3 +13,8 @@ qa/
 !.env.example
 .dev.vars*
 .wrangler/
+
+# Private data for the standalone server (database, keys and encrypted PDF).
+.turi-data/
+*.sqlite-wal
+*.sqlite-shm

@@ -20,6 +20,12 @@ Sesiones opacas de una hora como máximo y 15 minutos de inactividad; la sesión
 
 El productor puede operar sólo sobre sus conexiones y registros de cartera. El superadministrador supervisa metadatos, actividad y registros operativos de su organización, y puede cargar gestiones para cuentas activas de ella. No puede leer códigos PAS ni credenciales. No hay endpoint de revelación ni exportación de secretos al navegador.
 
+## Acceso de superadministración
+
+El propietario puede ingresar en `/admin/` con su usuario y contraseña existentes, sin código personal. El servidor comprueba el rol `superadmin` guardado en D1; un valor de rol en el formulario no concede permisos. Los productores conservan su ingreso con código. Los dos endpoints comparten límites de intentos, validación de origen, contraseñas scrypt, cookies HttpOnly/Secure/SameSite, caducidad y revocación. Las sesiones de administración se identifican dentro del token cuyo hash guarda la base; si la cuenta deja de ser superadministrador, esa sesión se rechaza. No se cambia la contraseña, el código anterior, el correo ni los registros al ingresar por esta vía.
+
+El formulario de administración tiene un único campo de contraseña con `autocomplete=current-password`, usuario identificado y método POST. La decisión de guardar y completar pertenece al navegador y al titular. Turi no guarda contraseñas ni códigos en localStorage.
+
 ## Recuperación individual gestionada por el propietario
 
 Durante el piloto, mientras no haya envío transaccional, el propietario del sitio puede autorizar un enlace individual para reemplazar un código perdido. La autorización se configura fuera del sitio, mediante la conexión autenticada del propietario, como secreto `TURI_CODE_RECOVERY_GRANTS`. Contiene ID, cuenta exacta, organización, hash de un token aleatorio de 256 bits y vencimiento. El sitio no emite esos permisos desde una ruta pública. El token original no se guarda en Git, base de datos ni configuración pública.
@@ -87,3 +93,21 @@ R2 conserva originales, pero no se da por probada una estrategia independiente d
 - OWASP File Upload: https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html
 - Cloudflare R2 Workers API: https://developers.cloudflare.com/r2/api/workers/workers-api-reference/
 - D1 Time Travel: https://developers.cloudflare.com/d1/reference/time-travel/
+
+## Contraseña del superadministrador por permiso del propietario
+
+El propietario del Site puede emitir fuera de la aplicación un permiso aleatorio de 256 bits, con vencimiento, ligado a un superadministrador existente y al hash de su contraseña actual. Se configura sólo su hash y los metadatos como secreto TURI_ADMIN_PASSWORD_RESET_GRANTS. No hay un endpoint público para emitirlo. El enlace personal abre `/admin/crear-contrasena/`. El token llega por fragmento, se quita inmediatamente de la URL y se intercambia mediante POST por una cookie HttpOnly, Secure y SameSite=Strict limitada al vencimiento del permiso. No se guarda en localStorage o sessionStorage. La cookie permite retomar al actualizar en el mismo navegador; cada lectura revalida permiso, uso, cuenta y credencial. Puede abrirse el enlace original en otro navegador, sujeto al mismo uso único. El titular elige la contraseña en la pantalla; no necesita conocer la anterior ni confirmar primero su correo.
+
+El Worker verifica token, vencimiento, cuenta, organización, rol activo y versión de contraseña. La transacción reclama el permiso una sola vez, cambia sólo password_hash, revoca sesiones e invalida desafíos anteriores. El código personal y el correo se conservan. La sesión nueva sigue exigiendo el rol superadmin actual. La auditoría contiene la acción sin tokens ni contraseñas. Este permiso deja de ser válido tras su uso o cualquier cambio de contraseña.
+
+## Invitaciones adicionales de productores
+
+TURI_PAS_INVITATIONS es un secreto opcional controlado por el propietario. Agrega invitaciones sin leer ni reemplazar TURI_INVITATIONS. Sólo admite entradas con role=producer; los roles enviados desde el formulario no se usan. La activación mantiene la contraseña elegida por el titular y la confirmación del código personal normal. Una invitación consumida no sobrescribe una cuenta existente. La denominación de prueba no cambia permisos ni aislamiento.
+
+## Alta de PAS por el administrador
+
+POST /api/pilot/admin/producers requiere una sesión completa de superadministrador, CSRF y el mismo origen. El servidor fija rol producer y la organización del administrador; ignora roles, IDs y organizaciones del formulario. Valida usuario y contraseña, rechaza duplicados sin modificar cuentas y guarda únicamente hashes de contraseña y código personal. La creación y su auditoría se hacen en una transacción con verificación de rol vigente. El código se entrega una sola vez al creador y no se registra en auditoría. La cuenta puede entrar después con la autenticación PAS normal. El navegador conserva las credenciales nuevas sólo en memoria hasta entrar como PAS o cerrar el diálogo; no se guardan en almacenamiento local.
+
+## Servidor independiente
+
+El adaptador Node usa el mismo Worker con SQLite y originales cifrados en disco. Sus claves se generan al primer inicio, se conservan en un archivo privado excluido de Git y deben respaldarse junto con la base y los objetos. El primer administrador requiere un permiso aleatorio mostrado en la terminal, origen válido y conexión de localhost; el alta inicial queda cerrada cuando existe un usuario. No se aceptan hosts arbitrarios ni cabeceras de IP aportadas por clientes. El adaptador limita el cuerpo y serializa las solicitudes para mantener las transacciones locales. El acceso externo debe usar HTTPS mediante el proxy del alojamiento elegido. No sustituye una revisión independiente ni un despliegue probado en ese alojamiento.
