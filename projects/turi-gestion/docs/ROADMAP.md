@@ -74,3 +74,14 @@ Más compañías y ramos, comunicaciones push consolidadas, automatización cont
 Implementado en el espacio PAS: filtros por compañía/cobertura/vigencia, selección sin recorte a tres propuestas y comparación con condiciones originales. Las monedas y períodos se separan. El PAS registra los pendientes e incidencias por compañía y confirma la categoría de búsqueda. Las propuestas vencidas no habilitan aprobación y las versiones modificadas salen de la selección hasta nueva revisión.
 
 El entorno de pruebas está en https://turi-gestion-dev.pages.dev/privado/ y se publica desde GitHub. Resend, cuentas PAS de prueba, documentos múltiples y miniaturas ya están activos. La prueba del explorador conserva la ruta asistida; no activa integraciones ni la emisión. El siguiente hito es relevar las compañías con Dani y elegir dos y un ramo antes del 03/11. El formulario público conectado y la importación de cartera siguen pendientes.
+
+## Prioridad actualizada · 28/10/2026
+El diferencial prioritario es la multicotización automática: un pedido, riesgo normalizado y consultas a compañías habilitadas. Ver MULTIQUOTE_MVP.md y API_ACCESS_REQUESTS.md. Laboratorio local con dos conectores ficticios; no cotiza tarifas reales. Primeras candidatas de QA: Mercantil Andina y Federación Patronal. Habilitación técnica y condiciones para pruebas sin código PAS pendientes. El comparador manual queda como herramienta auxiliar.
+
+### Criterio comercial · 28/10/2026
+Priorizar inteligencia de precios para captar/retener: cuota actual y objetivo del PAS, referencias públicas con fuente/fecha/alcance, consultas a compañías habilitadas y clasificación por ahorro más cobertura. Esta línea de referencias puede avanzar mientras se tramitan credenciales. Diferenciar referencias, cotizaciones de producción, sandbox y simulaciones; mostrar diferencias de cobertura y promociones. Ver MULTIQUOTE_MVP.md, sección Orientación comercial. Pendiente de implementación en interfaz.
+
+## Avance local · 29/10/2026
+Implementada cotización progresiva: siete fuentes revisadas, marco de orientación, campos opcionales, objetivo de precio y ahorro; pedidos iniciales cifrados, sin cliente obligatorio, recuperables desde Cotizaciones y con actualizaciones sin duplicar. Ver PROGRESSIVE_QUOTES.md. 56 pruebas aprobadas. Pendiente de revisión/publicación y de habilitación técnica de aseguradoras; no hay búsqueda web en vivo ni tarifas reales por API todavía.
+
+Publicación de la cotización progresiva autorizada por el titular el 29/10/2026, tras revisión de capturas y pruebas. Destino: Turi dev de Cloudflare, rama demo/turi-gestion.

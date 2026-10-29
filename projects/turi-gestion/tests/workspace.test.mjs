@@ -88,3 +88,15 @@ test('frontend del PAS: nueva solicitud, propuesta y aprobación con el backend 
  w.document.querySelector('[data-work="new"][data-type="quotes"]').click();let f=w.document.querySelector('#work-record');f.elements.clientId.value=client.id;f.elements.branch.value='Autos';f.elements.risk.value='Nuevo pedido desde UI del PAS';f.elements.status.value='comparing';f.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>!w.document.querySelector('.w-dialog'));const q=(await call('/work/overview')).data.quotes.find(q=>q.risk==='Nuevo pedido desde UI del PAS');assert.ok(q);
  w.document.querySelector(`[data-work="quote-detail"][data-id="${q.id}"]`).click();w.document.querySelector('[data-work="offer"]').click();f=w.document.querySelector('#work-offer');f.elements.amount.value='18123.45';f.elements.sourceReference.value='Portal de prueba · COT-UI-23';f.elements.coverage.value='Plan transcripto de la propuesta';f.elements.deductible.value='Sin franquicia';f.elements.validUntil.value='2026-12-31';f.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>w.document.querySelector('[data-work="approve"]'));w.document.querySelector('[data-work="approve"]').click();f=w.document.querySelector('#work-approve');f.elements.confirmed.checked=true;f.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>w.document.body.textContent.includes('Revisión PAS registrada.'));const saved=(await call('/work/overview')).data;assert.equal(saved.quotes.find(v=>v.id===q.id).status,'approved');assert.equal(saved.offers.find(v=>v.quote_id===q.id).premiumCents,1812345);assert.ok(w.document.body.textContent.includes('Este expediente no otorga cobertura'));assert.equal(w.localStorage.length,0);w.close();
 });
+
+test('multicotizador privado conserva auth/CSRF y nunca sustituye consulta real por demo',async()=>{
+ assert.equal((await call('/work/multiquote/prepare',{as:'',method:'POST',data:{text:'Celta'}})).status,401);
+ assert.equal((await call('/work/multiquote/prepare',{method:'POST',csrf:false,data:{text:'Celta'}})).status,403);
+ const r=await post('multiquote/prepare',{text:'Chevrolet Celta 1.4 LT 2014 en Villa Ballester, terceros completo'});assert.equal(r.status,200);assert.equal(r.data.liveAvailable,false);
+ assert.equal((await post('multiquote/prepare',{text:'a'.repeat(2001)})).status,400);
+ assert.equal((await post('multiquote/run',{mode:'live',confirmedDemo:true,risk:r.data.risk})).data.error,'API_ACCESS_REQUIRED');
+ assert.equal((await post('multiquote/run',{mode:'demo',risk:r.data.risk})).status,400);
+ const before=(await call('/work/overview')).data;
+ const d=await post('multiquote/run',{mode:'demo',confirmedDemo:true,risk:r.data.risk});assert.equal(d.status,200);assert.equal(d.data.results.length,2);assert.ok(d.data.results.every(x=>x.sourceType==='simulation'));
+ const after=(await call('/work/overview')).data;assert.equal(before.quotes.length,after.quotes.length);assert.equal(before.offers.length,after.offers.length);
+});

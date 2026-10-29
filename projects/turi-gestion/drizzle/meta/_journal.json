@@ -36,6 +36,13 @@
       "when": 1793111819814,
       "tag": "0004_fast_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793273015095,
+      "tag": "0005_progressive_quote_intakes",
+      "breakpoints": true
     }
   ]
 }

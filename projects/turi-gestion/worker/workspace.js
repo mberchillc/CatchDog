@@ -1,4 +1,5 @@
 import { opaque,seal,unseal,NOW } from './security.js';
+import { multiquoteApi,mqIntakeView } from './multiquote.js';
 
 // All tables/columns below are code-owned allowlists; input is always bound.
 const WORK_TYPES={clients:'work_clients',policies:'work_policies',claims:'work_claims',tasks:'work_tasks',quotes:'work_quotes',offers:'work_offers'};
@@ -7,6 +8,7 @@ const WORK_BRANCHES=['Autos','Motos','Hogar','Comercio','Caución','Accidentes p
 export async function workspaceApi(req,env,u,companies,helpers){
  const {json,fail,stmt,first,all,run,audit,body,rate}=helpers;
  const url=new URL(req.url),path=url.pathname.slice('/api/pilot/work'.length),admin=u.role==='superadmin';
+ if(path.startsWith('/multiquote/'))return multiquoteApi(req,env,u,path,helpers);
  const text=(v,max,required=false)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||(!v.trim()&&required))fail(400,'FIELD','Revisá los campos obligatorios y su extensión.');return v.trim()};
  const choice=(v,values)=>{if(!values.includes(v))fail(400,'FIELD','Elegí una opción válida.');return v};
  const day=(v,required=true)=>{if(!v&&!required)return null;const s=text(v,10,true);if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!Number.isFinite(Date.parse(s+'T12:00:00Z'))||new Date(s+'T12:00:00Z').toISOString().slice(0,10)!==s||s<'1900-01-01'||s>'2100-12-31')fail(400,'DATE','Revisá la fecha.');return s};
@@ -35,6 +37,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
   const filter=admin?(requested?' AND owner_id=?':''):' AND owner_id=?',args=[u.tenant_id,...(admin?(requested?[requested]:[]):[u.id])];
   const entries=await Promise.all(Object.entries(WORK_TYPES).map(async([type,table])=>{const rows=await all(env,'SELECT * FROM '+table+' WHERE tenant_id=?'+filter+' ORDER BY updated_at DESC LIMIT 500',...args);return [type,await Promise.all(rows.map(row=>view(type,row)))]}));
   const data=Object.fromEntries(entries);
+  const intakes=await all(env,'SELECT * FROM work_quote_intakes WHERE tenant_id=?'+filter+' ORDER BY updated_at DESC LIMIT 500',...args);data.quoteIntakes=await Promise.all(intakes.map(row=>mqIntakeView(env,row)));
   const owners=admin?await all(env,'SELECT id,name,username,role,(access_code_hash IS NOT NULL) AS code_configured,disabled FROM pilot_users WHERE tenant_id=? ORDER BY name',u.tenant_id):[{id:u.id,name:u.name,username:u.username,role:u.role,code_configured:1,disabled:0}];
   return json({...data,owners,today:today(),automaticQuotes:false,source:'private_database'});
  }

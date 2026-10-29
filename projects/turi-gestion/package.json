@@ -14,7 +14,8 @@
     "prestart": "node scripts/build-worker.mjs",
     "start": "node scripts/serve.mjs",
     "test:private": "node --test tests/*.test.mjs",
-    "build:pages": "node scripts/build-pages.mjs"
+    "build:pages": "node scripts/build-pages.mjs",
+    "test:quotes": "node --test tests/multiquote.test.mjs tests/progressive-quotes.test.mjs tests/quote-explorer.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.3",

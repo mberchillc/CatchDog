@@ -1,0 +1,132 @@
+{
+  "version": "2026-10-29",
+  "reviewedAt": "2026-10-29",
+  "mode": "reviewed_sources",
+  "notice": "Biblioteca de fuentes revisadas. No es una búsqueda web en vivo ni una tarifa personalizada.",
+  "sources": [
+    {
+      "id": "google-shared",
+      "title": "Google · respuesta compartida",
+      "url": "https://share.google/aimode/EZgPXRuG0yjR2pDdQ",
+      "kind": "ai_summary",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-28",
+      "scope": "Consulta por Chevrolet Celta 1.4 LT 2012, Villa Ballester y sin choques declarados.",
+      "summary": "Tabla orientativa del buscador que distingue RC, terceros completo y terceros con granizo/cristales.",
+      "limitations": "Resumen generado por IA; sin aseguradora tarifante, referencia de cotización ni fecha tarifaria acreditada. Sus adicionales no quedan confirmados por la tabla primaria de precios.",
+      "case": {
+        "brand": "Chevrolet",
+        "model": "Celta",
+        "version": "1.4 LT",
+        "year": "2012",
+        "locality": "Villa Ballester"
+      },
+      "bands": [
+        {
+          "coverage": "liability",
+          "label": "Responsabilidad civil",
+          "minCents": 3500000,
+          "maxCents": 5500000
+        },
+        {
+          "coverage": "third_party_full",
+          "label": "Terceros completo",
+          "minCents": 6000000,
+          "maxCents": 7500000
+        },
+        {
+          "coverage": "third_party_full_extras",
+          "label": "Terceros completo + granizo/cristales",
+          "minCents": 7500000,
+          "maxCents": 9000000
+        }
+      ]
+    },
+    {
+      "id": "seguros-online",
+      "title": "SegurosOnline · precios de referencia",
+      "url": "https://segurosonline.com.ar/blog/precio-seguro-auto",
+      "kind": "published_reference",
+      "publishedOn": "2026-06-23",
+      "reviewedAt": "2026-10-29",
+      "scope": "Tabla general para usados/gama baja del AMBA.",
+      "summary": "Publica rangos mensuales por cobertura para orientar una comparación inicial.",
+      "limitations": "No fija el precio de un vehículo concreto ni confirma granizo y cristales para ese rango. La publicación es anterior a esta consulta.",
+      "bands": [
+        {
+          "coverage": "liability",
+          "label": "Responsabilidad civil · usado/gama baja AMBA",
+          "minCents": 3500000,
+          "maxCents": 5500000
+        },
+        {
+          "coverage": "third_party_full",
+          "label": "Terceros completo · usado/gama baja AMBA",
+          "minCents": 6000000,
+          "maxCents": 9000000
+        },
+        {
+          "coverage": "comprehensive",
+          "label": "Todo riesgo con franquicia · usado/gama baja AMBA",
+          "minCents": 10000000,
+          "maxCents": 18000000
+        }
+      ]
+    },
+    {
+      "id": "segurline",
+      "title": "SegurLine · Chevrolet Celta",
+      "url": "https://www.segurline.com.ar/seguro-chevrolet-celta",
+      "kind": "coverage_guide",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-29",
+      "scope": "Información de coberturas para Chevrolet Celta.",
+      "summary": "Describe terceros completo y adicionales de granizo, cerraduras y cristales en la cobertura Full.",
+      "limitations": "No publica una tarifa aplicable al caso ni confirma qué compañías aceptarían el riesgo."
+    },
+    {
+      "id": "bbva",
+      "title": "BBVA · variables del precio",
+      "url": "https://www.bbva.com.ar/economia-para-tu-dia-a-dia/ef/seguros/cuanto-sale-un-seguro-de-auto.html",
+      "kind": "risk_guide",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-29",
+      "scope": "Características del vehículo, conductor, cobertura, zona y lugar de guarda.",
+      "summary": "Explica qué información puede afinar una cotización.",
+      "limitations": "Contenido orientativo; no contiene un precio personalizado reutilizable."
+    },
+    {
+      "id": "sancor",
+      "title": "Sancor Seguros · autos",
+      "url": "https://www.sancorseguros.com.ar/auto",
+      "kind": "insurer_information",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-29",
+      "scope": "Productos de automotores y condiciones comerciales de Sancor.",
+      "summary": "Información oficial para revisar coberturas y requisitos de sus productos.",
+      "limitations": "La disponibilidad, adicionales y promociones deben confirmarse para el riesgo y el canal. No es una cotización de Turi."
+    },
+    {
+      "id": "santander",
+      "title": "Santander · seguro de auto",
+      "url": "https://www.santander.com.ar/personas/seguros/seguro-de-auto",
+      "kind": "channel_information",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-29",
+      "scope": "Productos y promociones comercializados por el banco.",
+      "summary": "Permite revisar descuentos, su duración y condiciones de acceso.",
+      "limitations": "Las promociones de este canal no se trasladan automáticamente a Turi ni a cualquier PAS. El precio posterior al beneficio puede variar."
+    },
+    {
+      "id": "allianz",
+      "title": "Allianz · comparar coberturas",
+      "url": "https://www.allianz.com.ar/blog-allianz/todo-riesgo-terceros.html",
+      "kind": "insurer_information",
+      "publishedOn": null,
+      "reviewedAt": "2026-10-29",
+      "scope": "Coberturas, adicionales, franquicias y condiciones.",
+      "summary": "Ayuda a interpretar diferencias entre terceros, terceros completo y todo riesgo.",
+      "limitations": "Granizo, cristales, sumas y límites dependen del plan y de la póliza."
+    }
+  ]
+}

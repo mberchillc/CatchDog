@@ -22,3 +22,5 @@ export const integrationReviews=sqliteTable('work_integration_reviews',{connecti
 export const documents=sqliteTable('work_documents',{
  ...recordColumns(),clientId:text('client_id').notNull().references(()=>clients.id),policyId:text('policy_id').references(()=>policies.id),claimId:text('claim_id').references(()=>claims.id),uploadId:text('upload_id').notNull(),objectKey:text('object_key').notNull(),mime:text('mime').notNull(),bytes:integer('bytes').notNull(),state:text('state').notNull(),archived:integer('archived').notNull().default(0),leaseToken:text('lease_token').notNull(),leaseExpiresAt:integer('lease_expires_at').notNull()
 },t=>[uniqueIndex('work_document_upload').on(t.tenantId,t.ownerId,t.uploadId),index('work_documents_client').on(t.tenantId,t.ownerId,t.clientId)]);
+
+export const quoteIntakes=sqliteTable('work_quote_intakes',{...recordColumns(),requestKey:text('request_key').notNull(),requestHash:text('request_hash').notNull(),status:text('status').notNull()},t=>[uniqueIndex('work_quote_intakes_request_key').on(t.tenantId,t.ownerId,t.requestKey),index('work_quote_intakes_owner').on(t.tenantId,t.ownerId,t.updatedAt)]);
