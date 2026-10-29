@@ -1,46 +1,23 @@
-# Cotización progresiva y fuentes de orientación
-Estado: implementado y probado el 29/10/2026. Publicación en Turi dev autorizada por el titular; verificación del despliegue registrada en el cierre de esta conversación.
+# Estimación inicial y cotización Turi — 29/10/2026
 
-## Comportamiento
-- El PAS puede pedir una orientación inicial desde el primer paso, sin campos obligatorios y sin cliente previamente cargado.
-- Descripción libre con lectura inicial por reglas; completar datos conocidos conserva los valores ingresados por el PAS. La conexión con IA sigue desactivada.
-- Campos opcionales de vehículo, ubicación, cobertura, granizo/cristales; uso, guarda, combustible, puertas, GNC, alarma, edad, siniestros, valor, pago e IVA.
-- Compañía actual, cuota mensual y objetivo permiten calcular el ahorro buscado. No se precargan importes ni datos del caso familiar real.
-- Se guarda un pedido inicial cifrado en work_quote_intakes, atribuido a usuario y organización. Puede retomarse en Cotizaciones y actualizarse con control de versión.
-- La clave de reintento evita duplicados ante una respuesta perdida. El hash del contenido usa HMAC con secreto del servidor.
-- Los pedidos iniciales no se convierten en work_offers ni habilitan aprobación o emisión.
-- Los campos desconocidos permanecen desconocidos. Datos iniciales pendientes y requisitos técnicos de cada compañía se muestran sin bloquear la orientación.
-- Mercantil Andina y Federación Patronal siguen sin conexión habilitada: el pedido todavía no se envía a esas APIs.
+El PAS puede describir el vehículo o completar marca/modelo y pulsar «Estimar con lo que tengo». Todos los otros datos son opcionales. La respuesta numérica se muestra arriba del formulario, recibe el foco y queda guardada con el pedido. Un pedido completamente vacío también se guarda, pero pide identificar el vehículo para calcular.
 
-## Fuentes incorporadas
-La biblioteca versionada está en public/quote-sources.json. Es una selección revisada, no una búsqueda automática en vivo.
-1. Google AI Mode, búsqueda compartida: https://share.google/aimode/EZgPXRuG0yjR2pDdQ. Antecedente Celta 1.4 LT 2012, Villa Ballester, sin choques. Tabla de IA: RC 35–55 mil, TC 60–75 mil, TC con granizo/cristales 75–90 mil ARS/mes. No es respuesta de una aseguradora.
-2. SegurosOnline: https://segurosonline.com.ar/blog/precio-seguro-auto. Publicación 23/06/2026, usados/gama baja AMBA; TC 60–90 mil ARS/mes. No confirma adicionales en esa tabla.
-3. SegurLine: https://www.segurline.com.ar/seguro-chevrolet-celta. Confirma que describe TC y Full con adicionales; sin tarifa reutilizable.
-4. BBVA: https://www.bbva.com.ar/economia-para-tu-dia-a-dia/ef/seguros/cuanto-sale-un-seguro-de-auto.html. Variables del vehículo, conductor, cobertura y entorno.
-5. Sancor: https://www.sancorseguros.com.ar/auto. Información oficial de productos; no se extrapolan promociones.
-6. Santander: https://www.santander.com.ar/personas/seguros/seguro-de-auto. Promociones por canal y duración; no se aplican automáticamente a Turi.
-7. Allianz: https://www.allianz.com.ar/blog-allianz/todo-riesgo-terceros.html. Coberturas, adicionales, límites y franquicias.
-Las fuentes incluyen alcance, revisión, fecha de publicación cuando está disponible y límites de aplicabilidad.
+## Cálculo y procedencia
+- Fiat Chronos se normaliza a Fiat Cronos. Cronos terceros completo: piso publicado de ARS 85.000 (Matías Ferri, 17/09/2026), combinado con techo general de gama media ARS 130.000 (SegurosOnline, 23/06/2026). Punto medio redondeado: ARS 108.000 mensuales. Es una construcción orientativa, no un rango textual cotizado por una compañía.
+- Peugeot 208 y Toyota Hilux usan sus rangos publicados; otros modelos usan bandas generales por cobertura y segmento explícito, o gama baja/media cuando no está clasificada la versión.
+- No se inventan coeficientes por localidad, edad, año, valor asegurado, granizo o cristales. Su efecto pendiente figura como supuesto.
+- Granizo/cristales no se presentan incluidos en el precio base cuando la fuente no los confirma. El antecedente de Google sigue identificado como resumen de IA para el perfil específico del Celta.
+- Cuota actual y objetivo comercial no modifican el estimador.
+- Biblioteca de ocho fuentes revisadas: no hay búsqueda web en vivo ni consulta tarifada a aseguradoras. Mercantil Andina y Federación Patronal siguen sin conexión habilitada.
 
-## Aplicabilidad del marco
-El antecedente de Google sólo se asocia al pedido cuando se identifica Chevrolet Celta, localidad y cobertura. Se muestran diferencias explícitas de localidad/año/versión y datos desconocidos. No se ajusta una prima ni se infiere un precio por compañía.
-Para otro vehículo, o datos insuficientes, se conserva el pedido y se muestra que aún no hay un rango asociado. El acceso a las fuentes permanece disponible.
-La fuente de precios primaria y el resumen de IA permanecen separados; el rango con adicionales no se atribuye a la tabla de SegurosOnline.
+## Guardado y PDF
+La estimación completa, fecha, fuentes y método se guardan en el payload cifrado del pedido. El reintento idempotente devuelve exactamente esa instantánea. Retomar no recalcula silenciosamente; actualizar incrementa versión y calcula una nueva referencia.
 
-## Archivos principales
-- worker/multiquote.js: validación, preparación, orientación, persistencia, idempotencia y versiones.
-- public/multiquote.js / .css: formulario progresivo, marco, fuentes, objetivo y resultados.
-- public/quote-sources.json: biblioteca con procedencia.
-- worker/workspace.js / public/workspace.js: listado y recuperación de pedidos.
-- drizzle/0005_progressive_quote_intakes.sql, db/schema.ts y snapshot: tabla nueva, sin cambiar tablas o usuarios existentes.
-- tests/progressive-quotes.test.mjs: flujo con backend, aislamiento, campos incompletos, reintentos, cifrado, navegación y cambio de sesión.
+«Descargar cotización Turi · PDF» recupera primero la última versión autorizada del servidor. Se bloquea al editar sin guardar o si otra pantalla reemplazó la versión. Usa logo Turi, importe, rango, datos, campos pendientes, fuentes y «Valor aproximado sujeto a aprobación final». No contiene el objetivo comercial interno y no otorga cobertura. El PDF se genera en el navegador, sin enviar datos a un servicio externo.
+
+Generador pdf-lib 1.17.1 distribuido con su licencia MIT en public/vendor, servido desde el mismo origen. No requiere claves ni dependencias del servidor. No se necesita migración adicional.
 
 ## Verificación
-56 pruebas distintas aprobadas entre cotizador, expedientes, comparación, documentos y productores. Incluyen pedir con todos los campos vacíos, completar más tarde sin duplicar, retomar en Cotizaciones, rechazar datos ajenos/CSRF/versiones incorrectas y evitar exposición de una respuesta pendiente al cambiar de cuenta.
-Build Pages correcto. Verificación visual con PAS local regular; datos de prueba en memoria.
+62 pruebas de operación, documentos, cotizaciones y productores; 27 pruebas adicionales de seguridad y recuperación. Aprobadas localmente. Incluyen Cronos/Caseros, texto libre, modelos distintos, cambios de cobertura, vacío, reintentos, cifrado, versiones, aislamiento por PAS, navegación, descarga y PDF de dos páginas con logo. El PDF se extrajo y renderizó para verificar sus dos páginas. Flujo de navegador probado con PAS regular local: calcular y descargar.
 
-## Publicación autorizada
-El titular revisó las capturas y autorizó publicar en Turi dev el 29/10/2026. El procedimiento aplica la migración aditiva a turi-gestion-dev-db, publica la rama demo/turi-gestion y verifica un pedido incompleto y su recuperación con un PAS regular.
-Destino: https://turi-gestion-dev.pages.dev/privado/#view=multiquote
-No declarar la consulta de aseguradoras activa hasta obtener y validar las credenciales de sandbox/QA.
+La verificación del entorno publicado se registra por separado, con datos sintéticos aislados. Nunca se usa la presencia de un menú como prueba de que una integración funciona.

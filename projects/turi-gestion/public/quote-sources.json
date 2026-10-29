@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-29",
+  "version": "2026-10-29-estimates-1",
   "reviewedAt": "2026-10-29",
   "mode": "reviewed_sources",
   "notice": "Biblioteca de fuentes revisadas. No es una búsqueda web en vivo ni una tarifa personalizada.",
@@ -49,7 +49,7 @@
       "kind": "published_reference",
       "publishedOn": "2026-06-23",
       "reviewedAt": "2026-10-29",
-      "scope": "Tabla general para usados/gama baja del AMBA.",
+      "scope": "Tabla general de precios mensuales para distintos segmentos del AMBA.",
       "summary": "Publica rangos mensuales por cobertura para orientar una comparación inicial.",
       "limitations": "No fija el precio de un vehículo concreto ni confirma granizo y cristales para ese rango. La publicación es anterior a esta consulta.",
       "bands": [
@@ -57,19 +57,65 @@
           "coverage": "liability",
           "label": "Responsabilidad civil · usado/gama baja AMBA",
           "minCents": 3500000,
-          "maxCents": 5500000
+          "maxCents": 5500000,
+          "segment": "entry_used"
         },
         {
           "coverage": "third_party_full",
           "label": "Terceros completo · usado/gama baja AMBA",
           "minCents": 6000000,
-          "maxCents": 9000000
+          "maxCents": 9000000,
+          "segment": "entry_used"
         },
         {
           "coverage": "comprehensive",
           "label": "Todo riesgo con franquicia · usado/gama baja AMBA",
           "minCents": 10000000,
-          "maxCents": 18000000
+          "maxCents": 18000000,
+          "segment": "entry_used"
+        },
+        {
+          "coverage": "liability",
+          "label": "Responsabilidad civil · gama media AMBA",
+          "segment": "mid",
+          "minCents": 4500000,
+          "maxCents": 7000000
+        },
+        {
+          "coverage": "third_party_full",
+          "label": "Terceros completo · gama media AMBA",
+          "segment": "mid",
+          "minCents": 8000000,
+          "maxCents": 13000000
+        },
+        {
+          "coverage": "comprehensive",
+          "label": "Todo riesgo con franquicia · gama media AMBA",
+          "segment": "mid",
+          "minCents": 15000000,
+          "maxCents": 26000000
+        },
+        {
+          "coverage": "liability",
+          "label": "Responsabilidad civil · gama alta AMBA",
+          "segment": "high",
+          "minCents": 6000000,
+          "maxCents": 9000000
+        },
+        {
+          "coverage": "third_party_full",
+          "label": "Terceros completo · gama alta AMBA",
+          "segment": "high",
+          "minCents": 11000000,
+          "maxCents": 20000000,
+          "upperOpen": true
+        },
+        {
+          "coverage": "comprehensive",
+          "label": "Todo riesgo con franquicia · gama alta AMBA",
+          "segment": "high",
+          "minCents": 25000000,
+          "maxCents": 50000000
         }
       ]
     },
@@ -127,6 +173,40 @@
       "scope": "Coberturas, adicionales, franquicias y condiciones.",
       "summary": "Ayuda a interpretar diferencias entre terceros, terceros completo y todo riesgo.",
       "limitations": "Granizo, cristales, sumas y límites dependen del plan y de la póliza."
+    },
+    {
+      "id": "ferri-prices",
+      "title": "Matías Ferri · referencias por modelo",
+      "url": "https://matiasferri.ar/articulos/cuanto-cuesta-asegurar-un-auto-en-argentina/",
+      "kind": "published_reference",
+      "publishedOn": "2026-09-17",
+      "reviewedAt": "2026-10-29",
+      "scope": "Referencias ilustrativas por cobertura y modelo; sin versión, año o localidad exactos.",
+      "summary": "Publica un piso para terceros completo del Cronos y rangos para Peugeot 208 y Toyota Hilux.",
+      "limitations": "Son referencias del autor, sujetas a perfil y condiciones. No confirma granizo/cristales para cada importe ni representa una oferta de Turi.",
+      "modelReferences": [
+        {
+          "brand": "Fiat",
+          "model": "Cronos",
+          "coverage": "third_party_full",
+          "minCents": 8500000,
+          "maxCents": null
+        },
+        {
+          "brand": "Peugeot",
+          "model": "208",
+          "coverage": "third_party_full",
+          "minCents": 9000000,
+          "maxCents": 12000000
+        },
+        {
+          "brand": "Toyota",
+          "model": "Hilux",
+          "coverage": "third_party_full",
+          "minCents": 12000000,
+          "maxCents": 17000000
+        }
+      ]
     }
   ]
 }

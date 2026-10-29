@@ -42,8 +42,8 @@ test('aislamiento por PAS/organización, atribución del cliente, CSRF y montos 
  const foreign=await h.call('/work/overview',{as:'other'});assert.equal(foreign.data.quoteIntakes.length,0);
 });
 test('referencias conservan procedencia, fecha, diferencias y adicional sin tarifa inventada',async()=>{
- const catalog=await h.call('/work/multiquote/catalog');assert.equal(catalog.status,200);assert.equal(catalog.data.catalog.sources.length,7);
- const s=MQ_SOURCE_CATALOG.sources;assert.equal(new Set(s.map(x=>x.id)).size,7);assert.ok(s.every(x=>new URL(x.url).protocol==='https:'&&x.reviewedAt&&x.limitations));assert.equal(s.filter(x=>x.bands).length,2);
+ const catalog=await h.call('/work/multiquote/catalog');assert.equal(catalog.status,200);assert.equal(catalog.data.catalog.sources.length,8);
+ const s=MQ_SOURCE_CATALOG.sources;assert.equal(new Set(s.map(x=>x.id)).size,8);assert.ok(s.every(x=>new URL(x.url).protocol==='https:'&&x.reviewedAt&&x.limitations));assert.equal(s.filter(x=>x.bands).length,2);
  const a=mqOrientation({brand:'Chevrolet',model:'Celta',year:'2012',version:'1.4 LT',locality:'Villa Ballester',coverage:'third_party_full'},{hail:'yes',glass:'yes'});
  assert.equal(a.frame.bands[0].minCents,7500000);assert.equal(a.frame.bands[0].maxCents,9000000);assert.equal(a.frame.adjusted,false);assert.equal(a.frame.sourceType,'ai_summary');assert.equal(a.canApprove,false);
  assert.equal(mqOrientation({brand:'Ford',model:'Focus',coverage:'third_party_full',locality:'Córdoba'}).frame,null);
