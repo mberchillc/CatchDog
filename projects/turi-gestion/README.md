@@ -1,3 +1,5 @@
+> Actualización 29/10/2026: la demo con accesos predefinidos fue retirada. Turi dev usa cuentas privadas y alta por invitación; ver docs/ACCESS_INVITATIONS.md.
+
 # Turi Gestión
 
 MVP para la operación del productor asesor de seguros: clientes, pólizas, siniestros, tareas, solicitudes y propuestas, documentos PDF/fotos, compañías y supervisión de productores. El alcance y el calendario hacia el 13/11 están en [ROADMAP](docs/ROADMAP.md).

@@ -24,3 +24,5 @@ export const documents=sqliteTable('work_documents',{
 },t=>[uniqueIndex('work_document_upload').on(t.tenantId,t.ownerId,t.uploadId),index('work_documents_client').on(t.tenantId,t.ownerId,t.clientId)]);
 
 export const quoteIntakes=sqliteTable('work_quote_intakes',{...recordColumns(),requestKey:text('request_key').notNull(),requestHash:text('request_hash').notNull(),status:text('status').notNull()},t=>[uniqueIndex('work_quote_intakes_request_key').on(t.tenantId,t.ownerId,t.requestKey),index('work_quote_intakes_owner').on(t.tenantId,t.ownerId,t.updatedAt)]);
+
+export const pasInvitations=sqliteTable('pilot_pas_invitations',{id:text('id').primaryKey(),tenantId:text('tenant_id').notNull(),name:text('name').notNull(),tokenHash:text('token_hash').notNull(),createdBy:text('created_by').notNull().references(()=>users.id),expiresAt:integer('expires_at').notNull(),usedAt:integer('used_at'),revokedAt:integer('revoked_at'),claimToken:text('claim_token'),claimedUserId:text('claimed_user_id'),createdAt:integer('created_at').notNull()},t=>[uniqueIndex('pilot_pas_invitation_token').on(t.tokenHash),index('pilot_pas_invitation_tenant').on(t.tenantId,t.expiresAt)]);

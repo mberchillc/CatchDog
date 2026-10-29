@@ -85,3 +85,6 @@ Priorizar inteligencia de precios para captar/retener: cuota actual y objetivo d
 Implementada cotización progresiva: siete fuentes revisadas, marco de orientación, campos opcionales, objetivo de precio y ahorro; pedidos iniciales cifrados, sin cliente obligatorio, recuperables desde Cotizaciones y con actualizaciones sin duplicar. Ver PROGRESSIVE_QUOTES.md. 56 pruebas aprobadas. Pendiente de revisión/publicación y de habilitación técnica de aseguradoras; no hay búsqueda web en vivo ni tarifas reales por API todavía.
 
 Publicación de la cotización progresiva autorizada por el titular el 29/10/2026, tras revisión de capturas y pruebas. Destino: Turi dev de Cloudflare, rama demo/turi-gestion.
+
+## Acceso de Daniel — 29/10/2026
+La cuenta de Daniel aún requiere que él complete el alta desde su invitación personal, elija usuario y contraseña y confirme su código. Se retiró la demo Dani/1234 de Turi dev. Su cartera real comienza vacía, sin importar los clientes ficticios de la maqueta. Super Admin puede crear y revocar invitaciones desde Productores. Ver ACCESS_INVITATIONS.md.

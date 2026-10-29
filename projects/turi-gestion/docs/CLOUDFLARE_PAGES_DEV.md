@@ -36,7 +36,7 @@ El administrador entra por `/admin/`, crea los PAS de prueba desde Productores y
 
 Verificar en cada publicación: ingreso de PAS, creación de cliente, subida de un PDF, descarga del original y rechazo de acceso a administración desde la cuenta PAS. El flujo también se verificó con Wrangler Pages y el motor local de Cloudflare, usando D1 y R2 locales.
 
-La raíz `/` conserva la demo ilustrativa; para evaluar las funciones que guardan registros, compartir `/privado/`.
+La raíz `/` abre la entrada al MVP privado. La demo ilustrativa con acceso Dani/1234 fue retirada el 29/10/2026. El alta real de productores se realiza con una invitación personal: cada uno elige sus credenciales y recibe una cartera vacía.
 
 Validación de correo (28/10/2026): las 12 pruebas de recuperación pasan, incluidos códigos incorrectos, vencidos, uso único, límites de intentos, revocación de sesiones y enlaces por entorno.
 

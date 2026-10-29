@@ -1,0 +1,77 @@
+[
+  {
+    "id": "segunda",
+    "name": "La Segunda",
+    "portal": "https://app-launcher.papps.lasegunda.com.ar/"
+  },
+  {
+    "id": "mercantil",
+    "name": "Mercantil Andina",
+    "portal": "https://servicios.mercantilandina.com.ar/sigmav3/"
+  },
+  {
+    "id": "federacion",
+    "name": "Federación Patronal",
+    "portal": "https://online.fedpat.com.ar/self/homeWin32.do"
+  },
+  {
+    "id": "rivadavia",
+    "name": "Rivadavia",
+    "portal": "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P"
+  },
+  {
+    "id": "sancor",
+    "name": "Sancor Seguros",
+    "portal": "https://portalintermediarios.gruposancorseguros.com/"
+  },
+  {
+    "id": "cristobal",
+    "name": "San Cristóbal",
+    "portal": "https://productores.sancristobal.com.ar/"
+  },
+  {
+    "id": "zurich",
+    "name": "Zurich",
+    "portal": "https://www.zurich.com.ar/"
+  },
+  {
+    "id": "allianz",
+    "name": "Allianz",
+    "portal": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html"
+  },
+  {
+    "id": "provincia",
+    "name": "Provincia Seguros",
+    "portal": "https://portal.provinciaseguros.com.ar/pas-web/"
+  },
+  {
+    "id": "mapfre",
+    "name": "MAPFRE",
+    "portal": "https://mapfrenet.mapfre.com.ar/mapfrenet/"
+  },
+  {
+    "id": "holando",
+    "name": "La Holando",
+    "portal": "https://www.laholando.com/"
+  },
+  {
+    "id": "experta",
+    "name": "Experta",
+    "portal": "https://www.experta.com.ar/index.php/productores/"
+  },
+  {
+    "id": "triunfo",
+    "name": "Triunfo Seguros",
+    "portal": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/"
+  },
+  {
+    "id": "atm",
+    "name": "ATM Seguros",
+    "portal": "https://extranet.atmseguros.com.ar/"
+  },
+  {
+    "id": "lps",
+    "name": "La Perseverancia",
+    "portal": "https://intranet.lps.com.ar/"
+  }
+]

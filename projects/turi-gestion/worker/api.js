@@ -48,6 +48,13 @@ async function adminResetGrant(req,env,b={}){
  return {u,grant,hash,token};
 }
 function producerInvitations(env){try{const values=JSON.parse(env.TURI_PAS_INVITATIONS||'[]');return Array.isArray(values)?values.filter(i=>i&&i.role==='producer'):[]}catch{return []}}
+
+async function pasSignupGrant(env,token){
+ if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))fail(403,'INVITE_INVALID','El enlace no es válido, venció o ya fue utilizado. Pedí una invitación nueva a Turi.');
+ const invite=await first(env,"SELECT i.* FROM pilot_pas_invitations i JOIN pilot_users a ON a.id=i.created_by AND a.tenant_id=i.tenant_id WHERE i.token_hash=? AND i.used_at IS NULL AND i.revoked_at IS NULL AND i.expires_at>? AND a.role='superadmin' AND a.disabled=0",digest(token),NOW());
+ if(!invite)fail(403,'INVITE_INVALID','El enlace no es válido, venció o ya fue utilizado. Pedí una invitación nueva a Turi.');return invite;
+}
+
 export async function api(req,env,companies){
  const path=new URL(req.url).pathname;
  if(path==='/api/pilot/status'&&req.method==='GET')return json({stage:'workspace',accounts:ready(env)?'configured':'not_configured',accessMode:'personal_code',emailRecoveryAvailable:mailReady(env),fileStorageAvailable:filesReady(env),connectionLimit:10,automaticQuotes:false,deadline:'2026-11-13'});
@@ -55,6 +62,27 @@ export async function api(req,env,companies){
  if(!['GET','POST','DELETE'].includes(req.method))fail(405,'METHOD','Operación no disponible.');
  if(req.method!=='GET'&&req.headers.get('origin')!==new URL(req.url).origin)fail(403,'ORIGIN','Abrí el formulario desde Turi Gestión.');
  const ip=req.headers.get('cf-connecting-ip')||'unknown';
+
+ if(path==='/api/pilot/auth/invitation/prepare'&&req.method==='POST'){
+  await rate(env,'invite-prepare-ip:'+ip,30,3600000);const b=await body(req),invite=await pasSignupGrant(env,b.token);
+  return json({name:invite.name,expiresAt:invite.expires_at});
+ }
+ if(path==='/api/pilot/auth/invitation/accept'&&req.method==='POST'){
+  await rate(env,'invite-accept-ip:'+ip,12,3600000);const b=await body(req),invite=await pasSignupGrant(env,b.token),username=clean(b.username,40).toLowerCase();
+  if(typeof b.username!=='string'||b.username.trim().length>40||!/^[a-z][a-z0-9._-]{2,39}$/.test(username))fail(400,'USERNAME','Elegí un usuario de 3 a 40 caracteres: letras, números, punto, guion o guion bajo.');
+  if(typeof b.passwordConfirmation!=='string'||b.password!==b.passwordConfirmation)fail(400,'PASSWORD_CONFIRMATION','Las contraseñas no coinciden.');
+  if(await first(env,'SELECT id FROM pilot_users WHERE username=?',username))fail(409,'USERNAME_IN_USE','Ese usuario no está disponible. Elegí otro.');
+  const email=b.email?normalizeEmail(b.email):null;if(b.email&&!email)fail(400,'EMAIL_INVALID','Revisá el correo electrónico.');
+  let hash;try{hash=passwordHash(b.password,env.TURI_AUTH_PEPPER)}catch{fail(400,'PASSWORD_LENGTH','Elegí una contraseña de entre 14 y 128 caracteres. Podés usar una frase.');}
+  const id='PAS-'+opaque(16),claim=opaque(24),stamp=NOW(),gate='EXISTS (SELECT 1 FROM pilot_pas_invitations WHERE id=? AND claim_token=? AND claimed_user_id=?)';
+  const result=await env.DB.batch([
+   stmt(env,"UPDATE pilot_pas_invitations SET used_at=?,claim_token=?,claimed_user_id=? WHERE id=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>? AND NOT EXISTS (SELECT 1 FROM pilot_users WHERE username=?) AND EXISTS (SELECT 1 FROM pilot_users WHERE id=pilot_pas_invitations.created_by AND tenant_id=pilot_pas_invitations.tenant_id AND role='superadmin' AND disabled=0)",stamp,claim,id,invite.id,stamp,username),
+   stmt(env,'INSERT INTO pilot_users (id,username,name,role,tenant_id,password_hash,mfa_secret,mfa_enabled,recovery_hashes,last_totp_step,disabled,created_at,email,email_verified) SELECT ?,?,?,?,?,?,?,0,?,-1,0,?,?,0 WHERE '+gate,id,username,invite.name,'producer',invite.tenant_id,hash,'','[]',stamp,email,invite.id,claim,id)
+  ]);
+  if(result[0].meta.changes!==1||result[1].meta.changes!==1)fail(409,'INVITATION_CHANGED','El enlace ya se usó o el usuario dejó de estar disponible. Volvé a revisar el acceso.');
+  const u=await first(env,'SELECT * FROM pilot_users WHERE id=?',id);await audit(env,u,'auth.invitation_accepted',invite.id);const s=await session(env,u,false);
+  return json({user:userView(u),csrf:s.csrf,requiresCodeSetup:true},201,{'Set-Cookie':cookie(s.token,600)});
+ }
  if(path==='/api/pilot/auth/activate'&&req.method==='POST'){
   await rate(env,'activate-ip:'+ip,12);const b=await body(req);const username=clean(b.username,40).toLowerCase();const invites=[...JSON.parse(env.TURI_INVITATIONS||'[]'),...producerInvitations(env)];const invite=invites.find(i=>i.username===username&&i.expiresAt>NOW()&&equal(i.tokenHash,digest(String(b.token||''))));
   if(!invite)fail(403,'INVITE_INVALID','El enlace de activación no es válido o venció.');if(await first(env,'SELECT id FROM pilot_users WHERE username=?',username))fail(409,'ALREADY_ACTIVATED','La cuenta ya está creada. Ingresá con tu usuario y contraseña.');
@@ -162,6 +190,25 @@ export async function api(req,env,companies){
   onlyProducer(u);const id=path.split('/').pop();const r=await run(env,'DELETE FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);if(r.meta.changes!==1)fail(404,'NOT_FOUND','No encontramos ese acceso.');await audit(env,u,'connection.deleted',id);return json({ok:true});
  }
  if(path==='/api/pilot/audit'&&req.method==='GET'){const rows=u.role==='superadmin'?await all(env,'SELECT action,actor_id,record_id,created_at FROM pilot_audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 100',u.tenant_id):await all(env,'SELECT action,actor_id,record_id,created_at FROM pilot_audit WHERE tenant_id=? AND actor_id=? ORDER BY created_at DESC LIMIT 100',u.tenant_id,u.id);return json({events:rows});}
+
+ if(path==='/api/pilot/admin/invitations'&&req.method==='POST'){
+  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Sólo el superadministrador puede invitar a un productor.');await rate(env,'admin-invite-producer:'+u.id,20,3600000);
+  const b=await body(req),name=clean(b.name,120);if(!name||typeof b.name!=='string'||b.name.trim().length>120)fail(400,'NAME','Ingresá el nombre del productor.');
+  const id=opaque(16),token=opaque(),stamp=NOW(),expiresAt=stamp+7*24*3600000;
+  const r=await run(env,"INSERT INTO pilot_pas_invitations(id,tenant_id,name,token_hash,created_by,expires_at,created_at) SELECT ?,?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM pilot_users WHERE id=? AND tenant_id=? AND role='superadmin' AND disabled=0) AND (SELECT count(*) FROM pilot_pas_invitations WHERE tenant_id=? AND used_at IS NULL AND revoked_at IS NULL AND expires_at>?)<20",id,u.tenant_id,name,digest(token),u.id,expiresAt,stamp,u.id,u.tenant_id,u.tenant_id,stamp);
+  if(r.meta.changes!==1)fail(409,'INVITATION_LIMIT','Revisá tus permisos o las invitaciones pendientes antes de crear otra.');await audit(env,u,'admin.producer_invited',id);
+  return json({id,name,expiresAt,activationUrl:new URL(req.url).origin+'/privado/activar/#invite='+token},201);
+ }
+ if(path==='/api/pilot/admin/invitations'&&req.method==='GET'){
+  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta sección pertenece al superadministrador.');
+  return json({invitations:await all(env,'SELECT id,name,expires_at,used_at,revoked_at,claimed_user_id,created_at FROM pilot_pas_invitations WHERE tenant_id=? ORDER BY created_at DESC LIMIT 50',u.tenant_id)});
+ }
+ const inviteRevoke=path.match(/^\/api\/pilot\/admin\/invitations\/([A-Za-z0-9_-]{10,80})\/revoke$/);
+ if(inviteRevoke&&req.method==='POST'){
+  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta sección pertenece al superadministrador.');
+  const r=await run(env,'UPDATE pilot_pas_invitations SET revoked_at=? WHERE id=? AND tenant_id=? AND used_at IS NULL AND revoked_at IS NULL',NOW(),inviteRevoke[1],u.tenant_id);
+  if(r.meta.changes!==1)fail(404,'NOT_FOUND','La invitación no está pendiente.');await audit(env,u,'admin.invitation_revoked',inviteRevoke[1]);return json({ok:true});
+ }
  if(path==='/api/pilot/admin/producers'&&req.method==='POST'){
   if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Sólo el superadministrador puede crear un PAS de prueba.');await rate(env,'admin-create-producer:'+u.id,20,3600000);
   const b=await body(req),username=typeof b.username==='string'?b.username.trim().toLowerCase():'';
@@ -177,7 +224,7 @@ export async function api(req,env,companies){
   return json({user:userView(pas),accessCode:code.slice(0,4)+'-'+code.slice(4)},201);
  }
  if(path==='/api/pilot/admin/overview'&&req.method==='GET'){
-  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta sección pertenece al superadministrador.');const users=await all(env,'SELECT id,username,name,role,(access_code_hash IS NOT NULL) AS code_configured,email_verified,disabled,created_at FROM pilot_users WHERE tenant_id=?',u.tenant_id);const connections=await all(env,'SELECT id,producer_id,company_id,method,status,version,authorized,updated_at FROM pilot_connections WHERE tenant_id=?',u.tenant_id);return json({users,connections,deadline:'2026-11-13',automaticQuotes:false});
+  if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta sección pertenece al superadministrador.');const users=await all(env,'SELECT id,username,name,role,(access_code_hash IS NOT NULL) AS code_configured,email_verified,disabled,created_at FROM pilot_users WHERE tenant_id=?',u.tenant_id);const connections=await all(env,'SELECT id,producer_id,company_id,method,status,version,authorized,updated_at FROM pilot_connections WHERE tenant_id=?',u.tenant_id);const invitations=await all(env,'SELECT id,name,expires_at,used_at,revoked_at,created_at FROM pilot_pas_invitations WHERE tenant_id=? ORDER BY created_at DESC LIMIT 50',u.tenant_id);return json({users,connections,invitations,deadline:'2026-11-13',automaticQuotes:false});
  }
  if(path==='/api/pilot/admin/revoke-sessions'&&req.method==='POST'){
   if(u.role!=='superadmin')fail(403,'ADMIN_ONLY','Acceso de superadministrador requerido.');const b=await body(req);const target=await first(env,'SELECT id FROM pilot_users WHERE id=? AND tenant_id=?',clean(b.userId,80),u.tenant_id);if(!target||target.id===u.id)fail(400,'USER','Elegí una cuenta de productor.');await run(env,'DELETE FROM pilot_sessions WHERE user_id=?',target.id);await audit(env,u,'admin.sessions_revoked',target.id);return json({ok:true});

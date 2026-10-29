@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node tests/demo.test.cjs",
-    "check": "node --check public/app.js",
+    "check": "node --check public/pilot.js && node --check public/workspace.js",
     "build": "node scripts/build-worker.mjs",
     "db:generate": "drizzle-kit generate",
     "test:security": "node --test tests/security.test.mjs",
