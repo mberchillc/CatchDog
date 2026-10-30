@@ -1,7 +1,7 @@
 # Formularios y emisión - preparación para revisión del 30/10/2026
 
 ## Estado
-Implementación local. No aplicada todavía a Cloudflare Pages ni a su base de datos. Daniel utiliza datos reales: se exige aviso de alcance antes de publicar y consulta previa para cualquier eliminación de su información.
+Base publicada el 30/10/2026 en 9a51ce2. Los siguientes ajustes UX están preparados localmente para revisión, todavía sin publicar. Daniel utiliza datos reales: se exige aviso de alcance antes de publicar y consulta previa para cualquier eliminación de su información.
 
 ## Recorrido
 1. PAS abre Formularios y emisión, desde un cliente o desde una propuesta aprobada. Puede elegir Autos, Hogar u Otros. La propuesta aceptada conserva compañía, importe, vigencia, franquicia y referencia originales como instantánea; no se modifica la cotización previa.
@@ -30,3 +30,14 @@ Fuentes oficiales: https://apiportal.mercantilandina.com.ar/faqs ; https://api-s
 0007 sólo crea cuatro tablas e índices. No modifica usuarios, credenciales ni filas de clientes, pólizas, siniestros, cotizaciones, tareas, conexiones o documentos existentes. Los cambios de cliente posteriores requieren acción explícita del PAS y versión vigente; los campos de identidad vacíos de una respuesta parcial conservan los valores anteriores. Se conserva la respuesta original y el historial del caso. Recuperar una versión del caso no revierte automáticamente el cliente.
 Antes de aplicar: confirmar versión remota, obtener resguardo privado de información operativa cifrada, registrar esquema/conteos, aplicar sólo DDL nuevo y comprobar claves foráneas y filas preexistentes. No introducir datos ficticios en la cartera de Daniel. Si hay impacto inesperado, detener la publicación y avisar; no revertir cambios concurrentes del usuario.
 Al publicar aparecerá una sección nueva y el flujo de propuestas aprobadas. Usuarios con una pestaña abierta deberán guardar su trabajo antes de actualizar. No se fuerza cierre de sesiones. El cotizador orientativo permanece y OCR sigue excluido.
+
+## Ajustes UX del primer formulario (preparados para revisión)
+
+- Seis casilleros de Autos identifican cédula verde frente/dorso y fotos de frente/laterales/trasera. Cada uno admite selección múltiple; opcionales agrega GNC, audio, accesorios y descripción libre. Claves de categorías previas se conservan; los originales no se convierten.
+- Campanita en el encabezado y el inicio. Respuestas recibidas se consultan cada 30 segundos con la página visible, sin redibujar los campos abiertos y sin extender sesiones inactivas. Abrir el caso confirma lectura sólo para ese usuario. Una tabla nueva registra esas lecturas; no se reescribe la respuesta. Respuestas pendientes anteriores también aparecen.
+- Recuperar datos del cliente es una acción principal junto al aviso de respuesta; enfoca los datos del tomador. Recuperar versión aparece arriba en la columna derecha y aclara que no revierte el cliente automáticamente.
+- Ver original abre ventana modal visible con imagen completa o visor PDF propio, páginas y zoom. Recursos PDF.js 6.4.299 de Mozilla se sirven desde Turi; no se envían archivos a servicios externos. Sin scripting de PDF, eval o débito. Cerrar o cambiar de cuenta libera visor y URLs. El archivo descargable original no cambia.
+- Domicilios muestran Localidad como No completar / lo completa tu PAS. Provincia y guarda usan desplegables; cambiar provincia actualiza localidades sin perder foco. Catálogo público de GeoRef: 24 provincias y 4.037 registros de localidades, descargado el 30/10/2026. No contiene equivalencias postales ni se presume una ciudad sólo con CP. Fuente: https://apis.datos.gob.ar/georef/api/localidades ; documentación: https://www.argentina.gob.ar/georef/ejemplos-de-uso . No se envían domicilios ni códigos postales de clientes al servicio externo.
+- Sumas aseguradas no se solicitan al cliente. El PAS conserva edición y el servidor aplica sus valores. Datos que lleguen desde un formulario anterior se conservan como referencia para revisión, sin sustituir automáticamente los valores del PAS; las respuestas ya almacenadas no se alteran.
+
+La migración 0008 sólo crea work_emission_reads y su índice. Antes de publicar se requiere resguardo y comparación de filas operativas, aviso de alcance y revisión de Mauro. No se fuerza recarga ni cierre de sesiones; clientes y PAS deben guardar antes de refrescar. Las pruebas usan el PAS ficticio y cuentas técnicas separadas.

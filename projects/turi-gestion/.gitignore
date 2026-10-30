@@ -21,3 +21,6 @@ qa/
 
 # Cloudflare Pages build output.
 dist-pages/
+
+# Verified PDF.js rendering assets generated from vendor/pdfjs-assets.json.
+/public/vendor/pdfjs/

@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-29-intake-1",
+  "version": "2026-10-30-intake-ux-2",
   "groups": {
     "holder": "Tomador de la póliza",
     "owner": "Titular del bien",
@@ -103,7 +103,8 @@
       "group": "holder",
       "key": "holder_locality",
       "label": "Localidad",
-      "type": "text"
+      "type": "text",
+      "clientManagedByPAS": true
     },
     {
       "group": "holder",
@@ -221,7 +222,8 @@
       "group": "owner",
       "key": "owner_locality",
       "label": "Localidad",
-      "type": "text"
+      "type": "text",
+      "clientManagedByPAS": true
     },
     {
       "group": "owner",
@@ -384,7 +386,8 @@
       "type": "money",
       "branches": [
         "Autos"
-      ]
+      ],
+      "clientManagedByPAS": true
     },
     {
       "group": "vehicle",
@@ -453,7 +456,8 @@
       "type": "text",
       "branches": [
         "Hogar"
-      ]
+      ],
+      "clientManagedByPAS": true
     },
     {
       "group": "home",
@@ -554,7 +558,8 @@
       "type": "money",
       "branches": [
         "Hogar"
-      ]
+      ],
+      "clientManagedByPAS": true
     },
     {
       "group": "home",
@@ -563,7 +568,8 @@
       "type": "money",
       "branches": [
         "Hogar"
-      ]
+      ],
+      "clientManagedByPAS": true
     },
     {
       "group": "home",
@@ -702,17 +708,19 @@
     }
   ],
   "photoTypes": {
-    "registration_front": "Cédula: frente",
-    "registration_back": "Cédula: dorso",
-    "front": "Frente del vehículo",
-    "rear": "Parte trasera",
-    "left": "Lateral izquierdo",
-    "right": "Lateral derecho",
+    "registration_front": "Cédula verde frente",
+    "registration_back": "Cédula verde dorso",
+    "front": "Foto vehículo frente",
+    "rear": "Foto vehículo trasera",
+    "left": "Foto vehículo lateral izquierdo",
+    "right": "Foto vehículo lateral derecho",
     "spare": "Rueda de auxilio",
     "roof": "Techo",
     "dashboard": "Tablero",
     "gnc": "Oblea de GNC",
-    "other": "Otra documentación"
+    "other": "Otra documentación",
+    "stereo": "Estéreo / equipo de audio",
+    "accessory": "Accesorios"
   },
   "paymentNotice": "La tarjeta completa se registra mediante un canal seguro de la aseguradora. Esta etapa guarda marca, banco, últimos cuatro dígitos y vencimiento. No ingreses el número completo ni el código de seguridad.",
   "noOCR": true

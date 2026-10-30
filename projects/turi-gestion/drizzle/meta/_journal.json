@@ -57,6 +57,13 @@
       "when": 1793363204498,
       "tag": "0007_emission_cases",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1793372584820,
+      "tag": "0008_emission_notification_reads",
+      "breakpoints": true
     }
   ]
 }

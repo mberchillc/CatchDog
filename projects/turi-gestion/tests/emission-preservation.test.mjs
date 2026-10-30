@@ -46,7 +46,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {readdirSync} from 'node:fs';
 test('migración aditiva conserva exactamente todas las filas anteriores y sus claves foráneas',async()=>{
  const h=await harness(),c=await h.create('clients',{name:'CARTERA SINTÉTICA EXISTENTE',email:'synthetic@example.invalid',notes:'CONSERVAR TODO'});await h.create('tasks',{clientId:c.id,title:'TAREA PREEXISTENTE',category:'payments',status:'open',priority:'green',dueOn:'2026-11-01',notes:''});
- const beforeDb=new DatabaseSync(':memory:');for(const f of readdirSync('drizzle').filter(f=>f.endsWith('.sql')&&!f.startsWith('0007')).sort())beforeDb.exec(readFileSync('drizzle/'+f,'utf8'));
+ const beforeDb=new DatabaseSync(':memory:');for(const f of readdirSync('drizzle').filter(f=>f.endsWith('.sql')&&f<'0007').sort())beforeDb.exec(readFileSync('drizzle/'+f,'utf8'));
  const names=beforeDb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map(x=>x.name);
  beforeDb.exec('BEGIN; PRAGMA defer_foreign_keys=ON');const before={};for(const table of names){const rows=h.DB.db.prepare('SELECT * FROM '+table).all();before[table]=rows;for(const row of rows){const keys=Object.keys(row);beforeDb.prepare('INSERT INTO '+table+'('+keys.join(',')+') VALUES('+keys.map(()=>'?').join(',')+')').run(...keys.map(k=>row[k]));}}
  beforeDb.exec('COMMIT; PRAGMA foreign_keys=ON');beforeDb.exec(readFileSync('drizzle/0007_emission_cases.sql','utf8'));
