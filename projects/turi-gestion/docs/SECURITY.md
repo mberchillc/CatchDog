@@ -38,7 +38,7 @@ El usuario recibe un código personal nuevo, fijo y sin vencimiento, con un bot�
 
 Cifrado AES-256-GCM con nonce aleatorio por versión. La autenticación del cifrado incluye organización, productor, compañía y versión; mover un dato cifrado a otra cuenta o compañía invalida su lectura. La llave se configura como secreto del entorno; no forma parte de GitHub, HTML, localStorage ni la base de datos.
 
-Se permiten hasta 10 compañías por productor. La comprobación de capacidad está en la misma sentencia SQL que inserta; la combinación productor/compañía es única. Reemplazos usan una versión esperada para impedir sobrescrituras silenciosas. Los códigos se tratan como texto, conservando ceros iniciales.
+Se permiten hasta 15 compañías por productor. La comprobación de capacidad está en la misma sentencia SQL que inserta; la combinación productor/compañía es única. Reemplazos usan una versión esperada para impedir sobrescrituras silenciosas. Los códigos se tratan como texto, conservando ceros iniciales.
 
 La primera fase sólo admite códigos PAS. Contraseñas de portal y tokens permanecen bloqueados por configuración y no aparecen en el formulario. Su habilitación requiere permiso, revisión del conector, pruebas del despliegue y decisión documentada. Registrar un código no abre una sesión en una aseguradora ni valida un permiso de cotización.
 

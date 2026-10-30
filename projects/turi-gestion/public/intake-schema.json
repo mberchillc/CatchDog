@@ -1,0 +1,719 @@
+{
+  "version": "2026-10-29-intake-1",
+  "groups": {
+    "holder": "Tomador de la póliza",
+    "owner": "Titular del bien",
+    "vehicle": "Vehículo e inspección",
+    "home": "Vivienda y coberturas",
+    "other": "Bien a asegurar",
+    "payment": "Pago y cobro"
+  },
+  "fields": [
+    {
+      "group": "holder",
+      "key": "holder_kind",
+      "label": "Tipo de persona",
+      "type": "select",
+      "options": {
+        "person": "Persona",
+        "company": "Empresa / razón social"
+      }
+    },
+    {
+      "group": "holder",
+      "key": "holder_name",
+      "label": "Nombre completo / razón social del tomador",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_documentType",
+      "label": "Tipo de documento",
+      "type": "select",
+      "options": {
+        "DNI": "DNI",
+        "CUIT": "CUIT",
+        "PASSPORT": "Pasaporte",
+        "OTHER": "Otro"
+      }
+    },
+    {
+      "group": "holder",
+      "key": "holder_document",
+      "label": "Número de documento",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_tax",
+      "label": "Condición fiscal",
+      "type": "select",
+      "options": {
+        "CF": "Consumidor final",
+        "RI": "Responsable inscripto",
+        "MO": "Monotributo",
+        "EX": "Exento",
+        "OTHER": "Otra"
+      }
+    },
+    {
+      "group": "holder",
+      "key": "holder_birth",
+      "label": "Fecha de nacimiento",
+      "type": "date"
+    },
+    {
+      "group": "holder",
+      "key": "holder_civil",
+      "label": "Estado civil",
+      "type": "select",
+      "options": {
+        "single": "Soltero/a",
+        "married": "Casado/a",
+        "divorced": "Divorciado/a",
+        "widowed": "Viudo/a",
+        "other": "Otro"
+      }
+    },
+    {
+      "group": "holder",
+      "key": "holder_email",
+      "label": "Correo electrónico",
+      "type": "email"
+    },
+    {
+      "group": "holder",
+      "key": "holder_phone",
+      "label": "Teléfono con país y área",
+      "type": "tel"
+    },
+    {
+      "group": "holder",
+      "key": "holder_street",
+      "label": "Calle y número",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_unit",
+      "label": "Piso / departamento",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_locality",
+      "label": "Localidad",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_province",
+      "label": "Provincia",
+      "type": "text"
+    },
+    {
+      "group": "holder",
+      "key": "holder_postal",
+      "label": "Código postal",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_same",
+      "label": "¿El titular del bien es el tomador?",
+      "type": "select",
+      "options": {
+        "yes": "Sí",
+        "no": "No"
+      }
+    },
+    {
+      "group": "owner",
+      "key": "owner_kind",
+      "label": "Tipo de persona",
+      "type": "select",
+      "options": {
+        "person": "Persona",
+        "company": "Empresa / razón social"
+      }
+    },
+    {
+      "group": "owner",
+      "key": "owner_name",
+      "label": "Nombre completo / razón social del titular",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_documentType",
+      "label": "Tipo de documento",
+      "type": "select",
+      "options": {
+        "DNI": "DNI",
+        "CUIT": "CUIT",
+        "PASSPORT": "Pasaporte",
+        "OTHER": "Otro"
+      }
+    },
+    {
+      "group": "owner",
+      "key": "owner_document",
+      "label": "Número de documento",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_tax",
+      "label": "Condición fiscal",
+      "type": "select",
+      "options": {
+        "CF": "Consumidor final",
+        "RI": "Responsable inscripto",
+        "MO": "Monotributo",
+        "EX": "Exento",
+        "OTHER": "Otra"
+      }
+    },
+    {
+      "group": "owner",
+      "key": "owner_birth",
+      "label": "Fecha de nacimiento",
+      "type": "date"
+    },
+    {
+      "group": "owner",
+      "key": "owner_civil",
+      "label": "Estado civil",
+      "type": "select",
+      "options": {
+        "single": "Soltero/a",
+        "married": "Casado/a",
+        "divorced": "Divorciado/a",
+        "widowed": "Viudo/a",
+        "other": "Otro"
+      }
+    },
+    {
+      "group": "owner",
+      "key": "owner_email",
+      "label": "Correo electrónico",
+      "type": "email"
+    },
+    {
+      "group": "owner",
+      "key": "owner_phone",
+      "label": "Teléfono con país y área",
+      "type": "tel"
+    },
+    {
+      "group": "owner",
+      "key": "owner_street",
+      "label": "Calle y número",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_unit",
+      "label": "Piso / departamento",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_locality",
+      "label": "Localidad",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_province",
+      "label": "Provincia",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_postal",
+      "label": "Código postal",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_relationship",
+      "label": "Vínculo con el tomador",
+      "type": "text"
+    },
+    {
+      "group": "owner",
+      "key": "owner_interest",
+      "label": "Interés asegurable / motivo de la diferencia",
+      "type": "textarea",
+      "max": 1200
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_brand",
+      "label": "Marca",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_model",
+      "label": "Modelo",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_year",
+      "label": "Año",
+      "type": "year",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_version",
+      "label": "Versión",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_plate",
+      "label": "Patente",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_vin",
+      "label": "Número de chasis",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_engine",
+      "label": "Número de motor",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_fuel",
+      "label": "Combustible",
+      "type": "select",
+      "options": {
+        "nafta": "Nafta",
+        "diesel": "Diésel",
+        "electric": "Eléctrico",
+        "hybrid": "Híbrido",
+        "other": "Otro"
+      },
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_usage",
+      "label": "Uso",
+      "type": "select",
+      "options": {
+        "particular": "Particular",
+        "commercial": "Comercial",
+        "other": "Otro"
+      },
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_locality",
+      "label": "Localidad de guarda",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_province",
+      "label": "Provincia de guarda",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_postal",
+      "label": "Código postal de guarda",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_coverage",
+      "label": "Cobertura solicitada",
+      "type": "text",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_value",
+      "label": "Suma asegurada informada",
+      "type": "money",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_gnc",
+      "label": "¿Tiene equipo de GNC?",
+      "type": "select",
+      "options": {
+        "yes": "Sí",
+        "no": "No"
+      },
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_gncExpiry",
+      "label": "Vencimiento de oblea GNC",
+      "type": "date",
+      "branches": [
+        "Autos"
+      ]
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_accessories",
+      "label": "Accesorios, valor y homologación",
+      "type": "textarea",
+      "branches": [
+        "Autos"
+      ],
+      "max": 2000
+    },
+    {
+      "group": "vehicle",
+      "key": "vehicle_notes",
+      "label": "Observaciones del vehículo",
+      "type": "textarea",
+      "branches": [
+        "Autos"
+      ],
+      "max": 2000
+    },
+    {
+      "group": "home",
+      "key": "home_street",
+      "label": "Dirección del inmueble",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_unit",
+      "label": "Piso / unidad",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_locality",
+      "label": "Localidad",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_province",
+      "label": "Provincia",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_postal",
+      "label": "Código postal",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_type",
+      "label": "Tipo de vivienda",
+      "type": "select",
+      "options": {
+        "house": "Casa",
+        "apartment": "Departamento",
+        "other": "Otra"
+      },
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_occupancy",
+      "label": "Ocupación",
+      "type": "select",
+      "options": {
+        "permanent": "Permanente",
+        "temporary": "Temporaria",
+        "rental": "Alquilada a terceros",
+        "other": "Otra"
+      },
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_construction",
+      "label": "Material y calidad de construcción",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_roof",
+      "label": "Material del techo",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_area",
+      "label": "Superficie cubierta · m²",
+      "type": "number",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_age",
+      "label": "Antigüedad · años",
+      "type": "number",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_security",
+      "label": "Medidas de seguridad",
+      "type": "text",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_buildingValue",
+      "label": "Suma asegurada edificio",
+      "type": "money",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_contentsValue",
+      "label": "Suma asegurada contenido",
+      "type": "money",
+      "branches": [
+        "Hogar"
+      ]
+    },
+    {
+      "group": "home",
+      "key": "home_coverage",
+      "label": "Coberturas, equipos y límites solicitados",
+      "type": "textarea",
+      "branches": [
+        "Hogar"
+      ],
+      "max": 2000
+    },
+    {
+      "group": "home",
+      "key": "home_notes",
+      "label": "Observaciones del inmueble",
+      "type": "textarea",
+      "branches": [
+        "Hogar"
+      ],
+      "max": 2000
+    },
+    {
+      "group": "other",
+      "key": "other_description",
+      "label": "Descripción del bien y cobertura",
+      "type": "textarea",
+      "branches": [
+        "Otros"
+      ],
+      "max": 3000
+    },
+    {
+      "group": "payment",
+      "key": "payment_method",
+      "label": "Forma de pago",
+      "type": "select",
+      "options": {
+        "cbu": "Débito automático por CBU",
+        "card": "Débito automático en tarjeta",
+        "coupon": "Cuponera: efectivo o billetera"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_payer",
+      "label": "Nombre / razón social de quien paga",
+      "type": "text"
+    },
+    {
+      "group": "payment",
+      "key": "payment_document",
+      "label": "DNI / CUIT de quien paga",
+      "type": "text"
+    },
+    {
+      "group": "payment",
+      "key": "payment_relationship",
+      "label": "Vínculo del pagador con el tomador",
+      "type": "text"
+    },
+    {
+      "group": "payment",
+      "key": "payment_bank",
+      "label": "Banco",
+      "type": "text"
+    },
+    {
+      "group": "payment",
+      "key": "payment_cbu",
+      "label": "CBU · 22 dígitos",
+      "type": "cbu",
+      "when": {
+        "payment_method": "cbu"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_brand",
+      "label": "Marca de tarjeta",
+      "type": "select",
+      "options": {
+        "visa": "Visa",
+        "mastercard": "Mastercard",
+        "amex": "American Express",
+        "other": "Otra"
+      },
+      "when": {
+        "payment_method": "card"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_last4",
+      "label": "Últimos cuatro dígitos de tarjeta",
+      "type": "last4",
+      "when": {
+        "payment_method": "card"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_expiry",
+      "label": "Vencimiento de tarjeta · MM/AAAA",
+      "type": "expiry",
+      "when": {
+        "payment_method": "card"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_coupon",
+      "label": "Medio previsto para la cuponera",
+      "type": "select",
+      "options": {
+        "cash": "Efectivo",
+        "mp": "Mercado Pago",
+        "wallet": "Otra billetera",
+        "other": "Otro"
+      },
+      "when": {
+        "payment_method": "coupon"
+      }
+    },
+    {
+      "group": "payment",
+      "key": "payment_authorization",
+      "label": "Autorización / referencia de adhesión",
+      "type": "text"
+    },
+    {
+      "group": "payment",
+      "key": "payment_notes",
+      "label": "Observaciones de cobro",
+      "type": "textarea",
+      "max": 1200
+    }
+  ],
+  "photoTypes": {
+    "registration_front": "Cédula: frente",
+    "registration_back": "Cédula: dorso",
+    "front": "Frente del vehículo",
+    "rear": "Parte trasera",
+    "left": "Lateral izquierdo",
+    "right": "Lateral derecho",
+    "spare": "Rueda de auxilio",
+    "roof": "Techo",
+    "dashboard": "Tablero",
+    "gnc": "Oblea de GNC",
+    "other": "Otra documentación"
+  },
+  "paymentNotice": "La tarjeta completa se registra mediante un canal seguro de la aseguradora. Esta etapa guarda marca, banco, últimos cuatro dígitos y vencimiento. No ingreses el número completo ni el código de seguridad.",
+  "noOCR": true
+}

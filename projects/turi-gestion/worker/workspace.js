@@ -1,4 +1,5 @@
 import { opaque,seal,unseal,NOW } from './security.js';
+import { emissionApi } from './emission.js';
 import { multiquoteApi,mqIntakeView } from './multiquote.js';
 
 // All tables/columns below are code-owned allowlists; input is always bound.
@@ -8,6 +9,7 @@ const WORK_BRANCHES=['Autos','Motos','Hogar','Comercio','Caución','Accidentes p
 export async function workspaceApi(req,env,u,companies,helpers){
  const {json,fail,stmt,first,all,run,audit,body,rate}=helpers;
  const url=new URL(req.url),path=url.pathname.slice('/api/pilot/work'.length),admin=u.role==='superadmin';
+ if(path==='/emission'||path.startsWith('/emission/'))return emissionApi(req,env,u,companies,helpers);
  if(path.startsWith('/multiquote/'))return multiquoteApi(req,env,u,path,helpers);
  const text=(v,max,required=false)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||(!v.trim()&&required))fail(400,'FIELD','Revisá los campos obligatorios y su extensión.');return v.trim()};
  const choice=(v,values)=>{if(!values.includes(v))fail(400,'FIELD','Elegí una opción válida.');return v};
@@ -72,7 +74,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
  if(parts[2])fail(404,'NOT_FOUND','La operación no está disponible.');
  if(type==='clients'){
   const email=text(b.email,320);if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(400,'EMAIL','Revisá el correo del cliente.');const phone=text(b.phone,40);if(phone&&(!/^[+\d\s().-]{6,40}$/.test(phone)||!/^\d{6,15}$/.test(phone.replace(/\D/g,''))))fail(400,'PHONE','Revisá el teléfono e incluí país y área.');
-  return save(type,b,existing,{archived:b.archived===true?1:0},{name:text(b.name,160,true),email,phone,notes:text(b.notes,3000),marketingConsent:b.marketingConsent===true,source:text(b.source,100)||'Carga manual'},owner);
+  const prior=existing?await view('clients',existing):{};return save(type,b,existing,{archived:b.archived===true?1:0},{...(prior.identity?{identity:prior.identity}:{}),name:text(b.name,160,true),email,phone,notes:text(b.notes,3000),marketingConsent:b.marketingConsent===true,source:text(b.source,100)||'Carga manual'},owner);
  }
  if(type==='policies'){
   await get('clients',b.clientId,owner);const starts=day(b.startsOn),expires=day(b.expiresOn);if(expires<starts)fail(400,'DATE','El vencimiento debe ser posterior al inicio.');

@@ -3,7 +3,7 @@ const DOC_MAX_BYTES=10*1024*1024,DOC_QUOTA_BYTES=1024*1024*1024,DOC_QUOTA_FILES=
 const DOC_MIMES={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',heic:'image/heic',heif:'image/heif'};
 const DOC_CATEGORIES=['policy','vehicle','claim','identity','other'];
 export const filesReady=env=>!!env.BUCKET;
-function documentType(bytes){
+export function documentType(bytes){
  const b=new Uint8Array(bytes),ascii=(a,z)=>String.fromCharCode(...b.subarray(a,z));
  if(/^%PDF-[12]\.\d/.test(ascii(0,8))&&ascii(Math.max(0,b.length-2048),b.length).includes('%%EOF'))return 'application/pdf';
  if(b.length>=4&&b[0]===255&&b[1]===216&&b[2]===255&&b.at(-2)===255&&b.at(-1)===217)return 'image/jpeg';
@@ -12,6 +12,12 @@ function documentType(bytes){
  if(b.length>=24&&ascii(4,8)==='ftyp'){const size=new DataView(b.buffer,b.byteOffset,b.byteLength).getUint32(0);if(size>=20&&size<=b.length){const brands=[ascii(8,12)];for(let i=16;i<Math.min(size,80);i+=4)brands.push(ascii(i,i+4));if(brands.some(s=>['heic','heix','hevc','hevx'].includes(s)))return 'image/heic';if(brands.some(s=>['mif1','msf1'].includes(s))&&!brands.includes('avif'))return 'image/heif';}}
  return null;
 }
+// Both intake staging and ordinary uploads reserve the same owner allowance atomically.
+export function documentUsageSQL(metric,excludeId=false){
+ const aggregate=metric==='files'?'count(*)':'coalesce(sum(bytes),0)';
+ return '(SELECT '+aggregate+' FROM work_documents WHERE tenant_id=? AND owner_id=?'+(excludeId?' AND id<>?':'')+" AND (state='ready' OR (state='uploading' AND lease_expires_at>?)))+(SELECT "+aggregate+" FROM work_emission_files WHERE tenant_id=? AND owner_id=? AND imported=0"+(excludeId?' AND id<>?':'')+" AND (state='ready' OR (state='uploading' AND lease_expires_at>?)))";
+}
+export const documentUsageArgs=(tenant,owner,stamp,excludeId)=>[tenant,owner,...(excludeId?[excludeId]:[]),stamp,tenant,owner,...(excludeId?[excludeId]:[]),stamp];
 export async function documentsApi(req,env,u,helpers){
  const {json,fail,stmt,first,all,run,audit,body,rate}=helpers,url=new URL(req.url),path=url.pathname.slice('/api/pilot/documents'.length),admin=u.role==='superadmin';
  const text=(v,max,required=false)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||(!v.trim()&&required))fail(400,'FILE_FIELD','Revisá los datos del documento.');return v.trim()};
@@ -31,7 +37,7 @@ export async function documentsApi(req,env,u,helpers){
   for(const [param,column] of [['clientId','client_id'],['policyId','policy_id'],['claimId','claim_id']]){const id=url.searchParams.get(param);if(id){sql+=' AND '+column+'=?';values.push(text(id,100,true));}}
   const limit=Number(url.searchParams.get('limit')||60),offset=Number(url.searchParams.get('offset')||0);if(!Number.isInteger(limit)||limit<1||limit>100||!Number.isInteger(offset)||offset<0||offset>5000)fail(400,'FILE_PAGE','Actualizá la lista de archivos.');
   const rows=await all(env,'SELECT * FROM work_documents WHERE '+sql+' ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?',...values,limit,offset),total=(await first(env,'SELECT count(*) AS count FROM work_documents WHERE '+sql,...values)).count;
-  const quota=await first(env,"SELECT count(*) AS files,coalesce(sum(bytes),0) AS bytes FROM work_documents WHERE "+s.sql+" AND (state='ready' OR (state='uploading' AND lease_expires_at>?))",...s.values,NOW());
+  const quota=await first(env,"SELECT count(*) AS files,coalesce(sum(bytes),0) AS bytes FROM (SELECT bytes FROM work_documents WHERE "+s.sql+" AND (state='ready' OR (state='uploading' AND lease_expires_at>?)) UNION ALL SELECT bytes FROM work_emission_files WHERE "+s.sql+" AND imported=0 AND (state='ready' OR (state='uploading' AND lease_expires_at>?)))",...s.values,NOW(),...s.values,NOW());
   return json({available:filesReady(env),documents:await Promise.all(rows.map(view)),total,offset,nextOffset:offset+rows.length<total?offset+rows.length:null,quota:{...quota,maxBytes:DOC_QUOTA_BYTES,maxFiles:DOC_QUOTA_FILES,scope:admin&&!owner?'organization':'owner'},maxFileBytes:DOC_MAX_BYTES});
  }
  const parts=path.split('/').filter(Boolean);
@@ -57,8 +63,9 @@ export async function documentsApi(req,env,u,helpers){
   let row=await first(env,'SELECT * FROM work_documents WHERE tenant_id=? AND owner_id=? AND upload_id=?',u.tenant_id,owner,uploadId);
   if(row){const old=await unseal(env,row.payload,metaAAD(row));if(old.fingerprint!==fingerprint)fail(409,'UPLOAD_CHANGED','Este intento corresponde a otro archivo o destino. Volvé a seleccionarlo.');if(row.state==='ready'){if(row.archived)fail(409,'FILE_ARCHIVED','El archivo ya está en la papelera. Restauralo desde Documentos.');return json({document:await view(row),reused:true});}if(row.state==='uploading'&&row.lease_expires_at>NOW())fail(409,'UPLOAD_IN_PROGRESS','Este archivo todavía se está guardando. Actualizá Documentos antes de reintentar.');}
   const id=row?.id||opaque(16),key='private-documents/'+opaque(32),lease=opaque(24),stamp=NOW(),leaseEnd=stamp+DOC_LEASE_MS,shell={id,owner_id:owner,tenant_id:u.tenant_id},encryptedMeta=await seal(env,{...meta,fingerprint},metaAAD(shell));
-  const quota="(SELECT count(*) FROM work_documents WHERE tenant_id=? AND owner_id=? AND id<>? AND (state='ready' OR (state='uploading' AND lease_expires_at>?)))<? AND (SELECT coalesce(sum(bytes),0) FROM work_documents WHERE tenant_id=? AND owner_id=? AND id<>? AND (state='ready' OR (state='uploading' AND lease_expires_at>?)))+?<=? AND NOT EXISTS (SELECT 1 FROM work_documents WHERE tenant_id=? AND owner_id=? AND id<>? AND state='uploading' AND lease_expires_at>?) AND (SELECT count(*) FROM work_documents WHERE state='uploading' AND lease_expires_at>? AND id<>?)<2";
-  const quotaArgs=[u.tenant_id,owner,id,stamp,DOC_QUOTA_FILES,u.tenant_id,owner,id,stamp,b.bytes,DOC_QUOTA_BYTES,u.tenant_id,owner,id,stamp,stamp,id];
+  const usage=documentUsageArgs(u.tenant_id,owner,stamp,id);
+  const quota=documentUsageSQL('files',true)+'<? AND '+documentUsageSQL('bytes',true)+"+?<=? AND NOT EXISTS (SELECT 1 FROM work_documents WHERE tenant_id=? AND owner_id=? AND id<>? AND state='uploading' AND lease_expires_at>?) AND (SELECT count(*) FROM work_documents WHERE state='uploading' AND lease_expires_at>? AND id<>?)<2";
+  const quotaArgs=[...usage,DOC_QUOTA_FILES,...usage,b.bytes,DOC_QUOTA_BYTES,u.tenant_id,owner,id,stamp,stamp,id];
   let reserved;if(row){reserved=await run(env,"UPDATE work_documents SET object_key=?,state='uploading',lease_token=?,lease_expires_at=?,payload=?,updated_at=? WHERE id=? AND tenant_id=? AND owner_id=? AND state<>'ready' AND (state<>'uploading' OR lease_expires_at<=?) AND "+quota,key,lease,leaseEnd,encryptedMeta,stamp,id,u.tenant_id,owner,stamp,...quotaArgs);}else{reserved=await run(env,"INSERT OR IGNORE INTO work_documents (id,tenant_id,owner_id,payload,version,created_at,updated_at,client_id,policy_id,claim_id,upload_id,object_key,mime,bytes,state,archived,lease_token,lease_expires_at) SELECT ?,?,?,?,1,?,?,?,?,?,?,?,?,?,'uploading',0,?,? WHERE "+quota,id,u.tenant_id,owner,encryptedMeta,stamp,stamp,linked.client_id,linked.policy_id,linked.claim_id,uploadId,key,mime,b.bytes,lease,leaseEnd,...quotaArgs);}
   if(reserved.meta.changes!==1)fail(409,'FILE_QUOTA_OR_BUSY','Ya hay una carga en curso o alcanzaste el límite de 1 GB / 1.000 archivos de esta cuenta. Actualizá Documentos.');
   if(row?.object_key&&row.object_key!==key){try{await env.BUCKET.delete(row.object_key)}catch{}}

@@ -2,76 +2,166 @@
   {
     "id": "segunda",
     "name": "La Segunda",
-    "portal": "https://app-launcher.papps.lasegunda.com.ar/"
+    "portal": "https://app-launcher.papps.lasegunda.com.ar/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://app-launcher.papps.lasegunda.com.ar/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "mercantil",
     "name": "Mercantil Andina",
-    "portal": "https://servicios.mercantilandina.com.ar/sigmav3/"
+    "portal": "https://servicios.mercantilandina.com.ar/sigmav3/",
+    "api": {
+      "status": "access_required",
+      "label": "API documentada · habilitación pendiente",
+      "source": "https://apiportal.mercantilandina.com.ar/faqs",
+      "requires": "Usuario API, contraseña y subscription key; código PAS y permisos para cada servicio."
+    }
   },
   {
     "id": "federacion",
     "name": "Federación Patronal",
-    "portal": "https://online.fedpat.com.ar/self/homeWin32.do"
+    "portal": "https://online.fedpat.com.ar/self/homeWin32.do",
+    "api": {
+      "status": "access_required",
+      "label": "API documentada · habilitación pendiente",
+      "source": "https://api-sandbox.fedpat.com.ar/documentacion-autenticacion.html",
+      "requires": "Client ID, Client Secret, usuario autorizado y scopes; autenticación sólo en servidor."
+    }
   },
   {
     "id": "rivadavia",
     "name": "Rivadavia",
-    "portal": "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P"
+    "portal": "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "sancor",
     "name": "Sancor Seguros",
-    "portal": "https://portalintermediarios.gruposancorseguros.com/"
+    "portal": "https://portalintermediarios.gruposancorseguros.com/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://portalintermediarios.gruposancorseguros.com/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "cristobal",
     "name": "San Cristóbal",
-    "portal": "https://productores.sancristobal.com.ar/"
+    "portal": "https://productores.sancristobal.com.ar/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://productores.sancristobal.com.ar/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "zurich",
     "name": "Zurich",
-    "portal": "https://www.zurich.com.ar/"
+    "portal": "https://www.zurich.com.ar/",
+    "api": {
+      "status": "to_verify",
+      "label": "Portal técnico identificado · producto y acceso por validar",
+      "source": "https://www.api-test.zurich.com.ar/apis",
+      "requires": "Confirmar API de Automotores/Hogar y habilitación para Daniel."
+    }
   },
   {
     "id": "allianz",
     "name": "Allianz",
-    "portal": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html"
+    "portal": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "provincia",
     "name": "Provincia Seguros",
-    "portal": "https://portal.provinciaseguros.com.ar/pas-web/"
+    "portal": "https://portal.provinciaseguros.com.ar/pas-web/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://portal.provinciaseguros.com.ar/pas-web/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "mapfre",
     "name": "MAPFRE",
-    "portal": "https://mapfrenet.mapfre.com.ar/mapfrenet/"
+    "portal": "https://mapfrenet.mapfre.com.ar/mapfrenet/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://mapfrenet.mapfre.com.ar/mapfrenet/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "holando",
     "name": "La Holando",
-    "portal": "https://www.laholando.com/"
+    "portal": "https://www.laholando.com/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://www.laholando.com/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "experta",
     "name": "Experta",
-    "portal": "https://www.experta.com.ar/index.php/productores/"
+    "portal": "https://www.experta.com.ar/index.php/productores/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://www.experta.com.ar/index.php/productores/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "triunfo",
     "name": "Triunfo Seguros",
-    "portal": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/"
+    "portal": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://triunfoseguros.com/comunidad-triunfo/productor/soy-productor/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "atm",
     "name": "ATM Seguros",
-    "portal": "https://extranet.atmseguros.com.ar/"
+    "portal": "https://extranet.atmseguros.com.ar/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://extranet.atmseguros.com.ar/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   },
   {
     "id": "lps",
     "name": "La Perseverancia",
-    "portal": "https://intranet.lps.com.ar/"
+    "portal": "https://intranet.lps.com.ar/",
+    "api": {
+      "status": "to_verify",
+      "label": "Canal API por relevar",
+      "source": "https://intranet.lps.com.ar/",
+      "requires": "Documentación oficial, autorización y credenciales de integración."
+    }
   }
 ]

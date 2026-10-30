@@ -4,16 +4,16 @@ Fecha de inicio: 27/10/2026. Responsable de producto: Mauro Berchi. Socio y vali
 
 ## Resultado que vamos a entregar
 
-Un piloto privado para Daniel: cuenta propia, código personal de acceso, hasta 10 códigos PAS resguardados, cartera y expedientes básicos, bandeja de tareas y un recorrido de cotización trazable. Mauro tendrá cuenta de superadministrador para supervisar usuarios, estados y auditoría. El PAS aprueba cada solicitud antes de avanzar a una emisión real.
+Un piloto privado para Daniel: cuenta propia, código personal de acceso, hasta 15 códigos PAS resguardados, cartera y expedientes básicos, bandeja de tareas y un recorrido de cotización trazable. Mauro tendrá cuenta de superadministrador para supervisar usuarios, estados y auditoría. El PAS aprueba cada solicitud antes de avanzar a una emisión real.
 
-**10 códigos cargados no equivalen a 10 integraciones.** El código PAS identifica al productor; la cotización puede requerir un usuario de portal, autorización, un token/API o un acuerdo de integración. La meta inicial es validar 1–2 conexiones para un producto concreto. Sólo se anuncian como conectadas cuando pasan pruebas reales con Daniel. El resto usa un recorrido asistido claramente indicado.
+**15 códigos cargados no equivalen a 15 integraciones.** El código PAS identifica al productor; la cotización puede requerir un usuario de portal, autorización, un token/API o un acuerdo de integración. La meta inicial es validar 1–2 conexiones para un producto concreto. Sólo se anuncian como conectadas cuando pasan pruebas reales con Daniel. El resto usa un recorrido asistido claramente indicado.
 
 ## Calendario y condiciones de entrega
 
 | Fechas | Hito | Trabajo | Responsable / evidencia para cerrar |
 | --- | --- | --- | --- |
-| 27–30/10 | Cuentas y conexiones | Espacio privado, activaciones individuales, contraseña propia, código personal, permisos en servidor, base relacional, cifrado y auditoría. Dani registra hasta 10 compañías con sus códigos. | CatchDog implementa; Mauro y Dani activan sus cuentas y verifican los primeros registros. El 1234 de la demo no habilita el piloto. |
-| 31/10–03/11 | Acceso real por compañía | Relevar las 10 compañías; distinguir código PAS, usuario, autorización y canal. Elegir dos compañías y un ramo inicial. Conseguir documentación, permisos y ambiente de prueba. | Dani aporta el canal y la autorización; CatchDog valida técnicamente. Cada compañía tiene estado y evidencia. Decisión de alcance el 03/11. |
+| 27–30/10 | Cuentas y conexiones | Espacio privado, activaciones individuales, contraseña propia, código personal, permisos en servidor, base relacional, cifrado y auditoría. Dani registra hasta 15 compañías con sus códigos. | CatchDog implementa; Mauro y Dani activan sus cuentas y verifican los primeros registros. El 1234 de la demo no habilita el piloto. |
+| 31/10–03/11 | Acceso real por compañía | Relevar las 15 compañías; distinguir código PAS, usuario, autorización y canal. Elegir dos compañías y un ramo inicial. Conseguir documentación, permisos y ambiente de prueba. | Dani aporta el canal y la autorización; CatchDog valida técnicamente. Cada compañía tiene estado y evidencia. Decisión de alcance el 03/11. |
 | 04–08/11 | Operación de punta a punta | Conectar cartera básica y tareas al backend. Formulario único de cotización, trabajos por compañía, comparación de propuestas y estados de error. Adjuntos y borradores privados; aprobación del PAS. Carga asistida donde no hay integración habilitada. | CatchDog implementa; Dani prueba un caso normal, uno especial y una compañía sin respuesta. No se mezclan precios de muestra con propuestas reales. |
 | 09–11/11 | Pruebas con Dani | Probar otra computadora, aislamiento de cuentas, recuperación de acceso, vencimiento de sesiones y restauración de una copia. Validar códigos sin alteraciones y atribución del PAS. Medir tiempos de una renovación y una cotización. | Dani valida la operación; Mauro acepta el alcance. Revisión de seguridad y privacidad antes de habilitar claves o tokens de compañías. |
 | 12/11 | Cierre | Corregir incidencias que impiden trabajar, congelar alcance, registrar versión y preparar guía breve. | Sin fallos críticos abiertos; evidencia de pruebas y limitaciones visibles. |
@@ -24,7 +24,7 @@ Un piloto privado para Daniel: cuenta propia, código personal de acceso, hasta 
 - Espacio privado separado de la demo pública, sin exigir cuenta de ChatGPT.
 - Usuarios `dani` (productor) y `mauro` (superadministrador), activados mediante enlaces personales de un solo uso. Cada uno elige su contraseña y confirma su código personal.
 - Base relacional para usuarios, sesiones, conexiones, auditoría y límites de intentos.
-- Códigos PAS cifrados con AES-256-GCM en el servidor, aislados por productor y compañía. Hasta 10 compañías distintas por productor, con control de versiones para reemplazos.
+- Códigos PAS cifrados con AES-256-GCM en el servidor, aislados por productor y compañía. Hasta 15 compañías distintas por productor, con control de versiones para reemplazos.
 - Sesiones con cookies HttpOnly/Secure, código personal obligatorio, cierre por inactividad y revocación desde el superadministrador.
 - Recuperación por correo con códigos de un uso y verificación de titularidad. El envío real se activó el 28/10 mediante Resend, incluido el entorno de Cloudflare dev.
 - El superadministrador supervisa metadatos y actividad; no puede leer códigos o contraseñas del productor.
@@ -57,7 +57,7 @@ Para cada candidata necesitamos: compañía y ramo, titular del código, acceso 
 
 1. Dani y Mauro ingresan con cuentas diferentes, contraseña propia y código personal.
 2. Un usuario sin sesión o de otro productor no puede leer, modificar ni borrar conexiones ajenas.
-3. Dani registra, reemplaza y quita hasta 10 códigos; se conservan ceros iniciales y atribución. Las respuestas y auditorías no exponen códigos completos.
+3. Dani registra, reemplaza y quita hasta 15 códigos; se conservan ceros iniciales y atribución. Las respuestas y auditorías no exponen códigos completos.
 4. Cada compañía muestra por separado: código registrado, permiso revisado, conector probado y cotización disponible. No hay “conectado” sólo por guardar datos.
 5. Un pedido produce propuestas comparables con compañía, cobertura, precio/moneda, vigencia, franquicia, fecha y fuente. Un fallo parcial no cancela ni falsea otras respuestas.
 6. La ruta asistida es operativa y visible cuando una integración no está habilitada.
