@@ -71,3 +71,14 @@ test('visor PDF propio recorre páginas, ajusta zoom y destruye el documento al 
  const host=w.document.querySelector('#pdf'),controller=await w.TuriPdfPreview.open({blob:{arrayBuffer:async()=>new ArrayBuffer(8)},container:host,libraryOverride:library});assert.match(host.textContent,/Página 1 de 2/);host.querySelector('[data-pdf=next]').click();await wait(()=>host.textContent.includes('Página 2 de 2'));assert.equal(host.querySelector('[data-pdf=next]').disabled,true);host.querySelector('[data-pdf=prev]').click();await wait(()=>host.textContent.includes('Página 1 de 2'));
  const zoom=host.querySelector('[data-pdf=zoom]');zoom.value='1.5';zoom.dispatchEvent(new w.Event('change'));await wait(()=>scales.includes(1.5));controller.destroy();assert.equal(host.children.length,0);assert.ok(destroyed);assert.deepEqual(pageCalls.slice(0,3),[1,2,1]);dom.window.close();
 });
+
+
+test('campanita desde Mi día carga el esquema y muestra el caso sin visitar antes emisión',async()=>{
+ const h=await harness(),s=await received(h),dom=new JSDOM('<main id="pilot"></main>',{url:'https://turi.test/privado/',runScripts:'outside-only'}),w=dom.window;w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=function(){};
+ for(const file of ['intake-fields.js','emission.js','notifications.js','workspace.js'])w.eval(readFileSync('public/'+file,'utf8'));
+ const before=h.DB.db.prepare('SELECT payload,response_payload,version FROM work_emission_cases WHERE id=?').get(s.grant.id);
+ try{await w.TuriWorkspace.open({root:w.document.querySelector('#pilot'),user:{id:'DOC-DANI',role:'producer',name:'PAS FICTICIO',username:'dani'},companies:(await h.call('/companies')).data.companies,request:req(h),expired:()=>{}});
+ assert.match(w.document.querySelector('#w-body').textContent,/Hola/);await w.TuriNotifications.refresh(true);w.document.querySelector('[data-notification=toggle]').click();await wait(()=>w.document.querySelector('[data-notification=open]'));w.document.querySelector('[data-notification=open]').click();
+ await wait(()=>w.document.querySelector('#emission-record'),()=>w.document.body.textContent);assert.ok(w.document.querySelector('[data-emission=use-response]'));assert.ok(w.document.querySelector('[data-emission=restore]'));assert.ok(!w.document.querySelector('#w-body').textContent.includes('Cargando formularios'));assert.match(w.location.hash,new RegExp(s.grant.id));await wait(()=>!w.document.querySelector('.w-bell-dot'));assert.deepEqual(h.DB.db.prepare('SELECT payload,response_payload,version FROM work_emission_cases WHERE id=?').get(s.grant.id),before);
+ }finally{w.TuriWorkspace.leave();dom.window.close();}
+});
