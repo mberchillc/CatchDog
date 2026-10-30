@@ -58,7 +58,7 @@ test('lectura reconoce sin choques sin eliminar la cobertura y mantiene la infor
 test('interfaz real: solicitar con datos vacíos, retomar y enriquecer sin duplicar ni perder los campos',async()=>{
  const local=await harness(),dom=new JSDOM('<main id="w-body"></main>',{url:'https://turi.test/privado/',runScripts:'outside-only'}),w=dom.window;
  const request=async(path,method='GET',data)=>{const r=await local.call(path,{method,data});if(r.status>=400)throw Error(r.data.message);return r.data;};
- w.eval(readFileSync('public/multiquote.js','utf8'));w.TuriMultiQuote.configure({user:{id:'DOC-DANI'},clients:[],request});await w.TuriMultiQuote.load();
+ w.eval(readFileSync('public/amounts.js','utf8'));w.eval(readFileSync('public/multiquote.js','utf8'));w.TuriMultiQuote.configure({user:{id:'DOC-DANI'},clients:[],request});await w.TuriMultiQuote.load();
  const host=w.document.querySelector('#w-body');host.innerHTML=w.TuriMultiQuote.render();
  assert.equal(w.document.querySelectorAll('#mq-request [required]').length,0);assert.equal(w.document.querySelector('#mq-request').noValidate,true);
  const submit=async()=>{w.document.querySelector('#mq-request').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<100&&w.document.querySelector('#mq-request button[type=submit]')?.disabled;i++)await new Promise(r=>setTimeout(r,5));};
@@ -76,14 +76,14 @@ test('interfaz real: solicitar con datos vacíos, retomar y enriquecer sin dupli
 
 test('una recuperación tardía no expone datos del PAS que acaba de cerrar su sesión',async()=>{
  const dom=new JSDOM('<main id="w-body"></main>',{url:'https://turi.test/privado/',runScripts:'outside-only'}),w=dom.window;let release;const gate=new Promise(resolve=>{release=resolve});
- w.eval(readFileSync('public/multiquote.js','utf8'));w.TuriMultiQuote.configure({user:{id:'OLD'},request:()=>gate});const pending=w.TuriMultiQuote.resume('old-request');w.TuriMultiQuote.reset();w.TuriMultiQuote.configure({user:{id:'NEW'},request:async()=>({})});
+ w.eval(readFileSync('public/amounts.js','utf8'));w.eval(readFileSync('public/multiquote.js','utf8'));w.TuriMultiQuote.configure({user:{id:'OLD'},request:()=>gate});const pending=w.TuriMultiQuote.resume('old-request');w.TuriMultiQuote.reset();w.TuriMultiQuote.configure({user:{id:'NEW'},request:async()=>({})});
  release({record:{id:'old-request',owner_id:'OLD',description:'DATOS PRIVADOS DEL ANTERIOR',risk:{},details:{},commercial:{},clientId:''},orientation:{}});assert.equal(await pending,false);assert.ok(!w.TuriMultiQuote.render().includes('DATOS PRIVADOS DEL ANTERIOR'));dom.window.close();
 });
 
 test('navegación PAS: el pedido guardado aparece inmediatamente en Cotizaciones y se retoma',async()=>{
  const local=await harness(),dom=new JSDOM('<main id="pilot"></main>',{url:'https://turi.test/privado/',runScripts:'outside-only'}),w=dom.window;w.scrollTo=()=>{};
  const request=async(path,method='GET',data)=>{const r=await local.call(path,{method,data});if(r.status>=400)throw Error(r.data.message);return r.data;};
- w.eval(readFileSync('public/multiquote.js','utf8'));w.eval(readFileSync('public/workspace.js','utf8'));
+ w.eval(readFileSync('public/amounts.js','utf8'));w.eval(readFileSync('public/multiquote.js','utf8'));w.eval(readFileSync('public/workspace.js','utf8'));
  await w.TuriWorkspace.open({root:w.document.querySelector('#pilot'),user:{id:'DOC-DANI',name:'PAS ficticio',username:'dani',role:'producer'},companies:(await local.call('/companies')).data.companies,request,expired:()=>{}});
  await w.TuriWorkspace.go('multiquote');const input=w.document.querySelector('[name=model]');input.value='Celta';input.dispatchEvent(new w.Event('input',{bubbles:true}));w.document.querySelector('#mq-request').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
  for(let i=0;i<200&&w.document.querySelector('#mq-request button[type=submit]')?.disabled;i++)await new Promise(r=>setTimeout(r,5));

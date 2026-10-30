@@ -1,3 +1,5 @@
+import '../public/amounts.js';
+import {recordArchiveApi,archiveActiveSQL,archiveMarker,requireUnarchived} from './record-archive.js';
 import { opaque,seal,unseal,NOW } from './security.js';
 import { emissionApi } from './emission.js';
 import { multiquoteApi,mqIntakeView } from './multiquote.js';
@@ -9,6 +11,7 @@ const WORK_BRANCHES=['Autos','Motos','Hogar','Comercio','Caución','Accidentes p
 export async function workspaceApi(req,env,u,companies,helpers){
  const {json,fail,stmt,first,all,run,audit,body,rate}=helpers;
  const url=new URL(req.url),path=url.pathname.slice('/api/pilot/work'.length),admin=u.role==='superadmin';
+ if(path==='/archive'||path.startsWith('/archive/'))return recordArchiveApi(req,env,u,helpers);
  if(path==='/emission'||path.startsWith('/emission/'))return emissionApi(req,env,u,companies,helpers);
  if(path.startsWith('/multiquote/'))return multiquoteApi(req,env,u,path,helpers);
  const text=(v,max,required=false)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||(!v.trim()&&required))fail(400,'FIELD','Revisá los campos obligatorios y su extensión.');return v.trim()};
@@ -19,7 +22,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
  const company=v=>choice(v,companies.map(c=>c.id));
  const version=v=>{if(!Number.isSafeInteger(v)||v<1)fail(409,'VERSION','Actualizá el registro antes de guardar.');return v};
  const guard=row=>{if(!row||row.tenant_id!==u.tenant_id||(!admin&&row.owner_id!==u.id))fail(404,'NOT_FOUND','No encontramos ese registro.');return row};
- async function get(type,id,owner){const row=guard(await first(env,'SELECT * FROM '+WORK_TYPES[type]+' WHERE id=? AND tenant_id=?',text(id,100,true),u.tenant_id));if(owner&&row.owner_id!==owner)fail(400,'RELATION','Los registros deben pertenecer al mismo productor.');return row}
+ async function get(type,id,owner,allowArchivedRelation=false){const row=guard(await first(env,'SELECT * FROM '+WORK_TYPES[type]+' WHERE id=? AND tenant_id=?',text(id,100,true),u.tenant_id));if(!allowArchivedRelation)await requireUnarchived(env,row,type,fail);if(owner&&row.owner_id!==owner)fail(400,'RELATION','Los registros deben pertenecer al mismo productor.');return row}
  async function ownerFor(b,existing){if(existing){if(b.ownerId&&b.ownerId!==existing.owner_id)fail(400,'OWNER','No se puede cambiar la atribución del registro.');return existing.owner_id}const id=admin?(b.ownerId||u.id):u.id;if(!admin&&b.ownerId&&b.ownerId!==u.id)fail(403,'OWNER','Sólo podés operar tu propia cartera.');const target=await first(env,'SELECT id FROM pilot_users WHERE id=? AND tenant_id=? AND disabled=0',text(id,100,true),u.tenant_id);if(!target)fail(400,'OWNER','Elegí una cuenta activa de tu organización.');return target.id}
  async function view(type,row){const {payload,...publicFields}=row;return {...publicFields,...await unseal(env,payload,`work:${u.tenant_id}:${row.owner_id}:${type}:${row.id}`)}}
  async function save(type,b,existing,fields,payload,owner){
@@ -28,7 +31,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
   // A proposal cannot change after its request has been closed, including racing requests.
   const quoteGate=type==='offers'?' AND EXISTS (SELECT 1 FROM work_quotes WHERE id=? AND tenant_id=? AND owner_id=? AND status NOT IN (?,?))':'';
   const quoteArgs=type==='offers'?[fields.quote_id,u.tenant_id,owner,'approved','rejected']:[];
-  const closedGate=type==='quotes'?" AND status NOT IN ('approved','rejected')":'';
+  const closedGate=(type==='quotes'?" AND status NOT IN ('approved','rejected')":'')+' AND '+archiveActiveSQL(type,table);
   if(existing){const expected=version(b.expectedVersion),keys=Object.keys(fields);const r=await run(env,'UPDATE '+table+' SET '+[...keys.map(k=>k+'=?'),'payload=?','version=version+1','updated_at=?'].join(',')+' WHERE id=? AND tenant_id=? AND owner_id=? AND version=?'+quoteGate+closedGate,...Object.values(fields),encrypted,stamp,id,u.tenant_id,owner,expected,...quoteArgs);if(r.meta.changes!==1)fail(409,'VERSION','Este registro cambió. Actualizalo antes de guardar.');}
   else{const keys=['id','tenant_id','owner_id','payload','version','created_at','updated_at',...Object.keys(fields)],values=[id,u.tenant_id,owner,encrypted,1,stamp,stamp,...Object.values(fields)];const r=await run(env,'INSERT INTO '+table+' ('+keys.join(',')+') SELECT '+keys.map(()=>'?').join(',')+' WHERE (SELECT count(*) FROM '+table+' WHERE tenant_id=?)<500'+quoteGate,...values,u.tenant_id,...quoteArgs);if(r.meta.changes!==1)fail(409,'CAPACITY','La solicitud se cerró o alcanzaste el límite del piloto. Actualizá para continuar.');}
   await audit(env,u,`work.${type}.${existing?'updated':'created'}`,id);return json({record:await view(type,await get(type,id))},existing?200:201);
@@ -41,6 +44,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
   const data=Object.fromEntries(entries);
   const intakes=await all(env,'SELECT * FROM work_quote_intakes WHERE tenant_id=?'+filter+' ORDER BY updated_at DESC LIMIT 500',...args);data.quoteIntakes=await Promise.all(intakes.map(row=>mqIntakeView(env,row)));
   const owners=admin?await all(env,'SELECT id,name,username,role,(access_code_hash IS NOT NULL) AS code_configured,disabled FROM pilot_users WHERE tenant_id=? ORDER BY name',u.tenant_id):[{id:u.id,name:u.name,username:u.username,role:u.role,code_configured:1,disabled:0}];
+  const archived=await all(env,"SELECT record_type,record_id,owner_id,archived_at,version FROM work_record_archives WHERE tenant_id=?"+filter+" AND state='archived'",...args);for(const [type,records] of Object.entries(data))for(const r of records){const mark=archived.find(a=>a.record_type===type&&a.record_id===r.id);if(mark)r.archive={version:mark.version,archivedAt:mark.archived_at};}
   return json({...data,owners,today:today(),automaticQuotes:false,source:'private_database'});
  }
  if(path==='/integrations'&&req.method==='GET'){
@@ -77,20 +81,24 @@ export async function workspaceApi(req,env,u,companies,helpers){
   const prior=existing?await view('clients',existing):{};return save(type,b,existing,{archived:b.archived===true?1:0},{...(prior.identity?{identity:prior.identity}:{}),name:text(b.name,160,true),email,phone,notes:text(b.notes,3000),marketingConsent:b.marketingConsent===true,source:text(b.source,100)||'Carga manual'},owner);
  }
  if(type==='policies'){
-  await get('clients',b.clientId,owner);const starts=day(b.startsOn),expires=day(b.expiresOn);if(expires<starts)fail(400,'DATE','El vencimiento debe ser posterior al inicio.');
-  return save(type,b,existing,{client_id:b.clientId,company_id:company(b.companyId),branch:choice(b.branch,WORK_BRANCHES),status:choice(b.status,['active','renewal','cancelled','expired']),starts_on:starts,expires_on:expires},{number:text(b.number,120,true),risk:text(b.risk,300,true),coverage:text(b.coverage,1200),premiumCents:amount(b.premiumCents),currency:choice(b.currency,['ARS','USD']),paymentStatus:choice(b.paymentStatus,['unknown','current','pending']),notes:text(b.notes,3000),source:'Carga manual · verificar en compañía'},owner);
+  await get('clients',b.clientId,owner,existing?.client_id===b.clientId);const starts=day(b.startsOn),expires=day(b.expiresOn);if(expires<starts)fail(400,'DATE','El vencimiento debe ser posterior al inicio.');
+  const old=existing?await view('policies',existing):{},prior=Object.fromEntries(Object.entries(old).filter(([k])=>!['id','tenant_id','owner_id','client_id','company_id','branch','status','starts_on','expires_on','version','created_at','updated_at'].includes(k))),optional=(key,max)=>b[key]===undefined?(prior[key]||''):text(b[key],max),optionalChoice=(key,values)=>b[key]===undefined?(prior[key]||'unknown'):choice(b[key],values);
+  let premium=amount(b.premiumCents);const amountText=b.amountText===undefined?(prior.premiumCents===premium?prior.amountText||'':''):text(b.amountText,80);if(amountText){let parsed;try{parsed=globalThis.TuriAmounts.parseCents(amountText);}catch(e){fail(400,'AMOUNT',e.message);}if(parsed!==premium)fail(400,'AMOUNT','El importe y su notación no coinciden.');}
+  let endorsements=prior.endorsements||[];if(b.endorsements!==undefined){if(!Array.isArray(b.endorsements)||b.endorsements.length>100)fail(400,'ENDORSEMENTS','Revisá los endosos (hasta 100).');endorsements=b.endorsements.map(e=>{if(!e||typeof e!=='object'||Array.isArray(e))fail(400,'ENDORSEMENTS','Revisá el endoso.');return {reference:text(e.reference,120),date:day(e.date,false)||'',type:text(e.type,120),detail:text(e.detail,2000)};}).filter(e=>Object.values(e).some(Boolean));}
+  const cancelledOn=b.cancelledOn===undefined?(prior.cancelledOn||''):day(b.cancelledOn,false)||'',cancellationReason=optional('cancellationReason',1500),status=choice(b.status,['active','renewal','cancelled','expired']);if(status==='cancelled'&&existing?.status!=='cancelled'&&(!cancelledOn||!cancellationReason))fail(400,'CANCELLATION','Para registrar la baja completá su fecha y motivo.');
+  return save(type,b,existing,{client_id:b.clientId,company_id:company(b.companyId),branch:choice(b.branch,WORK_BRANCHES),status,starts_on:starts,expires_on:expires},{...prior,number:text(b.number,120,true),risk:text(b.risk,300,true),coverage:text(b.coverage,1200),coverageType:optional('coverageType',160),paymentMethod:optionalChoice('paymentMethod',['unknown','cbu','card','coupon','cash','transfer','other']),paymentDetails:optional('paymentDetails',600),locality:optional('locality',160),province:optional('province',100),rebilling:optionalChoice('rebilling',['unknown','monthly','bimonthly','quarterly','four_monthly','semiannual','annual','other']),rebillingDetails:optional('rebillingDetails',300),endorsements,cancelledOn,cancellationReason,premiumCents:premium,amountText,currency:choice(b.currency,['ARS','USD']),paymentStatus:choice(b.paymentStatus,['unknown','current','pending']),notes:text(b.notes,3000),source:prior.source||'Carga manual · verificar en compañía'},owner);
  }
  if(type==='claims'){
-  await get('policies',b.policyId,owner);const occurred=day(b.occurredOn);if(occurred>today())fail(400,'DATE','La fecha del hecho no puede ser futura.');
+  await get('policies',b.policyId,owner,existing?.policy_id===b.policyId);const occurred=day(b.occurredOn);if(occurred>today())fail(400,'DATE','La fecha del hecho no puede ser futura.');
   return save(type,b,existing,{policy_id:b.policyId,status:choice(b.status,['reported','documents','insurer','resolved']),occurred_on:occurred,next_due:day(b.nextDue,false)},{reference:text(b.reference,120),title:text(b.title,200,true),nextAction:text(b.nextAction,600),notes:text(b.notes,3000)},owner);
  }
  if(type==='tasks'){
-  if(b.clientId)await get('clients',b.clientId,owner);
+  if(b.clientId)await get('clients',b.clientId,owner,existing?.client_id===b.clientId);
   return save(type,b,existing,{client_id:b.clientId||null,category:choice(b.category,['renewals','updates','requotes','cancellations','claims','payments','accounting','marketing','other']),priority:choice(b.priority,['red','amber','green']),status:choice(b.status,['open','done']),due_on:day(b.dueOn)},{title:text(b.title,200,true),notes:text(b.notes,3000)},owner);
  }
  if(type==='quotes'){
   if(existing&&['approved','rejected'].includes(existing.status))fail(409,'QUOTE_CLOSED','La solicitud está cerrada. Creá una nueva para recotizar.');
-  await get('clients',b.clientId,owner);const status=choice(b.status,['draft','requested','comparing','approval','rejected']);
+  await get('clients',b.clientId,owner,existing?.client_id===b.clientId);const status=choice(b.status,['draft','requested','comparing','approval','rejected']);
   const prior=existing?await view('quotes',existing):{};const followup=b.companyFollowup===undefined?(prior.companyFollowup||[]):b.companyFollowup;if(!Array.isArray(followup)||followup.length>companies.length)fail(400,'FIELD','Revisá el seguimiento de compañías.');const seen=new Set();const companyFollowup=followup.map(row=>{if(!row||typeof row!=='object'||Array.isArray(row))fail(400,'FIELD','Revisá el seguimiento de compañías.');const companyId=company(row.companyId);if(seen.has(companyId))fail(400,'FIELD','La compañía ya figura en el seguimiento.');seen.add(companyId);return {companyId,status:choice(row.status,['pending','error','no_offer']),note:text(row.note,600)};});return save(type,b,existing,{client_id:b.clientId,branch:choice(b.branch,WORK_BRANCHES),status},{risk:text(b.risk,400,true),notes:text(b.notes,3000),companyFollowup,source:'Solicitud interna · gestión asistida'},owner);
  }
  if(type==='offers'){

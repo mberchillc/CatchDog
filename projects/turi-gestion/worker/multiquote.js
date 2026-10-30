@@ -1,3 +1,4 @@
+import {requireUnarchived,archiveActiveSQL} from './record-archive.js';
 import {seal,unseal,opaque,NOW,codeHash} from './security.js';
 import MQ_SOURCE_LIBRARY from '../public/quote-sources.json' with {type:'json'};
 // Prototype: no insurer credentials, calls, quotes or prices are fabricated as live.
@@ -159,7 +160,7 @@ export async function mqIntakeView(env,row){
 export async function multiquoteApi(req,env,u,path,{json,fail,body,rate,first,run,audit}){
  if(path==='/multiquote/catalog'&&req.method==='GET')return json({catalog:MQ_SOURCE_LIBRARY,candidates:MQ_CANDIDATES});
  const match=path.match(/^\/multiquote\/requests\/([A-Za-z0-9_-]{10,80})$/);
- async function find(id){const row=await first(env,'SELECT * FROM work_quote_intakes WHERE id=? AND tenant_id=?'+(u.role==='superadmin'?'':' AND owner_id=?'),id,u.tenant_id,...(u.role==='superadmin'?[]:[u.id]));if(!row)fail(404,'NOT_FOUND','No encontramos ese pedido.');return row;}
+ async function find(id){const row=await first(env,'SELECT * FROM work_quote_intakes WHERE id=? AND tenant_id=?'+(u.role==='superadmin'?'':' AND owner_id=?'),id,u.tenant_id,...(u.role==='superadmin'?[]:[u.id]));if(!row)fail(404,'NOT_FOUND','No encontramos ese pedido.');await requireUnarchived(env,row,'quoteIntakes',fail);return row;}
  if(match&&req.method==='GET'){const record=await mqIntakeView(env,await find(match[1]));return json({record,orientation:mqSavedOrientation(record)});}
  if(req.method!=='POST')fail(404,'NOT_FOUND','La operación no está disponible.');
  await rate(env,'multiquote:'+u.id,20,60000);
@@ -178,17 +179,17 @@ export async function multiquoteApi(req,env,u,path,{json,fail,body,rate,first,ru
   for(const key of ['currentCents','targetCents'])if(b.commercial?.[key]!=null&&commercial[key]===null)fail(400,'AMOUNT','Revisá los importes, o dejalos vacíos para continuar sin ellos.');
   if(b.commercial?.currentInsurer!=null&&(typeof b.commercial.currentInsurer!=='string'||b.commercial.currentInsurer.length>100))fail(400,'FIELD','Revisá el nombre de la compañía actual.');
   const clientId=b.clientId||'';if(typeof clientId!=='string'||clientId.length>100)fail(400,'FIELD','Revisá el cliente elegido.');
-  if(clientId&&!await first(env,'SELECT id FROM work_clients WHERE id=? AND tenant_id=? AND owner_id=?',clientId,u.tenant_id,owner))fail(404,'NOT_FOUND','No encontramos ese cliente en la cartera del titular.');
+  if(clientId&&!await first(env,'SELECT id FROM work_clients WHERE id=? AND tenant_id=? AND owner_id=? AND '+archiveActiveSQL('clients','work_clients'),clientId,u.tenant_id,owner))fail(404,'NOT_FOUND','No encontramos ese cliente en la cartera del titular.');
   const key=b.requestKey;if(!previous&&(typeof key!=='string'||!/^[A-Za-z0-9_-]{16,80}$/.test(key)))fail(400,'REQUEST_KEY','Actualizá la pantalla para iniciar el pedido.');
   const orientation=mqOrientation(risk,details,commercial),stamp=NOW(),id=previous?.id||opaque(16);
   const payload={description:(b.description||'').trim(),risk,details,commercial,clientId,sourceCatalogVersion:MQ_SOURCE_LIBRARY.version,sourceIds:MQ_SOURCE_LIBRARY.sources.map(s=>s.id)};
   const fingerprint=codeHash(env,'mq-request:'+u.tenant_id+':'+owner,JSON.stringify(payload));
-  if(!previous){const found=await first(env,'SELECT * FROM work_quote_intakes WHERE tenant_id=? AND owner_id=? AND request_key=?',u.tenant_id,owner,key);if(found){if(found.request_hash!==fingerprint)fail(409,'REQUEST_CHANGED','El pedido anterior ya se guardó. Recuperalo para actualizar los datos.');const record=await mqIntakeView(env,found);return json({record,orientation:mqSavedOrientation(record)});}}
+  if(!previous){const found=await first(env,'SELECT * FROM work_quote_intakes WHERE tenant_id=? AND owner_id=? AND request_key=?',u.tenant_id,owner,key);if(found){await requireUnarchived(env,found,'quoteIntakes',fail);if(found.request_hash!==fingerprint)fail(409,'REQUEST_CHANGED','El pedido anterior ya se guardó. Recuperalo para actualizar los datos.');const record=await mqIntakeView(env,found);return json({record,orientation:mqSavedOrientation(record)});}}
   payload.estimate=orientation.estimate;
   const encrypted=await seal(env,payload,'mq:'+u.tenant_id+':'+owner+':'+id),status=orientation.missing.length?'needs_data':'awaiting_connection';
   if(previous){
    if(!Number.isSafeInteger(b.expectedVersion)||b.expectedVersion<1)fail(409,'VERSION','Actualizá el pedido antes de guardar.');
-   const r=await run(env,'UPDATE work_quote_intakes SET payload=?,request_hash=?,status=?,version=version+1,updated_at=? WHERE id=? AND tenant_id=? AND owner_id=? AND version=?',encrypted,fingerprint,status,stamp,id,u.tenant_id,owner,b.expectedVersion);
+   const r=await run(env,'UPDATE work_quote_intakes SET payload=?,request_hash=?,status=?,version=version+1,updated_at=? WHERE id=? AND tenant_id=? AND owner_id=? AND version=? AND '+archiveActiveSQL('quoteIntakes','work_quote_intakes'),encrypted,fingerprint,status,stamp,id,u.tenant_id,owner,b.expectedVersion);
    if(r.meta.changes!==1)fail(409,'VERSION','El pedido cambió en otra pantalla. Recuperalo antes de guardar.');
   }else{
    const inserted=await run(env,'INSERT OR IGNORE INTO work_quote_intakes(id,tenant_id,owner_id,request_key,request_hash,payload,status,version,created_at,updated_at) SELECT ?,?,?,?,?,?,?,1,?,? WHERE (SELECT count(*) FROM work_quote_intakes WHERE tenant_id=?)<500',id,u.tenant_id,owner,key,fingerprint,encrypted,status,stamp,stamp,u.tenant_id);
