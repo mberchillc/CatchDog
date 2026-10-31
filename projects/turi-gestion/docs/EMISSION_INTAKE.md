@@ -41,3 +41,11 @@ Al publicar aparecerá una sección nueva y el flujo de propuestas aprobadas. Us
 - Sumas aseguradas no se solicitan al cliente. El PAS conserva edición y el servidor aplica sus valores. Datos que lleguen desde un formulario anterior se conservan como referencia para revisión, sin sustituir automáticamente los valores del PAS; las respuestas ya almacenadas no se alteran.
 
 La migración 0008 sólo crea work_emission_reads y su índice. Antes de publicar se requiere resguardo y comparación de filas operativas, aviso de alcance y revisión de Mauro. No se fuerza recarga ni cierre de sesiones; clientes y PAS deben guardar antes de refrescar. Las pruebas usan el PAS ficticio y cuentas técnicas separadas.
+
+## Campanita según la cartera seleccionada — 31/10/2026
+
+La campanita del Superadministrador utiliza la misma cartera elegida en el selector de vista. Lista, contador y confirmación de lectura consultan `owner` en el servidor. Daniel muestra sólo sus novedades; otro PAS muestra sólo las suyas. `Toda la organización` agrega las carteras del tenant y muestra el productor de cada aviso. Un PAS regular conserva el filtro obligatorio de su propia cuenta y no puede seleccionar otra cartera mediante parámetros.
+
+Cambiar de vista descarta inmediatamente lista, contador y popup de la vista anterior. Las consultas pendientes y las aperturas de caso tardías comprueban que la vista siga vigente antes de mostrar datos o marcar lectura. La lectura del Superadministrador sigue siendo personal: no consume la novedad pendiente del PAS titular.
+
+Este ajuste no crea tablas, migra datos, reasigna casos, cambia destinatarios guardados ni reescribe respuestas u originales. Las pruebas se realizan con cuentas y clientes ficticios. No modifica las credenciales ni los datos de Daniel. La campanita actual informa respuestas de formularios; el filtro de cartera corrige su atribución visual sin presentar como recibidas respuestas de aseguradoras que aún no estén integradas.
