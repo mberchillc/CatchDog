@@ -24,6 +24,6 @@ Estado: a la espera de respuesta y habilitación técnica. Los datos de contacto
 
 ## Mercantil Andina — seguimiento del 04/11/2026
 
-El 03/11, Augusto Schäffer (equipo API) respondió con una guía que requiere registro, suscripción y alta de un usuario de test vinculado al código PAS. El 04/11 se envió un seguimiento en el mismo hilo con los datos del productor facilitados por Mauro, solicitando vinculación, productos, documentación y canal seguro de entrega. Gmail confirmó el envío. Los códigos y datos personales permanecen fuera del repositorio. El CUIT del titular y el alta/suscripción del portal aún deben completarse.
+El 03/11, Augusto Schäffer (equipo API) respondió con una guía que requiere registro, suscripción y alta de un usuario de test vinculado al código PAS. El 04/11 se envió un seguimiento en el mismo hilo con los datos del productor facilitados por Mauro, solicitando vinculación, productos, documentación y canal seguro de entrega. Gmail confirmó el envío. Los códigos y datos personales permanecen fuera del repositorio. Se envió también el dato fiscal del titular en el mismo hilo, con confirmación de envío de Gmail. El alta/suscripción del portal y la emisión de las credenciales API siguen pendientes.
 
 Se implementó la autenticación de QA según la guía: [MERCANTIL_QA.md](MERCANTIL_QA.md). Las pruebas locales usan respuestas simuladas; aún no hay credenciales emitidas para el piloto ni lectura de cartera validada. San Cristóbal queda pospuesto por indicación de Mauro.

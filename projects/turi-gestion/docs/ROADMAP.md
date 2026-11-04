@@ -95,3 +95,10 @@ La cuenta de Daniel aún requiere que él complete el alta desde su invitación 
 Mercantil Andina es la prioridad actual. Su equipo entregó la guía y recibió el seguimiento para vincular al PAS del piloto. Se agregó a Compañías la configuración y validación de autenticación QA, con cifrado, aislamiento y control de versión; la aprobación de credenciales no habilita cartera, cotización ni emisión. Ver [MERCANTIL_QA.md](MERCANTIL_QA.md).
 
 Para ejecutar la primera prueba real faltan registro/suscripción del portal, Subscription Key, CUIT del titular y usuario/contraseña API de test emitidos por Mercantil. Para traer cartera faltan además contrato y permisos del servicio, mapeo y concordancia del PAS. No se modifican registros operativos para preparar esta etapa. San Cristóbal queda pospuesto.
+
+
+## Configuración de diez compañías · 04/11/2026
+
+Compañías ofrece diez fichas del piloto, incluso antes de registrar un código: Mercantil Andina, Experta, San Cristóbal, Federación Patronal, Provincia, Allianz, Zurich, La Segunda, Rivadavia y Sancor. La selección combina el catálogo habitual del proyecto, relevancia para PAS y evidencia del canal de integración. El orden indica prioridad operativa del piloto. Se mantienen las otras compañías ya registradas y el límite de quince por PAS.
+
+Cada ficha registra código PAS, CUIT opcional, acceso al portal y credenciales API, junto con pasos y enlaces oficiales. El guardado no ejecuta llamadas a las compañías. Mercantil conserva la prueba de autenticación QA por acción explícita del PAS; cartera, cotización y atribución siguen pendientes. Los datos fiscales del titular se completaron por correo con Mercantil, fuera del repositorio. Ver [COMPANY_CONNECTIONS.md](COMPANY_CONNECTIONS.md).

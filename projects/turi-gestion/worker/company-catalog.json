@@ -8,6 +8,24 @@
       "label": "Canal API por relevar",
       "source": "https://app-launcher.papps.lasegunda.com.ar/",
       "requires": "Documentación oficial, autorización y credenciales de integración."
+    },
+    "setup": {
+      "priority": 8,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://app-launcher.papps.lasegunda.com.ar/",
+      "summary": "Portal de agencias disponible. Especificación API y habilitación de Turi pendientes de confirmación.",
+      "steps": [
+        "Consultá a tu ejecutivo o mesa de agencias por la API/webservice para Turi.",
+        "Pedí específicamente consulta de cartera, pólizas y vencimientos, además de cotización.",
+        "Solicitá documentación y credenciales de integración para tu código PAS.",
+        "Guardá tu acceso al portal y, cuando las recibas, las credenciales API."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -19,6 +37,26 @@
       "label": "API documentada · habilitación pendiente",
       "source": "https://apiportal.mercantilandina.com.ar/faqs",
       "requires": "Usuario API, contraseña y subscription key; código PAS y permisos para cada servicio."
+    },
+    "setup": {
+      "priority": 1,
+      "apiFields": [
+        "username",
+        "password",
+        "subscriptionKey"
+      ],
+      "validation": "mercantil_qa",
+      "documentation": "https://apiportal.mercantilandina.com.ar/faqs",
+      "contactEmail": "des-api@lamercantil.com.ar",
+      "summary": "Guía recibida y autenticación QA preparada. Falta que Mercantil habilite el usuario API del productor.",
+      "steps": [
+        "Registrate en el portal de APIs y suscribite a los productos que vas a usar.",
+        "Obtené la Subscription Key desde tu perfil.",
+        "Pedí al equipo API el usuario de test vinculado a tu código PAS, indicando CUIT, contacto y uso previsto.",
+        "Cargá las credenciales API emitidas y probá la autenticación de QA."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -30,6 +68,25 @@
       "label": "API documentada · habilitación pendiente",
       "source": "https://api-sandbox.fedpat.com.ar/documentacion-autenticacion.html",
       "requires": "Client ID, Client Secret, usuario autorizado y scopes; autenticación sólo en servidor."
+    },
+    "setup": {
+      "priority": 4,
+      "apiFields": [
+        "username",
+        "password",
+        "clientId",
+        "clientSecret"
+      ],
+      "documentation": "https://api-sandbox.fedpat.com.ar/documentacion-autenticacion.html",
+      "summary": "Sandbox y autenticación documentados. El alta para sistemas externos depende de la aprobación de la compañía.",
+      "steps": [
+        "Consultá con tu ejecutivo el permiso para usar Turi como sistema multicompañía.",
+        "Pedí acceso al sandbox y la documentación vigente de cartera/cotización.",
+        "Solicitá Client ID, Client Secret y usuario autorizado.",
+        "Guardá los datos emitidos y dejá constancia del permiso antes de probar."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -41,6 +98,24 @@
       "label": "Canal API por relevar",
       "source": "https://www.sistemas.segurosrivadavia.com/sistemas/login/login_intra_pas.php?u=P",
       "requires": "Documentación oficial, autorización y credenciales de integración."
+    },
+    "setup": {
+      "priority": 9,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://www.mutualrivadavia.com.ar/productores",
+      "summary": "Canal de productores identificado. API y servicios habilitados para el productor pendientes de validación.",
+      "steps": [
+        "Pedí a tu ejecutivo el canal de integración con sistemas de gestión de PAS.",
+        "Solicitá acceso, documentación y pruebas de cartera y cotización.",
+        "Confirmá cómo se atribuyen las consultas y operaciones a tu código PAS.",
+        "Guardá el acceso al portal y las credenciales API que la compañía habilite."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -52,6 +127,24 @@
       "label": "Canal API por relevar",
       "source": "https://portalintermediarios.gruposancorseguros.com/",
       "requires": "Documentación oficial, autorización y credenciales de integración."
+    },
+    "setup": {
+      "priority": 10,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://www.sancorseguros.com.ar/pas",
+      "summary": "Portal Intermediarios y herramientas PAS disponibles. Documentación API de Argentina pendiente de habilitación.",
+      "steps": [
+        "Pedí a tu ejecutivo la integración de Turi con tu código de intermediario.",
+        "Solicitá documentación API de Argentina, permisos y entorno de pruebas.",
+        "Confirmá servicios de cartera, pólizas, cobranzas y cotización que habiliten a tu usuario.",
+        "Guardá las credenciales del portal y las de integración que te entreguen."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -63,6 +156,25 @@
       "label": "Canal API por relevar",
       "source": "https://productores.sancristobal.com.ar/",
       "requires": "Documentación oficial, autorización y credenciales de integración."
+    },
+    "setup": {
+      "priority": 3,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://www.sancristobal.com.ar/institucional/automotor-refacturacion-mensual-canal-b2b",
+      "contactEmail": "soporteb2b@sancristobal.com.ar",
+      "summary": "Canal B2B identificado. La documentación y habilitación para Turi se gestionan con soporte B2B.",
+      "steps": [
+        "Pedí a Soporte B2B la integración de Turi para tu código PAS y organizador.",
+        "Solicitá documentación vigente, entorno de prueba y acciones disponibles de cartera y cotización.",
+        "Si la compañía lo requiere, completá la autorización del organizador.",
+        "Guardá las credenciales técnicas que te entreguen. La prueba se habilitará tras validar el contrato."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -74,6 +186,24 @@
       "label": "Portal técnico identificado · producto y acceso por validar",
       "source": "https://www.api-test.zurich.com.ar/apis",
       "requires": "Confirmar API de Automotores/Hogar y habilitación para Daniel."
+    },
+    "setup": {
+      "priority": 7,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://www.api-test.zurich.com.ar/apis",
+      "summary": "Portal técnico de Argentina identificado. El catálogo, productos y credenciales requieren habilitación.",
+      "steps": [
+        "Pedí a tu ejecutivo acceso al portal técnico de APIs de Zurich Argentina.",
+        "Solicitá los servicios de cartera y cotización, su documentación y ambiente de pruebas.",
+        "Confirmá cómo vinculan tu código PAS y qué credenciales debe usar Turi.",
+        "Guardá las credenciales emitidas para preparar la prueba."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -81,10 +211,28 @@
     "name": "Allianz",
     "portal": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
     "api": {
-      "status": "to_verify",
-      "label": "Canal API por relevar",
-      "source": "https://www.allianz.com.ar/descubri-allianz/productores/herramientas-gestion/allianznet.html",
-      "requires": "Documentación oficial, autorización y credenciales de integración."
+      "status": "partial_documentation",
+      "label": "WS de documentos documentado",
+      "source": "https://marketing.allianz.com.ar/EspecificacionesWS.pdf",
+      "requires": "Confirmar servicio, credenciales y permiso de integración."
+    },
+    "setup": {
+      "priority": 6,
+      "apiFields": [
+        "username",
+        "password"
+      ],
+      "documentation": "https://marketing.allianz.com.ar/EspecificacionesWS.pdf",
+      "contactEmail": "soportews@allianz.com.ar",
+      "summary": "Especificación oficial de consulta de pólizas y certificados. Otros servicios requieren confirmar su documentación y permiso.",
+      "steps": [
+        "Contactá a Soporte WS para habilitar la integración de Turi con tu código PAS.",
+        "Pedí documentación actual, credenciales y datos de aplicación para los servicios que necesites.",
+        "Confirmá por separado documentos, cartera y cotización, y las condiciones para producción.",
+        "Guardá el acceso autorizado y coordiná la prueba del servicio específico."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -92,10 +240,28 @@
     "name": "Provincia Seguros",
     "portal": "https://portal.provinciaseguros.com.ar/pas-web/",
     "api": {
-      "status": "to_verify",
-      "label": "Canal API por relevar",
-      "source": "https://portal.provinciaseguros.com.ar/pas-web/",
-      "requires": "Documentación oficial, autorización y credenciales de integración."
+      "status": "access_required",
+      "label": "Servicios PS2 · acceso por confirmar",
+      "source": "https://ps2.provinciaseguros.com.ar/",
+      "requires": "Documentación y credenciales autorizadas para el PAS."
+    },
+    "setup": {
+      "priority": 5,
+      "apiFields": [
+        "username",
+        "password",
+        "apiKey"
+      ],
+      "documentation": "https://ps2.provinciaseguros.com.ar/",
+      "summary": "Provincia publica PS2 como plataforma de servicios web. El alcance y acceso del PAS deben confirmarse.",
+      "steps": [
+        "Pedí a tu ejecutivo el alta en PS2 para integrar Turi.",
+        "Solicitá el catálogo de servicios, documentación y credenciales autorizadas.",
+        "Confirmá qué funciones permiten consultar cartera y cotizar con tu código PAS.",
+        "Guardá las credenciales que te entreguen para configurar el conector."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {
@@ -125,10 +291,30 @@
     "name": "Experta",
     "portal": "https://www.experta.com.ar/index.php/productores/",
     "api": {
-      "status": "to_verify",
-      "label": "Canal API por relevar",
-      "source": "https://www.experta.com.ar/index.php/productores/",
-      "requires": "Documentación oficial, autorización y credenciales de integración."
+      "status": "access_required",
+      "label": "API documentada · habilitación pendiente",
+      "source": "https://autos-developers.apiexperta.com.ar/docs/APIS-DOCS/Autos-API/",
+      "requires": "Acceso habilitado por servicio; Autos y Novedades usan credenciales diferentes."
+    },
+    "setup": {
+      "priority": 2,
+      "apiFields": [
+        "username",
+        "password",
+        "clientId",
+        "clientSecret"
+      ],
+      "documentation": "https://autos-developers.apiexperta.com.ar/docs/APIS-DOCS/Autos-API/",
+      "contactEmail": "soporte-autos-api@experta.com.ar",
+      "summary": "Documentación oficial de Autos, cartera y Novedades. Cada servicio requiere su acceso específico.",
+      "steps": [
+        "Consultá la documentación oficial y definí si necesitás Autos, cartera o Novedades.",
+        "Pedí a soporte el alta para el servicio elegido con tu código PAS, nombre, CUIT y correo.",
+        "Conservá las credenciales del servicio habilitado; Autos y Novedades tienen autenticaciones distintas.",
+        "Guardalas en esta ficha para preparar el conector y comprobar su atribución."
+      ],
+      "reviewedOn": "2026-11-04",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
   {

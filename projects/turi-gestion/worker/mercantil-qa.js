@@ -1,4 +1,5 @@
 import {seal,unseal,NOW} from './security.js';
+import {companyAccessState,companyAccessPack,companySessionGuard} from './company-setup.js';
 
 // The endpoint and form fields come from Mercantil's supplied connection guide.
 // Only QA authentication is implemented. A token does not prove PAS attribution,
@@ -53,7 +54,8 @@ export async function mercantilQaApi(req,env,u,id,{json,fail,first,run,audit,bod
  const b=await body(req);
  if(!b||b.authorized!==true||!row.authorized)fail(400,'REQUIRED','Confirmá que estás autorizado a usar estas credenciales API de test.');
  if(Number(b.expectedVersion)!==row.version)fail(409,'VERSION','El acceso cambió. Actualizá la lista antes de configurar la API.');
- let credentials;try{credentials=mercantilQaCredentials(b)}catch(e){if(e instanceof MercantilQaError)fail(e.status,e.code,e.message);throw e;}
+ const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,previous=await unseal(env,row.encrypted_payload,scope+row.version),access=companyAccessState(previous);
+ let credentials;try{credentials=mercantilQaCredentials(b.useSaved===true?{apiUsername:access.api.username,apiPassword:access.api.password,subscriptionKey:access.api.subscriptionKey}:b)}catch(e){if(e instanceof MercantilQaError)fail(e.status,e.code,e.message);throw e;}
  await rate(env,'mercantil-qa:'+u.id,5,15*60*1000);
  let result;try{result=await mercantilQaAuthenticate(credentials)}catch(e){
   if(e instanceof MercantilQaError){await audit(env,u,'connection.mercantil_qa_rejected',id);fail(e.status===401?422:e.status,e.code,e.message);}throw e;
@@ -61,9 +63,10 @@ export async function mercantilQaApi(req,env,u,id,{json,fail,first,run,audit,bod
  // A revoked session or replaced connection cannot commit after the HTTP call.
  const active=await current(req,env);
  if(active.role!=='producer'||active.id!==u.id||active.tenant_id!==u.tenant_id)fail(403,'PRODUCER_ONLY','Los permisos de tu cuenta cambiaron durante la prueba.');
- const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,previous=await unseal(env,row.encrypted_payload,scope+row.version),version=row.version+1;
- const encrypted=await seal(env,{...previous,mercantilQa:credentials},scope+version);
- const changed=await run(env,'UPDATE pilot_connections SET method=?,encrypted_payload=?,status=?,version=?,updated_at=? WHERE id=? AND tenant_id=? AND producer_id=? AND version=?','mercantil_qa',encrypted,'qa_auth_verified',version,result.authenticatedAt,id,u.tenant_id,u.id,row.version);
+ const version=row.version+1;access.api={...access.api,...credentials};
+ const encrypted=await seal(env,{...companyAccessPack(previous,access),mercantilQaVerifiedAt:result.authenticatedAt},scope+version);
+ const guard=companySessionGuard(active);
+ const changed=await run(env,'UPDATE pilot_connections SET method=?,encrypted_payload=?,status=?,version=?,updated_at=? WHERE id=? AND tenant_id=? AND producer_id=? AND version=? AND '+guard.sql,'mercantil_qa',encrypted,'qa_auth_verified',version,result.authenticatedAt,id,u.tenant_id,u.id,row.version,...guard.values);
  if(changed.meta.changes!==1)fail(409,'VERSION','El acceso cambió durante la prueba. Actualizá y revisá la versión vigente.');
  await audit(env,u,'connection.mercantil_qa_authenticated',id);
  return json({id,status:'qa_auth_verified',version,...result,message:'Mercantil confirmó la autenticación de prueba. Falta verificar el vínculo con tu código PAS y habilitar la consulta de cartera y la cotización.'});

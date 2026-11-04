@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {TestDB} from './support/private-harness.mjs';
 import worker from '../dist/server/index.js';
 import {opaque,digest,unseal} from '../worker/security.js';
+import {companyAccessState} from '../worker/company-setup.js';
 import {MQA_TOKEN_URL,MercantilQaError,mercantilQaAuthenticate,mercantilQaCredentials} from '../worker/mercantil-qa.js';
 
 // All credentials, PAS codes, users and responses in this file are synthetic.
@@ -63,7 +64,7 @@ test('autenticación válida guarda credenciales cifradas para el titular y cons
  const f=await fixture();t.mock.method(globalThis,'fetch',async()=>approved());
  const result=await f.call(f.path,{data:form});assert.equal(result.status,200);assert.equal(result.data.status,'qa_auth_verified');assert.equal(result.data.automaticQuotes,false);assert.equal(result.data.pasAttributionVerified,false);noSecrets(result.data);
  const row=f.DB.db.prepare('SELECT * FROM pilot_connections WHERE id=?').get(f.id);assert.equal(row.version,2);assert.equal(row.method,'mercantil_qa');noSecrets(row);
- const p=await unseal(f.env,row.encrypted_payload,'connection:QA-TURI:QA-MAURO-PAS:mercantil:2');assert.equal(p.pasCode,'TEST-PAS-0007');assert.deepEqual(p.mercantilQa,creds);
+ const p=await unseal(f.env,row.encrypted_payload,'connection:QA-TURI:QA-MAURO-PAS:mercantil:2');assert.equal(p.pasCode,'TEST-PAS-0007');const access=companyAccessState(p);for(const k of Object.keys(creds))assert.equal(access.api[k],creds[k]);
  const view=await f.call('/work/integrations',{method:'GET'});assert.equal(view.data.integrations[0].access_status,'qa_auth_verified');noSecrets(view.data);
  const admin=await f.call('/admin/overview',{method:'GET',as:'QA-ADMIN'});noSecrets(admin.data);assert.equal(admin.data.automaticQuotes,false);
  const activity=await f.call('/audit',{method:'GET'});assert.ok(activity.data.events.some(e=>e.action==='connection.mercantil_qa_authenticated'));noSecrets(activity.data);

@@ -1,0 +1,35 @@
+'use strict';
+window.TuriCompanySetup=(()=>{
+ let ctx;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const labels={username:'Usuario API',password:'Contraseña API',subscriptionKey:'Subscription Key',clientId:'Client ID',clientSecret:'Client Secret',apiKey:'Clave o token API'};
+ const limits={pasCode:120,taxId:20,portalUser:160,portalPassword:512,username:160,password:512,subscriptionKey:256,clientId:160,clientSecret:4096,apiKey:4096};
+ const input=(label,name,{value='',type='text',extra='',configured=false}={})=>`<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}" maxlength="${limits[name.replace('api_','')]||512}" autocomplete="off" spellcheck="false" ${configured?'placeholder="Guardado; vacío conserva el valor"':''} ${extra.replace(/\s*maxlength="[^"]*"/g,'')}></label>`;
+ const active=(saved)=>ctx?.user.id===saved.user.id&&ctx?.user.role==='producer';
+ function requestLink(company){const email=company.setup.contactEmail;if(!email)return '';const subject='Integración API de '+company.name+' con Turi Gestión';const body='Hola, solicito el procedimiento para integrar Turi Gestión con mi código PAS. Necesito documentación vigente, credenciales autorizadas de prueba, consulta de cartera/pólizas/vencimientos y cotización. Por favor, confirmen requisitos, permisos y canal seguro para entregar credenciales.';return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;}
+ function guide(company){const s=company.setup,contact=requestLink(company);return `<section class="w-span"><h3>Cómo obtener el acceso de ${esc(company.name)}</h3><p>${esc(s.summary)}</p><ol>${s.steps.map(v=>`<li>${esc(v)}</li>`).join('')}</ol><div class="row"><a href="${esc(s.documentation)}" target="_blank" rel="noopener noreferrer">Documentación o canal oficial ↗</a>${contact?`<a href="${esc(contact)}">Preparar pedido por correo</a>`:`<a href="${esc(company.portal)}" target="_blank" rel="noopener noreferrer">Abrir portal del PAS ↗</a>`}</div></section>`;}
+ async function open(companyId){
+  const saved=ctx;if(!saved||saved.user.role!=='producer')return;
+  const company=saved.companies.find(c=>c.id===companyId);if(!company?.setup?.priority)return;
+  const d=await saved.request('/company-setup/'+encodeURIComponent(companyId));if(!active(saved))return;
+  const r=d.record,apiFields=company.setup.apiFields||['username','password','apiKey'];
+  saved.modal('Configurar API de prueba · '+company.name,`<form id="company-access-form" class="w-form" autocomplete="off" data-company="${esc(companyId)}" data-version="${r.version}"><p class="w-span">Tu código PAS identifica tu cartera. Podés guardar el acceso que usás en el portal y completar las credenciales API cuando la compañía las habilite.</p>${input('Código PAS'+(r.pasConfigured?' · cambiar sólo si corresponde':''),'pasCode',{extra:r.pasConfigured?'maxlength="120" placeholder="Código resguardado; vacío conserva el actual"':'required maxlength="120"'})}${input('CUIT del titular (opcional)','taxId',{value:r.taxId,extra:'maxlength="20" inputmode="numeric"'})}${r.pasConfigured?`<p class="small w-span">Código guardado: ${esc(r.pasHint)}. Versión ${r.version}.</p>`:''}<h3 class="w-span">Acceso al portal PAS · opcional</h3>${input('Usuario con el que ingresás a tu perfil PAS','portalUser',{configured:r.portalConfigured,extra:'maxlength="160"'})}${input('Contraseña del portal PAS','portalPassword',{type:'password',configured:r.portalConfigured})}<p class="w-form-hint w-span">Los dos campos vacíos conservan el acceso guardado. Para reemplazarlo, completá ambos. Guardar este acceso deja la conexión API pendiente de validación.</p><details class="w-span" ${Object.values(r.apiConfigured).some(Boolean)?'open':''}><summary><strong>Credenciales API de integración · completar cuando las tengas</strong></summary><p class="small">Usá los datos habilitados por ${esc(company.name)} para el servicio de integración. Si la compañía confirma que coinciden con los del portal, podés cargarlos también aquí.</p><div class="w-form">${apiFields.map(key=>input(labels[key],'api_'+key,{type:key==='username'||key==='clientId'?'text':'password',configured:r.apiConfigured[key]})).join('')}</div></details>${guide(company)}<label class="check w-span"><input type="checkbox" name="authorized" required><span>Confirmo que este código y estos accesos me pertenecen o que tengo autorización para gestionarlos desde Turi.</span></label><p class="w-form-hint w-span">Los accesos se guardan cifrados y pertenecen a tu cuenta. Cada servicio requiere comprobar sus permisos y la atribución a tu cartera.</p><div id="dialog-error" class="error w-span" role="alert"></div><div class="w-form-actions w-span"><button type="button" data-work="close">Cancelar</button><button type="submit" value="save">Guardar configuración</button>${company.setup.validation==='mercantil_qa'?'<button type="submit" class="primary" value="test">Guardar y probar acceso QA</button>':''}</div></form>`);
+  const f=document.querySelector('#company-access-form');
+  f.addEventListener('submit',async event=>{
+   event.preventDefault();event.stopPropagation();if(f.dataset.busy==='1'||!active(saved))return;
+   f.dataset.busy='1';for(const button of f.querySelectorAll('button[type="submit"]'))button.disabled=true;
+   const err=f.querySelector('#dialog-error');err.textContent='';let persisted=false;
+   try{
+    const values=new FormData(f),api=Object.fromEntries(apiFields.map(k=>[k,String(values.get('api_'+k)||'')]));
+    const result=await saved.request('/company-setup/'+encodeURIComponent(companyId),'POST',{expectedVersion:Number(f.dataset.version),pasCode:String(values.get('pasCode')||''),taxId:String(values.get('taxId')||''),portalUser:String(values.get('portalUser')||''),portalPassword:String(values.get('portalPassword')||''),api,authorized:f.elements.authorized.checked});
+    if(!active(saved)||document.querySelector('#company-access-form')!==f)return;persisted=true;f.dataset.version=String(result.record.version);
+    if(event.submitter?.value==='test'){
+     const testResult=await saved.request('/connections/'+encodeURIComponent(result.record.id)+'/mercantil-qa','POST',{expectedVersion:result.record.version,useSaved:true,authorized:true});
+     if(!active(saved)||document.querySelector('#company-access-form')!==f)return;await saved.changed(testResult.message);
+    }else await saved.changed(result.message);
+   }catch(e){if(!active(saved)||document.querySelector('#company-access-form')!==f)return;if(e.status===401){saved.expired(e);return;}err.textContent=(persisted?'La configuración quedó guardada. ':'')+e.message;}
+   finally{for(const field of f.querySelectorAll('input'))if(field.name==='portalUser'||field.name==='portalPassword'||field.name.startsWith('api_'))field.value='';f.dataset.busy='0';for(const button of f.querySelectorAll('button[type="submit"]'))button.disabled=false;}
+  });
+ }
+ return {configure(options){ctx=options},open,reset(){ctx=null;}};
+})();
