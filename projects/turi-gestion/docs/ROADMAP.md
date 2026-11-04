@@ -88,3 +88,10 @@ Publicación de la cotización progresiva autorizada por el titular el 29/10/202
 
 ## Acceso de Daniel — 29/10/2026
 La cuenta de Daniel aún requiere que él complete el alta desde su invitación personal, elija usuario y contraseña y confirme su código. Se retiró la demo Dani/1234 de Turi dev. Su cartera real comienza vacía, sin importar los clientes ficticios de la maqueta. Super Admin puede crear y revocar invitaciones desde Productores. Ver ACCESS_INVITATIONS.md.
+
+
+## Foco de integración · 04/11/2026
+
+Mercantil Andina es la prioridad actual. Su equipo entregó la guía y recibió el seguimiento para vincular al PAS del piloto. Se agregó a Compañías la configuración y validación de autenticación QA, con cifrado, aislamiento y control de versión; la aprobación de credenciales no habilita cartera, cotización ni emisión. Ver [MERCANTIL_QA.md](MERCANTIL_QA.md).
+
+Para ejecutar la primera prueba real faltan registro/suscripción del portal, Subscription Key, CUIT del titular y usuario/contraseña API de test emitidos por Mercantil. Para traer cartera faltan además contrato y permisos del servicio, mapeo y concordancia del PAS. No se modifican registros operativos para preparar esta etapa. San Cristóbal queda pospuesto.

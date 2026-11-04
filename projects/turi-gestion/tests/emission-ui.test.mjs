@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
 import worker from '../dist/server/index.js';
 import {harness} from './support/private-harness.mjs';
@@ -41,7 +41,7 @@ test('constancia PDF identificable, sin CBU completo, con campos canónicos y ap
  const receipt={caseId:'CASO-FICTICIO-20261030',responseId:'RESPUESTA-FICTICIA-20261030',branch:'Autos',returnUrl:'https://turi-gestion-dev.pages.dev/privado/#view=emission&case=CASO-FICTICIO-20261030&response=RESPUESTA-FICTICIA-20261030'};
  const bytes=await w.TuriIntakePDF.create({receipt,summary:{name:'CLIENTE FICTICIO · ejemplo de formulario',risk:'Fiat Cronos 2024',company:'Compañía de prueba',payment:'Débito CBU terminado en 0001'},logoBytes:new w.Uint8Array(readFileSync('public/assets/logo.png'))});
  const pdf=await w.PDFLib.PDFDocument.load(bytes),fields=pdf.getForm().getFields();assert.equal(fields.length,2);assert.equal(pdf.getForm().getTextField('turi_case_id').getText(),receipt.caseId);assert.equal(pdf.getForm().getTextField('turi_response_id').getText(),receipt.responseId);assert.ok(fields.every(f=>f.isReadOnly()&&f.acroField.getWidgets().every(widget=>widget.getAppearances().normal)));
- assert.ok(pdf.getPageCount()<=2);writeFileSync('C:/Users/mauro/Documents/Codex/2026-10-27/https-chatgpt-com-c-6ae15a26-e690/outputs/Turi-formulario-constancia-ejemplo.pdf',bytes);
+ assert.ok(pdf.getPageCount()<=2);
  const identified=await w.TuriIntakePDF.identify({size:bytes.length,arrayBuffer:async()=>bytes});assert.equal(identified.caseId,receipt.caseId);assert.equal(identified.responseId,receipt.responseId);
  await assert.rejects(()=>w.TuriIntakePDF.identify({size:11*1024*1024}),/10 MB/);dom.window.close();
 });

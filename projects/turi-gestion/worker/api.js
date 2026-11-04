@@ -3,6 +3,7 @@ import { mailReady,deliverCode } from './mail.js';
 import { emissionApi } from './emission.js';
 import { workspaceApi } from './workspace.js';
 import { documentsApi,filesReady } from './documents.js';
+import { mercantilQaApi } from './mercantil-qa.js';
 const COOKIE='__Host-turi_session';
 const RESET_COOKIE='__Host-turi_reset';
 const ADMIN_RESET_COOKIE='__Host-turi_admin_reset';
@@ -180,6 +181,7 @@ export async function api(req,env,companies){
  if(path==='/api/pilot/connections'&&req.method==='GET'){
   onlyProducer(u);const rows=await all(env,'SELECT id,company_id,method,status,version,authorized,created_at,updated_at FROM pilot_connections WHERE tenant_id=? AND producer_id=? ORDER BY created_at',u.tenant_id,u.id);return json({connections:rows,limit:15});
  }
+ if(/^\/api\/pilot\/connections\/[^/]+\/mercantil-qa$/.test(path)&&req.method==='POST')return mercantilQaApi(req,env,u,path.split('/')[4],{json,fail,first,run,audit,body,rate,current});
  if(path==='/api/pilot/connections'&&req.method==='POST'){
   onlyProducer(u);await rate(env,'vault:'+u.id,30);const b=await body(req);if(b.method!=='pas_only'&&env.TURI_ENABLE_PORTAL_SECRETS!=='1')fail(409,'CONNECTOR_NOT_ENABLED','Primero validaremos el conector de esta compañía. Por ahora registrá sólo tu código PAS.');if(!companies.some(c=>c.id===b.companyId))fail(400,'COMPANY','Elegí una compañía del listado.');if(!['pas_only','portal','api_key'].includes(b.method))fail(400,'METHOD','Elegí el tipo de acceso.');const pas=clean(b.pasCode,120),username=clean(b.portalUser,160),password=typeof b.portalPassword==='string'?b.portalPassword.slice(0,512):'',apiKey=typeof b.apiKey==='string'?b.apiKey.slice(0,4096):'';
   if(!pas||b.authorized!==true||(b.method==='portal'&&(!username||!password))||(b.method==='api_key'&&!apiKey))fail(400,'REQUIRED','Completá los datos del acceso y confirmá tu autorización.');

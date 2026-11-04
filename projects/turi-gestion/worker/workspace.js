@@ -48,7 +48,7 @@ export async function workspaceApi(req,env,u,companies,helpers){
   return json({...data,owners,today:today(),automaticQuotes:false,source:'private_database'});
  }
  if(path==='/integrations'&&req.method==='GET'){
-  const rows=await all(env,'SELECT c.id,c.producer_id,c.company_id,c.version AS code_version,c.updated_at AS code_updated_at,r.connection_version,r.permission,r.channel,r.technical,r.payload,r.version,r.updated_at FROM pilot_connections c LEFT JOIN work_integration_reviews r ON r.connection_id=c.id WHERE c.tenant_id=?'+(admin?'':' AND c.producer_id=?')+' ORDER BY c.created_at',u.tenant_id,...(admin?[]:[u.id]));
+  const rows=await all(env,'SELECT c.id,c.producer_id,c.company_id,c.method AS access_method,c.status AS access_status,c.version AS code_version,c.updated_at AS code_updated_at,r.connection_version,r.permission,r.channel,r.technical,r.payload,r.version,r.updated_at FROM pilot_connections c LEFT JOIN work_integration_reviews r ON r.connection_id=c.id WHERE c.tenant_id=?'+(admin?'':' AND c.producer_id=?')+' ORDER BY c.created_at',u.tenant_id,...(admin?[]:[u.id]));
   const reviews=await Promise.all(rows.map(async row=>{const {payload,...meta}=row;return {...meta,...(payload?await unseal(env,payload,'integration:'+u.tenant_id+':'+row.id):{notes:'',documentation:''}),stale:row.connection_version!==row.code_version,automaticQuotes:false}}));return json({integrations:reviews});
  }
  if(req.method!=='POST')fail(404,'NOT_FOUND','La operación no está disponible.');
