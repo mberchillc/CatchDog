@@ -53,7 +53,7 @@ test('rechazo QA conserva el guardado, informa el problema, limpia claves y perm
 test('otra compañía guarda sin llamar al validador de Mercantil y su ficha no ofrece una prueba automática inexistente',async()=>{
  const {dom,w,calls}=await ui(),f=await openCompany(w,'segunda');assert.equal(f.querySelector('button[value="test"]'),null);fill(f);submit(w,f);await wait(()=>!w.document.querySelector('#company-access-form'));assert.ok(calls.some(c=>c.path==='/company-setup/segunda'&&c.method==='POST'));assert.equal(calls.some(c=>c.path.endsWith('/mercantil-qa')),false);dom.window.close();
 });
-test('el administrador supervisa estados sin formulario de acceso del PAS',async()=>{
+test('la vista agregada del administrador muestra estados; la vista exacta se abre al seleccionar un PAS',async()=>{
  const {dom,w}=await ui({role:'superadmin'});assert.equal(w.document.querySelector('[data-work="company-setup"]'),null);assert.ok(w.document.body.textContent.includes('Mercantil'));dom.window.close();
 });
 test('una lectura tardía después de salir no vuelve a abrir datos privados',async()=>{

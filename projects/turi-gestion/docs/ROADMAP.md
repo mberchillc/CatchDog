@@ -102,3 +102,10 @@ Para ejecutar la primera prueba real faltan registro/suscripción del portal, Su
 Compañías ofrece diez fichas del piloto, incluso antes de registrar un código: Mercantil Andina, Experta, San Cristóbal, Federación Patronal, Provincia, Allianz, Zurich, La Segunda, Rivadavia y Sancor. La selección combina el catálogo habitual del proyecto, relevancia para PAS y evidencia del canal de integración. El orden indica prioridad operativa del piloto. Se mantienen las otras compañías ya registradas y el límite de quince por PAS.
 
 Cada ficha registra código PAS, CUIT opcional, acceso al portal y credenciales API, junto con pasos y enlaces oficiales. El guardado no ejecuta llamadas a las compañías. Mercantil conserva la prueba de autenticación QA por acción explícita del PAS; cartera, cotización y atribución siguen pendientes. Los datos fiscales del titular se completaron por correo con Mercantil, fuera del repositorio. Ver [COMPANY_CONNECTIONS.md](COMPANY_CONNECTIONS.md).
+
+
+## Supervisión con la interfaz del PAS · 04/11/2026
+
+Seleccionar un productor en Cartera o Ver como PAS abre su misma aplicación y datos guardados, con navegación, botones y formularios compartidos. Compañías incluye las diez fichas y Configurar API de prueba también al supervisar. Una barra exterior permite cambiar de productor y volver a Superadmin.
+
+La sesión y la auditoría conservan la identidad del administrador. El recorrido es de solo lectura, verifica organización y permisos en el servidor y mantiene los accesos resguardados. Abrir avisos no consume las lecturas del PAS; guardar, eliminar o ejecutar pruebas externas desde la supervisión queda bloqueado. La cuenta PAS conserva su operación habitual. No requiere migraciones ni actualiza registros, versiones o estados iniciados por Daniel. Validación con cuentas y datos ficticios aislados.

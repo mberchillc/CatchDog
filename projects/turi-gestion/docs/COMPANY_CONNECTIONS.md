@@ -31,10 +31,14 @@ El CUIT del titular del piloto se completó por correo con Mercantil. Los identi
 
 Los datos se almacenan en el payload cifrado existente de pilot_connections, ligados a organización, productor, compañía y versión. No se aplican migraciones ni se actualizan automáticamente las conexiones o expedientes de Daniel.
 
-La lectura del titular devuelve código enmascarado e indicadores de campos guardados; permite editar su CUIT. El Superadministrador conserva supervisión de estados y versiones. Los registros de auditoría no contienen valores de credenciales, CUIT o códigos PAS.
+La lectura del titular devuelve código enmascarado e indicadores de campos guardados; permite editar su CUIT. Al elegir un productor en Cartera o Ver como PAS, el Superadministrador abre la misma aplicación del productor: mismas secciones, fichas, botones y formularios, incluida Configurar API de prueba. Una barra exterior identifica la cuenta supervisada y permite cambiar de PAS o volver a Superadmin.
+
+La supervisión es de solo lectura: las consultas usan los mismos handlers y el ámbito del productor, bajo la sesión real del administrador. No crea ni renueva sesiones PAS, no marca sus notificaciones como leídas y bloquea guardados, eliminaciones, acciones de cuenta y pruebas de conexión tanto en navegador como en servidor. Las vistas previas y descargas usan el mismo ámbito; la auditoría atribuye las consultas al Superadmin. Los secretos siguen enmascarados como en la cuenta del titular. Sólo se admiten productores activos de la misma organización y se vuelven a comprobar permisos en cada consulta.
+
+Los registros de auditoría no contienen valores de credenciales, CUIT o códigos PAS.
 
 Las escrituras comprueban origen, CSRF, permisos, sesión vigente, límite por cuenta y control de versión. Un cambio de permisos o revocación antes de la escritura impide guardar. El guardado de configuración no efectúa llamadas externas. Los endpoints de proveedor no se toman de campos del navegador.
 
 Cambiar el código PAS o los datos API invalida la autenticación de QA. Modificar sólo el acceso al portal conserva la validación existente de Mercantil. Reemplazar un código mediante la pantalla anterior conserva las credenciales cifradas y deja la conexión pendiente de revalidación.
 
-Validación: 194 pruebas locales aprobadas, incluidas las nuevas de configuración, pares de credenciales, preservación, cifrado, aislamiento, concurrencia, revocación, diez fichas y respuestas tardías. Las respuestas externas de estas pruebas son simuladas; la primera autenticación real del piloto permanece pendiente de credenciales emitidas.
+Validación: pruebas de configuración, pares de credenciales, preservación, cifrado, aislamiento, concurrencia, revocación, diez fichas y respuestas tardías. La supervisión incluye comparación de DOM y de los diez formularios contra la cuenta PAS, consultas con los mismos datos, aislamiento entre perfiles, bloqueo de escrituras y atribución de descargas. Las respuestas externas de estas pruebas son simuladas; la primera autenticación real del piloto permanece pendiente de credenciales emitidas.
