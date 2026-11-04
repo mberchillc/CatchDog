@@ -11,6 +11,7 @@ export function companyAccessPack(previous,access,pasCode=previous.pasCode){
  return {...rest,pasCode,companyAccess:access};
 }
 export function companySessionGuard(u,stamp=NOW()){
+ if(u.delegation)return {sql:"EXISTS (SELECT 1 FROM pilot_sessions s JOIN pilot_users a ON a.id=s.user_id JOIN pilot_users p ON p.id=? AND p.tenant_id=a.tenant_id WHERE s.id=? AND s.user_id=? AND a.tenant_id=? AND a.role='superadmin' AND a.disabled=0 AND p.role='producer' AND p.disabled=0 AND s.mfa=1 AND s.expires_at>? AND s.last_seen>?)",values:[u.id,u.session_id,u.delegation.actorId,u.tenant_id,stamp,stamp-15*60*1000]};
  return {sql:"EXISTS (SELECT 1 FROM pilot_sessions s JOIN pilot_users p ON p.id=s.user_id WHERE s.id=? AND s.user_id=? AND p.tenant_id=? AND p.role='producer' AND p.disabled=0 AND s.mfa=1 AND s.expires_at>? AND s.last_seen>?)",values:[u.session_id,u.id,u.tenant_id,stamp,stamp-15*60*1000]};
 }
 export function companySetupView(row,payload={}){

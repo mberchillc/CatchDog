@@ -12,7 +12,7 @@ test('Superadmin en vista PAS muestra exactamente la misma pantalla Compañías 
  try{
   assert.equal(admin.w.document.querySelectorAll('[data-work="company-setup"]').length,10);assert.deepEqual(buttons(admin.w),buttons(pas.w));
   assert.equal(admin.w.document.querySelector('#pilot').innerHTML,pas.w.document.querySelector('#pilot').innerHTML);
-  assert.ok(admin.w.document.querySelector('#supervision-strip').textContent.includes('Solo lectura'));assert.equal(admin.w.document.querySelector('#supervision-producer').value,PAS);assert.equal(admin.w.document.querySelectorAll('#supervision-producer option').length,2);
+  assert.ok(admin.w.document.querySelector('#supervision-strip').textContent.includes('Acceso completo'));assert.equal(admin.w.document.querySelector('#supervision-producer').value,PAS);assert.equal(admin.w.document.querySelectorAll('#supervision-producer option').length,2);
   assert.equal(admin.w.document.querySelector('[data-page="producers"]'),null);assert.ok(admin.w.document.querySelector('.w-profile').textContent.includes('PAS ficticio de Mauro'));
   for(const id of ['mercantil','experta','cristobal','federacion','provincia','allianz','zurich','segunda','rivadavia','sancor']){
    const normal=await company(pas.w,id),mirror=await company(admin.w,id);assert.equal(mirror.outerHTML,normal.outerHTML,id);assert.equal(mirror.elements.portalPassword.type,'password');admin.w.document.querySelector('[data-work="close"]').click();pas.w.document.querySelector('[data-work="close"]').click();
@@ -26,17 +26,18 @@ test('elegir un productor en Cartera o Ver como PAS abre su vista completa conse
   await admin.w.TuriWorkspace.go('producers');const button=admin.w.document.querySelector(`[data-work="owner"][data-id="${PEER}"]`);assert.equal(button.textContent,'Ver como PAS');button.click();await wait(()=>opened.length===2);assert.deepEqual(opened[1],{id:PEER,page:'policies'});
  }finally{admin.close();}
 });
-test('se puede abrir y recorrer el formulario real de API; guardar o probar en supervisión no modifica accesos',async()=>{
+test('Superadmin guarda en el formulario real los accesos del PAS y conserva su atribución',async()=>{
  const f=await fixture(),admin=await ui(f,{as:ADMIN,producerId:PAS});try{
-  const form=await company(admin.w);form.elements.pasCode.value='QA-INSPECCION';form.elements.portalUser.value='QA-USUARIO';form.elements.portalPassword.value='QA-CLAVE';form.elements.authorized.checked=true;
-  const testButton=form.querySelector('button[value="test"]');assert.equal(testButton.disabled,false);form.dispatchEvent(new admin.w.SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:testButton}));
-  await wait(()=>form.querySelector('#dialog-error').textContent.includes('supervisando'));assert.equal(testButton.disabled,false);assert.equal(form.elements.portalPassword.value,'');assert.equal(f.DB.db.prepare('SELECT count(*) n FROM pilot_connections').get().n,0);assert.equal(admin.calls.some(c=>c.method!=='GET'),false);assert.equal(admin.w.localStorage.length,0);assert.equal(admin.w.sessionStorage.length,0);
+  const form=await company(admin.w);form.elements.pasCode.value='QA-CODIGO';form.elements.portalUser.value='QA-USUARIO';form.elements.portalPassword.value='QA-CLAVE';form.elements.authorized.checked=true;
+  form.dispatchEvent(new admin.w.SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:form.querySelector('button[value="save"]')}));await wait(()=>!admin.w.document.querySelector('#company-access-form'),()=>admin.w.document.body.textContent);
+  const row=f.DB.db.prepare('SELECT producer_id,version FROM pilot_connections').get();assert.equal(row.producer_id,PAS);assert.equal(row.version,1);assert.equal(f.DB.db.prepare("SELECT actor_id FROM pilot_audit WHERE action='supervision.connection.setup_created'").get().actor_id,ADMIN);
+  const reopened=await company(admin.w);assert.equal(reopened.elements.pasCode.required,false);assert.ok(reopened.elements.portalPassword.placeholder.includes('Guardado'));assert.equal(reopened.elements.portalPassword.value,'');assert.equal(admin.w.localStorage.length,0);assert.equal(admin.w.sessionStorage.length,0);
  }finally{admin.close();}
 });
 test('Mi correo y los formularios de código muestran la cuenta PAS seleccionada y bloquean cambios',async()=>{
  const f=await fixture(),admin=await ui(f,{as:ADMIN,producerId:PAS});try{
   admin.w.document.querySelector('[data-action="email-settings"]').click();const email=admin.w.document.querySelector('#email-start');assert.equal(email.elements.email.value,'qa-'+PAS.toLowerCase()+'@example.invalid');assert.ok(!email.innerHTML.includes(ADMIN.toLowerCase()));
-  email.dispatchEvent(new admin.w.SubmitEvent('submit',{bubbles:true,cancelable:true}));await wait(()=>email.querySelector('#error').textContent.includes('supervisando'));assert.equal(admin.calls.some(c=>c.method!=='GET'),false);
+  email.dispatchEvent(new admin.w.SubmitEvent('submit',{bubbles:true,cancelable:true}));await wait(()=>email.querySelector('#error').textContent.length>0);assert.ok(admin.calls.some(c=>c.method==='POST'));
   admin.w.document.querySelector('[data-action="continue"]').click();await wait(()=>admin.w.document.querySelector('[data-action="add"]'));admin.w.document.querySelector('[data-action="add"]').click();const code=admin.w.document.querySelector('#connection');assert.ok(code);assert.equal(code.querySelectorAll('select option').length,16);assert.equal(code.elements.pasCode.required,true);
  }finally{admin.close();}
 });

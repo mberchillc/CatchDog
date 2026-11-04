@@ -23,7 +23,7 @@ La prueba requiere una respuesta OAuth con `access_token`. Ante un formato difer
 
 La configuración se guarda cifrada antes de ejecutar la prueba. Una respuesta válida registra la autenticación de QA; una prueba fallida conserva la configuración y muestra el motivo. El token no se devuelve al navegador ni se persiste. La actualización conserva el código PAS y usa control de versión. Una sesión revocada, cambio de permisos o conexión reemplazada durante la llamada impide guardar.
 
-La vista de supervisión recibe únicamente estado y versión. El relevamiento comercial/técnico se conserva por separado. Las pruebas usan cuentas, códigos y respuestas ficticios en bases locales aisladas.
+El Superadmin puede guardar configuración y probar QA en el perfil PAS seleccionado. Los secretos no se devuelven; los cambios conservan al PAS titular y la auditoría identifica al administrador. El relevamiento comercial/técnico se conserva por separado. Las pruebas usan cuentas, códigos y respuestas ficticios en bases locales aisladas.
 
 ## Criterio de aceptación pendiente
 

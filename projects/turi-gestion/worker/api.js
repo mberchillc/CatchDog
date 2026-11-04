@@ -246,30 +246,30 @@ async function privateApi(req,env,companies,u,{audit,current,rate}){
 }
 
 
-// A Superadmin reads through the same producer handlers without creating a PAS session.
+// Superadmin operates within a selected PAS scope, retaining its real session and audit identity.
 async function supervisionApi(req,env,companies){
  const actor=await current(req,env);
  if(actor.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta vista pertenece al superadministrador.');
- if(req.method!=='GET')fail(403,'SUPERVISION_READ_ONLY','Estás supervisando la vista del PAS. Los cambios y las pruebas de conexión deben realizarse desde su cuenta.');
- const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|companies|connections|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
+ const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|companies|connections(?:\/[A-Za-z0-9_-]+(?:\/mercantil-qa)?)?|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
  if(!match)fail(404,'NOT_FOUND','No encontramos esa vista de supervisión.');
  const producerId=match[1];
  const target=await first(env,"SELECT * FROM pilot_users WHERE id=? AND tenant_id=? AND role='producer' AND disabled=0",producerId,actor.tenant_id);
  if(!target)fail(404,'PRODUCER_NOT_FOUND','No encontramos un PAS activo de tu organización.');
- if(match[2]==='auth/me'){
+ if(match[2]==='auth/me'&&req.method==='GET'){
   await audit(env,actor,'supervision.opened',target.id);
-  return json({user:userView(target),csrf:actor.csrf,requiresCodeSetup:false,emailRecoveryAvailable:mailReady(env),supervision:{actor:userView(actor),producerId:target.id,readOnly:true}});
+  return json({user:userView(target),csrf:actor.csrf,requiresCodeSetup:false,emailRecoveryAvailable:mailReady(env),supervision:{actor:userView(actor),producerId:target.id,readOnly:false}});
  }
  url.pathname='/api/pilot/'+match[2];
- const scopedRequest=new Request(url,{method:'GET',headers:req.headers});
+ const scopedRequest=new Request(url,req);
+ const delegated=producer=>({...producer,session_id:actor.session_id,delegation:{actorId:actor.id}});
  const scopedAudit=(environment,_viewer,action,record)=>audit(environment,actor,'supervision.'+action,record);
  const scopedCurrent=async()=>{
   const live=await current(req,env);
   if(live.id!==actor.id||live.role!=='superadmin'||live.tenant_id!==actor.tenant_id)fail(403,'ADMIN_ONLY','Tus permisos de supervisión cambiaron.');
   const active=await first(env,"SELECT * FROM pilot_users WHERE id=? AND tenant_id=? AND role='producer' AND disabled=0",target.id,live.tenant_id);
   if(!active)fail(404,'PRODUCER_NOT_FOUND','La cuenta del PAS ya no está disponible.');
-  return active;
+  return delegated(active);
  };
  const scopedRate=(environment,key,max,period)=>rate(environment,'supervision:'+actor.id+':'+target.id+':'+key,max,period);
- return privateApi(scopedRequest,env,companies,target,{audit:scopedAudit,current:scopedCurrent,rate:scopedRate});
+ return privateApi(scopedRequest,env,companies,delegated(target),{audit:scopedAudit,current:scopedCurrent,rate:scopedRate});
 }

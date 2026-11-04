@@ -109,3 +109,6 @@ Cada ficha registra código PAS, CUIT opcional, acceso al portal y credenciales 
 Seleccionar un productor en Cartera o Ver como PAS abre su misma aplicación y datos guardados, con navegación, botones y formularios compartidos. Compañías incluye las diez fichas y Configurar API de prueba también al supervisar. Una barra exterior permite cambiar de productor y volver a Superadmin.
 
 La sesión y la auditoría conservan la identidad del administrador. El recorrido es de solo lectura, verifica organización y permisos en el servidor y mantiene los accesos resguardados. Abrir avisos no consume las lecturas del PAS; guardar, eliminar o ejecutar pruebas externas desde la supervisión queda bloqueado. La cuenta PAS conserva su operación habitual. No requiere migraciones ni actualiza registros, versiones o estados iniciados por Daniel. Validación con cuentas y datos ficticios aislados.
+
+
+Superadmin operativo (04/11): se habilitan las operaciones del perfil PAS bajo la sesión del administrador, con titularidad del PAS y auditoría del actor real. Reemplaza el modo anterior de solo lectura. Validado con 218 pruebas locales aisladas.
