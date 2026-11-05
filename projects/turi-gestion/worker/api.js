@@ -5,6 +5,7 @@ import { workspaceApi } from './workspace.js';
 import { documentsApi,filesReady } from './documents.js';
 import { mercantilQaApi } from './mercantil-qa.js';
 import { companySetupApi } from './company-setup.js';
+import { assistantsApi } from './assistants.js';
 const COOKIE='__Host-turi_session';
 const RESET_COOKIE='__Host-turi_reset';
 const ADMIN_RESET_COOKIE='__Host-turi_admin_reset';
@@ -177,6 +178,7 @@ export async function api(req,env,companies){
 
 async function privateApi(req,env,companies,u,{audit,current,rate}){
  const path=new URL(req.url).pathname;
+ if(path==='/api/pilot/assistants'||path.startsWith('/api/pilot/assistants/'))return assistantsApi(req,env,u,{json,fail,first,all,run,audit,body,rate,current});
  if(path==='/api/pilot/documents'||path.startsWith('/api/pilot/documents/'))return documentsApi(req,env,u,{json,fail,stmt,first,all,run,audit,body,rate,current});
  if(path.startsWith('/api/pilot/work/'))return workspaceApi(req,env,u,companies,{json,fail,stmt,first,all,run,audit,body,rate});
  if(path==='/api/pilot/auth/email/start'&&req.method==='POST'){
@@ -250,7 +252,7 @@ async function privateApi(req,env,companies,u,{audit,current,rate}){
 async function supervisionApi(req,env,companies){
  const actor=await current(req,env);
  if(actor.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta vista pertenece al superadministrador.');
- const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|companies|connections(?:\/[A-Za-z0-9_-]+(?:\/mercantil-qa)?)?|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
+ const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|assistants(?:\/[A-Za-z0-9_-]+(?:\/test)?)?|companies|connections(?:\/[A-Za-z0-9_-]+(?:\/mercantil-qa)?)?|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
  if(!match)fail(404,'NOT_FOUND','No encontramos esa vista de supervisión.');
  const producerId=match[1];
  const target=await first(env,"SELECT * FROM pilot_users WHERE id=? AND tenant_id=? AND role='producer' AND disabled=0",producerId,actor.tenant_id);

@@ -39,7 +39,7 @@ export async function ui(f,{as=PAS,producerId='',page='companies'}={}){
  w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=function(){};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.structuredClone=structuredClone;w.AbortController=AbortController;
  w.fetch=async(input,options={})=>{const url=new URL(input,w.location);calls.push({path:url.pathname+url.search,method:options.method||'GET'});const s=f.sessions[as];return worker.fetch(new Request(url,{...options,headers:{Origin:'https://turi.test',...options.headers,Cookie:s.cookie,'CF-Connecting-IP':'192.0.2.51'}}),f.env);};
  const blobs=[];w.URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:qa-'+blobs.length};w.URL.revokeObjectURL=()=>{};w.Blob=Blob;
- for(const file of ['amounts.js','intake-fields.js','supervision.js','notifications.js','emission.js','multiquote.js','documents.js','company-setup.js','workspace.js','pilot.js'])w.eval(readFileSync('public/'+file,'utf8'));
+ for(const file of ['amounts.js','intake-fields.js','supervision.js','notifications.js','emission.js','multiquote.js','documents.js','company-setup.js','assistants.js','workspace.js','pilot.js'])w.eval(readFileSync('public/'+file,'utf8'));
  await wait(()=>w.document.querySelector('.w-sidebar')||w.document.querySelector('[role="alert"]')?.textContent,()=>w.document.body.textContent);
  const close=()=>{w.TuriWorkspace?.leave();w.close();};return {dom,w,calls,blobs,close};
 }
