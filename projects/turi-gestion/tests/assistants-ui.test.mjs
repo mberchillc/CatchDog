@@ -2,9 +2,37 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
-import {fixture,ui as workspaceUi,wait as workspaceWait,PAS,ADMIN} from './support/supervision-fixture.mjs';
+import {fixture,ui as workspaceUi,wait as workspaceWait,PAS,PEER,ADMIN} from './support/supervision-fixture.mjs';
 
 const ids=['openai','gemini','claude','copilot','meta'];
+
+test('contacto y asistentes funcionan desde el menú para distintos PAS y sus vistas de Superadmin',async()=>{
+ const f=await fixture();
+ for(const target of [PAS,PEER]){
+  for(const delegated of [false,true]){
+   const a=await workspaceUi(f,{as:delegated?ADMIN:target,producerId:delegated?target:'',page:'home'});
+   try{
+    const contact=a.w.document.querySelector('.w-expert-link');
+    assert.equal(contact.textContent,'Contacta a un experto');
+    assert.equal(contact.getAttribute('href'),'https://wa.me/5491130216824');
+    assert.equal(contact.querySelector('img').getAttribute('src'),'/assets/whatsapp.svg');
+    const menu=a.w.document.querySelector('[data-page="assistants"]');
+    assert.ok(menu.textContent.includes('Conectá tu asistente de IA'));
+    menu.click();await workspaceWait(()=>a.w.document.querySelectorAll('.ai-provider').length===5,()=>a.w.document.body.textContent);
+    a.w.document.querySelector('[data-ai="toggle"][data-provider="meta"]').click();
+    const form=a.w.document.querySelector('#ai-connection-form');
+    form.elements.apiKey.value='SYNTHETIC-ALL-PAS-KEY';
+    form.elements.authorized.checked=true;
+    form.dispatchEvent(new a.w.SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:form.querySelector('button[value="save"]')}));
+    await workspaceWait(()=>a.w.document.querySelector('.ai-notice')?.textContent,()=>a.w.document.body.textContent);
+    const row=f.DB.db.prepare("SELECT owner_id,version,encrypted_payload FROM pilot_ai_connections WHERE owner_id=? AND provider='meta'").get(target);
+    assert.equal(row.owner_id,target);assert.equal(row.version,delegated?2:1);
+    assert.ok(!row.encrypted_payload.includes('SYNTHETIC-ALL-PAS-KEY'));
+   }finally{a.close();}
+  }
+ }
+ assert.equal(f.DB.db.prepare('SELECT count(*) n FROM pilot_ai_connections').get().n,2);
+});
 const idle=id=>({id,configured:false,apiKeyConfigured:false,status:'not_connected',version:0,model:'',workspaceId:'',region:'global'});
 const wait=async check=>{for(let i=0;i<150;i++){if(check())return;await new Promise(resolve=>setTimeout(resolve,3));}assert.fail('La interfaz no alcanzó el estado esperado.');};
 async function app(options={}){
