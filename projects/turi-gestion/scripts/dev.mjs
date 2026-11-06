@@ -10,7 +10,7 @@ class PreviewDB{
  async batch(stmts){this.db.exec('BEGIN');try{const results=[];for(const s of stmts)results.push(await s.run());this.db.exec('COMMIT');return results}catch(e){this.db.exec('ROLLBACK');throw e}}
 }
 class PreviewBucket{constructor(){this.objects=new Map()}async put(key,bytes){const value=new Uint8Array(bytes).slice();this.objects.set(key,value);return {key,size:value.length}}async get(key){const value=this.objects.get(key);return value?{size:value.length,arrayBuffer:async()=>value.slice().buffer}:null}async delete(key){this.objects.delete(key)}}
-const env={DB:new PreviewDB(),BUCKET:new PreviewBucket(),TURI_AUTH_PEPPER:opaque(),TURI_VAULT_KEY:Buffer.from(opaque()).subarray(0,32).toString('base64')};
+const env={DB:new PreviewDB(),BUCKET:new PreviewBucket(),TURI_AUTH_PEPPER:opaque(),TURI_VAULT_KEY:Buffer.from(opaque()).subarray(0,32).toString('base64'),TURI_MASTURI_OWNER_USERNAME:'vista'};
 // Documented fictitious development accounts. These cannot log in to the hosted site.
 for(const [id,username,name,role] of [['DEV-ADMIN','vista','Mauro Berchi','superadmin'],['DEV-PAS-FICTICIO','pasvista','PAS ficticio de Mauro','producer']])env.DB.db.prepare('INSERT INTO pilot_users(id,username,name,role,tenant_id,password_hash,mfa_secret,access_code_hash,created_at) VALUES(?,?,?,?,?,?,?,?,?)').run(id,username,name,role,'DEV',passwordHash('Vista local de Turi 2026!',env.TURI_AUTH_PEPPER),'',codeHash(env,'access:'+id,'12345678'),Date.now());
 const arg=name=>{const i=process.argv.indexOf(name);return i<0?undefined:process.argv[i+1]};

@@ -5,6 +5,7 @@ const SECURITY={
  'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
  'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'"
 };
+const masturiOrigin=(req,env)=>{const origin=req.headers.get('origin')||'',same=new URL(req.url).origin,configured=String(env.TURI_MASTURI_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean);return [same,'https://turi.com.ar','https://www.turi.com.ar',...configured].includes(origin)?origin:''};
 export default {async fetch(req,env){
  let response;const url=new URL(req.url);
  try{
@@ -12,8 +13,8 @@ export default {async fetch(req,env){
   else if(url.pathname.startsWith('/api/pilot/'))response=await api(req,env,COMPANIES);
   else{
    if(!['GET','HEAD'].includes(req.method))response=new Response('Method not allowed',{status:405});
-   else {const path=/^\/admin\/vista-pas\/[A-Za-z0-9_-]{1,100}\/?$/.test(url.pathname)?'/pilot.html':['/formularios/emision','/formularios/emision/'].includes(url.pathname)?'/intake.html':['/privado','/privado/','/privado/activar','/privado/activar/','/admin','/admin/','/admin/crear-contrasena','/admin/crear-contrasena/'].includes(url.pathname)?'/pilot.html':url.pathname==='/'?'/index.html':url.pathname;const a=ASSETS[path];if(!a)response=new Response('No encontramos esta página.',{status:404});else {const bytes=Buffer.from(a.data,'base64');response=new Response(req.method==='HEAD'?null:bytes,{headers:{'Content-Type':a.type,'Cache-Control':path.startsWith('/assets/')?'public, max-age=3600':'no-store'}});}}
+   else {const path=/^\/admin\/vista-pas\/[A-Za-z0-9_-]{1,100}\/?$/.test(url.pathname)?'/pilot.html':['/formularios/emision','/formularios/emision/'].includes(url.pathname)?'/intake.html':['/masturi','/masturi/'].includes(url.pathname)?'/masturi/index.html':['/privado','/privado/','/privado/activar','/privado/activar/','/admin','/admin/','/admin/crear-contrasena','/admin/crear-contrasena/'].includes(url.pathname)?'/pilot.html':url.pathname==='/'?'/index.html':url.pathname;const a=ASSETS[path];if(!a)response=new Response('No encontramos esta página.',{status:404});else {const bytes=Buffer.from(a.data,'base64');response=new Response(req.method==='HEAD'?null:bytes,{headers:{'Content-Type':a.type,'Cache-Control':path.startsWith('/assets/')||path.startsWith('/masturi/')&&!path.endsWith('.html')?'public, max-age=3600':'no-store'}});}}
   }
  }catch(e){const known=e instanceof HttpError;response=new Response(JSON.stringify({error:known?e.code:'SERVER_ERROR',message:known?e.message:'No pudimos completar la operación. Volvé a intentar.'}),{status:known?e.status:500,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}});if(!known)console.error('TURI_REQUEST_FAILED');}
- const headers=new Headers(response.headers);for(const [k,v] of Object.entries(SECURITY))headers.set(k,v);return new Response(response.body,{status:response.status,headers});
+ const headers=new Headers(response.headers);for(const [k,v] of Object.entries(SECURITY))headers.set(k,v);if(url.pathname.startsWith('/api/pilot/public/masturi/')){const origin=masturiOrigin(req,env);if(origin){headers.set('Access-Control-Allow-Origin',origin);headers.set('Vary','Origin');}}return new Response(response.body,{status:response.status,headers});
 }};

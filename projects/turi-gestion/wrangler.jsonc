@@ -22,6 +22,8 @@
   "vars": {
     "NODE_VERSION": "24",
     "SKIP_DEPENDENCY_INSTALL": "1",
-    "TURI_PUBLIC_URL": "https://turi-gestion-dev.pages.dev"
+    "TURI_PUBLIC_URL": "https://turi-gestion-dev.pages.dev",
+    "TURI_MASTURI_OWNER_USERNAME": "mauro",
+    "TURI_MASTURI_ORIGINS": "https://turi.com.ar,https://www.turi.com.ar"
   }
 }

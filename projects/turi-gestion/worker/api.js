@@ -6,6 +6,7 @@ import { documentsApi,filesReady } from './documents.js';
 import { mercantilQaApi } from './mercantil-qa.js';
 import { companySetupApi } from './company-setup.js';
 import { assistantsApi } from './assistants.js';
+import { masturiApi } from './masturi.js';
 const COOKIE='__Host-turi_session';
 const RESET_COOKIE='__Host-turi_reset';
 const ADMIN_RESET_COOKIE='__Host-turi_admin_reset';
@@ -63,6 +64,7 @@ export async function api(req,env,companies){
  const path=new URL(req.url).pathname;
  if(path==='/api/pilot/status'&&req.method==='GET')return json({stage:'workspace',accounts:ready(env)?'configured':'not_configured',accessMode:'personal_code',emailRecoveryAvailable:mailReady(env),fileStorageAvailable:filesReady(env),connectionLimit:15,automaticQuotes:false,deadline:'2026-11-13'});
  if(!ready(env))fail(503,'NOT_CONFIGURED','El espacio privado todavía no está habilitado.');
+ if(path.startsWith('/api/pilot/public/masturi/'))return masturiApi(req,env,{json,fail,stmt,first,run,body,rate});
  if(!['GET','POST','DELETE'].includes(req.method))fail(405,'METHOD','Operación no disponible.');
  if(req.method!=='GET'&&req.headers.get('origin')!==new URL(req.url).origin)fail(403,'ORIGIN','Abrí el formulario desde Turi Gestión.');
  const ip=req.headers.get('cf-connecting-ip')||'unknown';
