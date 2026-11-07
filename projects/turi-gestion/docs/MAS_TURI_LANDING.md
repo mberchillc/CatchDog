@@ -11,8 +11,10 @@ La landing recibe tráfico de navegación, asistentes de IA y redes. Conserva `u
 
 ## Alcance de la primera versión
 
-- Auto y camioneta: formulario guiado y estimación mensual orientativa basada en la biblioteca de fuentes revisadas de Turi Gestión.
-- Moto, casa y caución: solicitud guiada para revisión personal. No se muestra un precio sin fuente o API válida.
+- Diez coberturas principales abren directamente su formulario: auto, camioneta, moto, hogar, comercio, caución, accidentes personales, responsabilidad civil, vida y salud.
+- El selector **Busco otra cosa** suma veinte coberturas especiales y una opción abierta **Otro** con el campo **Contanos qué necesitás**.
+- Auto y camioneta: estimación mensual orientativa basada en la biblioteca de fuentes revisadas de Turi Gestión.
+- Los demás ramos generan una solicitud guiada para revisión personal. No se muestra un precio sin fuente o API válida.
 - Resultado con seguimiento por WhatsApp y correo.
 - Consentimiento obligatorio, campo trampa, límite por IP, control estricto de origen e idempotencia.
 - Las consultas aparecen en **Cotizaciones** del titular con origen, datos de contacto y campaña.

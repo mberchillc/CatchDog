@@ -1,10 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import {JSDOM} from 'jsdom';
 import {harness} from './support/private-harness.mjs';
 
 const lead=(more={})=>({
  requestKey:'masturi-request-00000001',productType:'auto',product:{brand:'Fiat',model:'Cronos',version:'1.3 Drive',year:'2024',locality:'Villa Ballester',province:'Buenos Aires',postalCode:'1653',usage:'particular',coverage:'third_party_full',insuredValue:'22000000',hail:'yes',glass:'yes'},
  notes:'Quiero comparar una cobertura.',contact:{name:'Cliente de prueba',phone:'+54 11 5555 5555',email:'cliente@example.test',preferred:'whatsapp'},consent:true,website:'',tracking:{source:'instagram',medium:'social',campaign:'lanzamiento',landing:'masturi'},...more
+});
+
+test('Más Turi abre formularios desde las diez cards y desde Busco otra cosa',()=>{
+ const dom=new JSDOM(readFileSync('public/masturi/index.html','utf8'),{url:'https://turi.test/masturi/',runScripts:'outside-only'}),w=dom.window;
+ w.HTMLElement.prototype.scrollIntoView=function(){};
+ vm.runInContext(readFileSync('public/masturi/masturi.js','utf8'),dom.getInternalVMContext());
+ assert.equal(w.document.querySelectorAll('[data-product]').length,10);
+ assert.equal(w.document.querySelectorAll('#other-product-select option').length,22);
+ w.document.querySelector('[data-product="auto"]').click();
+ assert.equal(w.document.querySelector('[data-step="1"]').hidden,true);
+ assert.equal(w.document.querySelector('[data-step="2"]').hidden,false);
+ assert.equal(w.document.querySelector('#risk-title').textContent,'Contanos sobre tu auto.');
+ assert.ok(w.document.querySelector('#dynamic-fields [name="brand"]'));
+ w.document.querySelector('[data-step="2"] [data-back]').click();
+ const other=w.document.querySelector('#other-product-select');other.value='ap_gimnasios';other.dispatchEvent(new w.Event('change',{bubbles:true}));
+ assert.equal(w.document.querySelector('#risk-title').textContent,'Contanos sobre el gimnasio o la actividad.');
+ assert.ok(w.document.querySelector('#dynamic-fields [name="peopleCount"]'));
+ w.document.querySelector('[data-step="2"] [data-back]').click();other.value='otro';other.dispatchEvent(new w.Event('change',{bubbles:true}));
+ assert.equal(w.document.querySelector('#risk-title').textContent,'Contanos qué necesitás.');
+ assert.ok(w.document.querySelector('#dynamic-fields [name="description"][required]'));
+ assert.equal(w.document.querySelector('#general-notes-field').hidden,true);
+ dom.window.close();
 });
 
 test('Más Turi guarda la consulta cifrada en la cartera de Mauro y devuelve una referencia honesta',async()=>{
@@ -20,6 +45,17 @@ test('Más Turi recibe otros ramos sin inventar un precio',async()=>{
  const h=await harness(),r=await h.call('/public/masturi/submit',{method:'POST',as:'',data:lead({requestKey:'masturi-request-00000002',productType:'casa',product:{propertyType:'casa',relationship:'propietario',locality:'San Isidro',province:'Buenos Aires',postalCode:'1642',surface:'120',insuredValue:'90000000',protections:'alarma'}})});
  assert.equal(r.status,201,JSON.stringify(r.data));assert.equal(r.data.lead.estimate,null);assert.equal(h.DB.db.prepare('SELECT status FROM work_quote_intakes WHERE id=?').get(r.data.lead.id).status,'public_request');
  const saved=(await h.call('/work/overview',{as:'mauro'})).data.quoteIntakes.find(x=>x.id===r.data.lead.id);assert.equal(saved.productType,'casa');assert.equal(saved.productData.surface,'120');
+});
+
+test('Más Turi recibe coberturas especiales y pedidos abiertos sin inventar precios',async()=>{
+ const h=await harness();
+ const gym=await h.call('/public/masturi/submit',{method:'POST',as:'',data:lead({requestKey:'masturi-request-00000004',productType:'ap_gimnasios',product:{activity:'Gimnasio y musculación',peopleCount:'80',ageRange:'18 a 70 años',frequency:'Lunes a sábado',locality:'San Martín',province:'Buenos Aires',sumInsured:'25000000'}})});
+ assert.equal(gym.status,201,JSON.stringify(gym.data));assert.equal(gym.data.lead.productType,'ap_gimnasios');assert.equal(gym.data.lead.estimate,null);
+ const other=await h.call('/public/masturi/submit',{method:'POST',as:'',data:lead({requestKey:'masturi-request-00000005',productType:'otro',product:{description:'Necesito cubrir una instalación artística itinerante.'}})});
+ assert.equal(other.status,201,JSON.stringify(other.data));assert.equal(other.data.lead.productType,'otro');assert.equal(other.data.lead.estimate,null);
+ const overview=(await h.call('/work/overview',{as:'mauro'})).data.quoteIntakes;
+ assert.equal(overview.find(x=>x.id===gym.data.lead.id).productData.peopleCount,'80');
+ assert.equal(overview.find(x=>x.id===other.data.lead.id).productData.description,'Necesito cubrir una instalación artística itinerante.');
 });
 
 test('Más Turi exige consentimiento, limita el origen y habilita CORS sólo para Turi',async()=>{

@@ -1,7 +1,6 @@
 import { mqValidateRisk,mqValidateDetails,mqCommercial,mqOrientation,MQ_SOURCE_CATALOG } from './multiquote.js';
 import { seal,unseal,opaque,NOW,codeHash } from './security.js';
 
-const MST_PRODUCTS=new Set(['auto','camioneta','moto','casa','caucion']);
 const MST_DEFAULT_ORIGINS=['https://turi.com.ar','https://www.turi.com.ar'];
 const mstClean=(value,max=160)=>typeof value==='string'?value.trim().slice(0,max):'';
 const mstEmail=value=>{const normalized=mstClean(value,254).toLowerCase();return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)?normalized:''};
@@ -9,7 +8,13 @@ const mstPhone=value=>{const normalized=mstClean(value,40).replace(/[^\d+]/g,'')
 const mstAllowedOrigin=(req,env)=>{const origin=req.headers.get('origin')||'';const same=new URL(req.url).origin;const configured=String(env.TURI_MASTURI_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean);return [same,...MST_DEFAULT_ORIGINS,...configured].includes(origin)?origin:''};
 const mstCors=(origin)=>({'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'86400','Vary':'Origin'});
 const mstResponse=(json,value,status=200,origin='')=>json(value,status,origin?mstCors(origin):{});
-const MST_LABELS={auto:'Auto',camioneta:'Camioneta',moto:'Moto',casa:'Casa',caucion:'Caución'};
+const MST_LABELS={
+ auto:'Auto',camioneta:'Camioneta',moto:'Moto',casa:'Hogar',comercio:'Comercio',caucion:'Caución',accidentes_personales:'Accidentes personales',responsabilidad_civil:'Responsabilidad civil',vida:'Vida',salud:'Salud',
+ embarcacion:'Embarcaciones',bicicleta:'Bicicletas',monopatin:'Monopatines eléctricos',flota:'Flotas de vehículos',maquinaria_agricola:'Maquinaria agrícola',maquinaria:'Equipos y maquinaria',mercaderias_transito:'Transporte de mercaderías',incendio:'Incendio',consorcio:'Consorcios',robo:'Robo',todo_riesgo_operativo:'Todo riesgo operativo',seguro_tecnico:'Seguro técnico',art:'Riesgos del trabajo ART',ap_gimnasios:'Accidentes personales para gimnasios',ap_eventos:'Accidentes personales para eventos',rc_profesional:'Responsabilidad civil profesional',rc_comercio:'Responsabilidad civil para comercios',agro_granizo:'Agro y granizo',mascotas:'Mascotas',construccion_montaje:'Construcción y montaje',otro:'Otro'
+};
+const MST_PRODUCTS=new Set(Object.keys(MST_LABELS));
+const MST_PRODUCT_FIELDS=new Set(['brand','model','version','year','locality','province','postalCode','usage','coverage','insuredValue','hail','glass','cylinderCapacity','propertyType','relationship','surface','protections','bondType','applicantType','amount','deadline','description','businessName','activity','stockValue','equipmentValue','peopleCount','ageRange','duration','sumInsured','exposure','coverageLimit','territory','claims','birthDate','occupation','smoker','beneficiariesCount','coverageScope','currentCoverage','assetType','vehicleCount','vehicleTypes','goodsType','transportMode','origin','destination','frequency','maximumValue','buildingType','units','floors','amenities','assetDescription','coverageNeed','equipmentType','employees','payroll','eventType','eventDate','attendees','profession','annualRevenue','crop','hectares','campaign','petType','breed','petAge','projectType']);
+const MST_LONG_FIELDS=new Set(['description','assetDescription','coverageNeed']);
 
 function mstContactData(input={}){
  const name=mstClean(input.name,100),mail=input.email?mstEmail(input.email):'',mobile=input.phone?mstPhone(input.phone):'',preferred=['whatsapp','email','indistinto'].includes(input.preferred)?input.preferred:'indistinto';
@@ -21,14 +26,8 @@ function mstTrackingData(input={}){
 }
 function mstProductData(product,input={}){
  const out={};
- const fields={
-  auto:['brand','model','version','year','locality','province','postalCode','usage','coverage','insuredValue','hail','glass'],
-  camioneta:['brand','model','version','year','locality','province','postalCode','usage','coverage','insuredValue','hail','glass'],
-  moto:['brand','model','year','cylinderCapacity','usage','locality','province','postalCode','insuredValue'],
-  casa:['propertyType','relationship','locality','province','postalCode','surface','insuredValue','protections'],
-  caucion:['bondType','applicantType','amount','deadline','province','description']
- }[product]||[];
- for(const key of fields)out[key]=mstClean(input[key],key==='description'?1000:120);
+ if(!MST_PRODUCTS.has(product)||!input||typeof input!=='object'||Array.isArray(input))return out;
+ for(const [key,value] of Object.entries(input))if(MST_PRODUCT_FIELDS.has(key))out[key]=mstClean(value,MST_LONG_FIELDS.has(key)?1000:120);
  return out;
 }
 function mstAutomotive(product,data){
@@ -58,7 +57,7 @@ export async function masturiApi(req,env,{json,fail,stmt,first,run,body,rate}){
  if(!input||typeof input!=='object'||Array.isArray(input))fail(400,'FIELD','Revisá la consulta.');
  if(mstClean(input.website,200))return mstResponse(json,{ok:true,received:true},202,origin);
  if(input.consent!==true)fail(400,'CONSENT','Necesitamos tu autorización para enviar la consulta al productor.');
- const product=mstClean(input.productType,20);if(!MST_PRODUCTS.has(product))fail(400,'PRODUCT','Elegí qué querés asegurar.');
+ const product=mstClean(input.productType,40);if(!MST_PRODUCTS.has(product))fail(400,'PRODUCT','Elegí qué querés asegurar.');
  const contact=mstContactData(input.contact);if(contact.name.length<2)fail(400,'CONTACT','Ingresá tu nombre.');if(!contact.email&&!contact.phone)fail(400,'CONTACT','Ingresá un teléfono o correo válido.');
  const requestKey=mstClean(input.requestKey,80);if(!/^[A-Za-z0-9_-]{16,80}$/.test(requestKey))fail(400,'REQUEST_KEY','Actualizá la página para iniciar la consulta.');
  const ownerUsername=mstClean(env.TURI_MASTURI_OWNER_USERNAME||'mauro',40).toLowerCase();
