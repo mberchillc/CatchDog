@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 221 40" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 40" role="img" aria-labelledby="title">
   <title id="title">+Turi · Más Turi</title>
-  <path fill="#66b3df" d="M12 0h16v12h12v16H28v12H12V28H0V12h12Z"/>
+  <path fill="#5758ee" d="M12 0h16v12h12v16H28v12H12V28H0V12h12Z"/>
   <g fill="#242522" transform="translate(52)">
     <path d="M1 0h40v20H31v20H11V20H1Z"/>
     <path d="M45 0h40v20c0 11.046-8.954 20-20 20S45 31.046 45 20Z"/>
     <path d="M89 0h26.5C122.956 0 129 5.596 129 12.5c0 5.558-3.262 10.226-8 12.5l8.5 15H89Z"/>
     <path d="M133 0h36v14h-8v12h8v14h-36V26h8V14h-8Z"/>
+  </g>
+  <g fill="none" stroke="#242522" stroke-width=".65" stroke-linejoin="round">
+    <circle cx="228" cy="4" r="3.5"/>
+    <path d="M226.75 6.2V1.8h1.4c2.05 0 2.05 2.2 0 2.2h-1.4m1.35 0 1.4 2.2"/>
   </g>
 </svg>
