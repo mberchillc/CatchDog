@@ -32,6 +32,41 @@ test('Más Turi abre formularios desde las diez cards y desde Busco otra cosa',(
  dom.window.close();
 });
 
+test('Cancelar cotización limpia los datos y el aviso dura tres segundos, sin enviar una consulta',()=>{
+ const dom=new JSDOM(readFileSync('public/masturi/index.html','utf8'),{url:'https://turi.test/masturi/?utm_source=instagram',runScripts:'outside-only'}),w=dom.window,scheduled=[];
+ w.HTMLElement.prototype.scrollIntoView=function(){};
+ w.setTimeout=(callback,delay)=>{scheduled.push({callback,delay});return scheduled.length};
+ let sent=0;w.fetch=()=>{sent++;throw Error('Cancelar no debe enviar datos')};
+ vm.runInContext(readFileSync('public/masturi/masturi.js','utf8'),dom.getInternalVMContext());
+ const q=selector=>w.document.querySelector(selector);
+ q('[data-product="auto"]').click();q('[name="brand"]').value='Fiat';q('[name="notes"]').value='Mi consulta';q('[name="contactName"]').value='Prueba local';q('[name="contactPhone"]').value='+541155555555';q('[name="consent"]').checked=true;
+ assert.equal(q('.quote-toolbar').hidden,false);
+ q('[data-cancel-quote]').click();
+ assert.equal(q('[data-step="1"]').hidden,false);assert.equal(q('.quote-toolbar').hidden,true);
+ assert.equal(q('#dynamic-fields').children.length,0);assert.equal(q('[name="notes"]').value,'');assert.equal(q('[name="contactName"]').value,'');assert.equal(q('[name="contactPhone"]').value,'');assert.equal(q('[name="consent"]').checked,false);
+ assert.equal(q('#other-product-select').value,'');assert.equal(w.document.querySelectorAll('.product-card.selected').length,0);assert.equal(q('#quote-notice').textContent,'cotización cancelada');assert.equal(q('#quote-notice').hidden,false);
+ const notice=scheduled.find(timer=>timer.delay===3000);assert.ok(notice);notice.callback();assert.equal(q('#quote-notice').hidden,true);assert.equal(q('#quote-notice').textContent,'');assert.equal(sent,0);
+ q('[data-product="casa"]').click();assert.equal(q('#risk-title').textContent,'Contanos sobre tu hogar.');assert.equal(q('[name="locality"]').value,'');
+ dom.window.close();
+});
+
+test('La flecha flotante vuelve al paso anterior y conserva los datos; el carrusel admite teclado y pausa',t=>{
+ const dom=new JSDOM(readFileSync('public/masturi/index.html','utf8'),{url:'https://turi.test/masturi/',runScripts:'outside-only'}),w=dom.window;
+ t.after(()=>dom.window.close());
+ w.HTMLElement.prototype.scrollIntoView=function(){};
+ vm.runInContext(readFileSync('public/masturi/masturi.js','utf8'),dom.getInternalVMContext());
+ const q=selector=>w.document.querySelector(selector);
+ const other=q('#other-product-select');other.value='otro';other.dispatchEvent(new w.Event('change',{bubbles:true}));q('textarea[name="description"]').value='Instalación artística';q('[data-step="2"] [data-next]').click();
+ assert.equal(q('[data-step="3"]').hidden,false);q('[data-page-back]').click();assert.equal(q('[data-step="2"]').hidden,false);assert.equal(q('textarea[name="description"]').value,'Instalación artística');
+ assert.equal(w.document.querySelectorAll('.product-icon svg').length,10);
+ const track=q('#partners-track');assert.equal(track.querySelectorAll('img[alt]').length,17);
+ Object.defineProperty(track,'scrollWidth',{value:2400});Object.defineProperty(track,'clientWidth',{value:600});let target;
+ track.scrollTo=value=>{target=value.left;track.scrollLeft=value.left};
+ track.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));assert.ok(target>0);assert.equal(q('[data-logos-pause]').getAttribute('aria-pressed'),'true');
+ q('[data-logos-pause]').click();assert.equal(q('[data-logos-pause]').getAttribute('aria-pressed'),'false');
+ dom.window.close();
+});
+
 test('Más Turi guarda la consulta cifrada en la cartera de Mauro y devuelve una referencia honesta',async()=>{
  const h=await harness(),r=await h.call('/public/masturi/submit',{method:'POST',as:'',data:lead()});
  assert.equal(r.status,201,JSON.stringify(r.data));assert.equal(r.data.lead.productType,'auto');assert.equal(r.data.lead.estimate.insurerQuote,false);assert.equal(r.data.lead.estimate.kind,'public_reference_estimate');
