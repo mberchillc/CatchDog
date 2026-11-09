@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {setTimeout as delay} from 'node:timers/promises';
 import {JSDOM} from 'jsdom';
 import {harness} from './support/private-harness.mjs';
 
@@ -65,6 +66,28 @@ test('La flecha flotante vuelve al paso anterior y conserva los datos; el carrus
  track.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));assert.ok(target>0);assert.equal(q('[data-logos-pause]').getAttribute('aria-pressed'),'true');
  q('[data-logos-pause]').click();assert.equal(q('[data-logos-pause]').getAttribute('aria-pressed'),'false');
  dom.window.close();
+});
+
+test('El formulario completo envía y muestra el resultado desde Pages y desde WordPress',async t=>{
+ const h=await harness();
+ for(const scenario of [{name:'Pages con estimación de auto',url:'https://turi.test/masturi/?utm_source=facebook&utm_campaign=prueba-local',base:'',product:'auto',details:lead().product},{name:'WordPress con solicitud de hogar',url:'https://www.turi.com.ar/masturi/?utm_source=instagram&utm_campaign=prueba-local',base:'https://turi.test',product:'casa',details:{propertyType:'casa',relationship:'propietario',locality:'San Isidro',province:'Buenos Aires'}}])await t.test(scenario.name,async child=>{
+  const dom=new JSDOM(readFileSync('public/masturi/index.html','utf8'),{url:scenario.url,runScripts:'outside-only'}),w=dom.window;
+  child.after(()=>dom.window.close());w.HTMLElement.prototype.scrollIntoView=function(){};w.document.documentElement.dataset.apiBase=scenario.base;
+  let destination='',sent,stored;
+  w.fetch=async(url,options)=>{destination=String(url);sent=JSON.parse(options.body);stored=await h.call('/public/masturi/submit',{method:options.method,as:'',origin:new URL(scenario.url).origin,data:sent});return {ok:stored.status<400,json:async()=>stored.data}};
+  vm.runInContext(readFileSync('public/masturi/masturi.js','utf8'),dom.getInternalVMContext());
+  const form=w.document.querySelector('#quote-form');w.document.querySelector(`[data-product="${scenario.product}"]`).click();
+  for(const [name,value] of Object.entries(scenario.details)){const field=form.elements.namedItem(name);if(field)field.value=value;}
+  w.document.querySelector('[data-step="2"] [data-next]').click();assert.equal(w.document.querySelector('[data-step="3"]').hidden,false);
+  form.elements.contactName.value='Prueba técnica aislada';form.elements.contactEmail.value='cliente@example.test';form.elements.contactPhone.value='+541155555555';form.elements.consent.checked=true;
+  form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+  for(let n=0;n<200&&!w.document.querySelector('#result-title')&&!w.document.querySelector('#form-error').textContent;n++)await delay(10);
+  assert.equal(w.document.querySelector('#form-error').textContent,'');assert.equal(destination,'https://turi.test/api/pilot/public/masturi/submit');assert.equal(stored.status,201);
+  assert.equal(sent.tracking.source,new URL(scenario.url).searchParams.get('utm_source'));assert.equal(sent.tracking.campaign,'prueba-local');
+  assert.equal(w.document.querySelector('[data-step="4"]').hidden,false);assert.equal(w.document.querySelector('#result-title').textContent,'Ya está en Turi Gestión.');assert.ok(w.document.querySelector('.result-id').textContent.includes(stored.data.lead.id));
+  const saved=(await h.call('/work/overview',{as:'mauro'})).data.quoteIntakes.find(x=>x.id===stored.data.lead.id);assert.equal(saved.contact.email,'cliente@example.test');assert.equal(saved.tracking.source,sent.tracking.source);
+  assert.equal(!!stored.data.lead.estimate,scenario.product==='auto');
+ });
 });
 
 test('Más Turi guarda la consulta cifrada en la cartera de Mauro y devuelve una referencia honesta',async()=>{
