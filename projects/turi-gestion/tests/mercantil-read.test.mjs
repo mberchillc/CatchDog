@@ -55,3 +55,8 @@ test('fallos de servicio y respuestas inválidas no filtran datos ni aparentan �
   await assert.rejects(mercantilQaRead(credentials,account,query,mockProvider({override})),e=>{noSecrets(e.message);return e.status>=400});
  }
 });
+test('un período vacío admite el indicador de página cero sin aceptar páginas equivocadas con registros',async()=>{
+ const empty=await mercantilQaRead(credentials,account,query,mockProvider({override:()=>Response.json({datos:[],total_elementos:0,total_paginas:0,pagina_actual:0})}));assert.deepEqual(empty.records,[]);assert.equal(empty.totalRecords,0);assert.equal(empty.page,1);
+ await assert.rejects(mercantilQaRead(credentials,account,query,mockProvider({override:()=>Response.json({datos:[record('operaciones')],total_elementos:1,total_paginas:1,pagina_actual:0})})),e=>e.code==='MERCANTIL_QA_RESPONSE');
+ await assert.rejects(mercantilQaRead(credentials,account,query,mockProvider({override:()=>Response.json({message:credentials.password,error:token})})),e=>{noSecrets(e.message);return e.code==='MERCANTIL_QA_RESPONSE'});
+});

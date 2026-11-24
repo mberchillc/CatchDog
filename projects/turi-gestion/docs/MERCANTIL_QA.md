@@ -2,6 +2,8 @@
 
 Actualizado: 24/11/2026. Mercantil entregó un usuario de TEST y una colección oficial de servicios. Se creó y verificó una suscripción activa al producto Auto en el portal del responsable técnico. La primera autenticación desde Cloudflare falló por el modo `redirect: 'error'`, que Workers no admite. La corrección usa `manual` y rechaza los estados 3xx sin reenviar credenciales. La validación real posterior a esa corrección sigue pendiente; todavía no se acredita conexión de producción.
 
+Tras publicar la corrección se comprobó desde la aplicación la autenticación real de TEST y una coincidencia única de la cuenta del productor. Las primeras consultas de operaciones y cobranzas recibieron una estructura que requiere revisar su compatibilidad; todavía no se acredita una lectura de cartera operativa. El validador admite el indicador de página cero sólo cuando listado, total y páginas son cero; cualquier otra incompatibilidad informa exclusivamente tipos, contadores numéricos y nombres de campos reconocidos, sin copiar el cuerpo del proveedor.
+
 El registro del desarrollador y su Subscription Key son distintos del acceso comercial del productor y del usuario API de TEST. El código, las credenciales y las claves reales se mantienen fuera de este repositorio.
 
 ## Alta externa pendiente

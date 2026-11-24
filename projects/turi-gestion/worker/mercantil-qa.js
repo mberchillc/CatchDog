@@ -113,7 +113,13 @@ export async function mercantilQaRead(credentials,storedAccount,input={},options
  const params=new URLSearchParams({size:'20',page:String(query.page),[query.service==='operaciones'?'cuentas':'cuenta']:query.account,desde:query.from,hasta:query.to});
  if(query.service==='comisiones')params.set('rama',String(query.branch));
  const data=await mqaGetJson('/cartera/v1/'+query.service+'?'+params,credentials,session.token,options);
- if(!Array.isArray(data?.datos)||data.datos.length>20||!Number.isSafeInteger(data.total_elementos)||data.total_elementos<0||!Number.isSafeInteger(data.total_paginas)||data.total_paginas<0||!Number.isSafeInteger(data.pagina_actual)||data.pagina_actual!==query.page)mqaFail(502,'MERCANTIL_QA_RESPONSE','La respuesta de cartera de prueba requiere revisión técnica.');
+ const emptyPage=Array.isArray(data?.datos)&&data.datos.length===0&&data.total_elementos===0&&data.total_paginas===0&&data.pagina_actual===0;
+ if(!Array.isArray(data?.datos)||data.datos.length>20||!Number.isSafeInteger(data.total_elementos)||data.total_elementos<0||!Number.isSafeInteger(data.total_paginas)||data.total_paginas<0||!Number.isSafeInteger(data.pagina_actual)||(data.pagina_actual!==query.page&&!emptyPage)){
+  // Only schema types and numeric counters: never provider bodies, clients or credentials.
+  const counter=v=>Number.isSafeInteger(v)?String(v):typeof v;
+  const fields=['datos','data','items','content','tamaño','total_paginas','pagina_actual','total_elementos','status','statusCode','error','mensaje','message'].filter(k=>Object.hasOwn(data||{},k));
+  mqaFail(502,'MERCANTIL_QA_RESPONSE',`Mercantil respondió, pero el formato de cartera requiere revisión técnica. Listado: ${Array.isArray(data?.datos)?data.datos.length:typeof data?.datos}; página: ${counter(data?.pagina_actual)}; páginas: ${counter(data?.total_paginas)}; total: ${counter(data?.total_elementos)}. Campos reconocidos: ${fields.join(', ')||'ninguno'}.`);
+ }
  return {...result,from:query.from,to:query.to,page:query.page,totalPages:data.total_paginas,totalRecords:data.total_elementos,records:data.datos.map(record=>mqaRecord(record,query.service,query.account))};
 }
 
