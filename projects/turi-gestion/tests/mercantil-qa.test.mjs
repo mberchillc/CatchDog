@@ -15,7 +15,7 @@ function noSecrets(value){const text=JSON.stringify(value);for(const secret of [
 
 test('QA usa sólo el endpoint oficial, el body de la guía y cabecera sin secretos en la URL o resultado',async()=>{
  let count=0;
- const result=await mercantilQaAuthenticate(creds,{fetchImpl:async(url,opts)=>{count++;assert.equal(url,MQA_TOKEN_URL);assert.equal(opts.method,'POST');assert.equal(opts.redirect,'error');assert.equal(opts.headers['Ocp-Apim-Subscription-Key'],creds.subscriptionKey);const b=new URLSearchParams(opts.body);assert.equal(b.get('client_id'),'api-clientes-login');assert.equal(b.get('grant_type'),'password');assert.equal(b.get('username'),creds.username);assert.equal(b.get('password'),creds.password);return approved();}});
+ const result=await mercantilQaAuthenticate(creds,{fetchImpl:async(url,opts)=>{count++;assert.equal(url,MQA_TOKEN_URL);assert.equal(opts.method,'POST');assert.equal(opts.redirect,'manual');assert.equal(opts.headers['Ocp-Apim-Subscription-Key'],creds.subscriptionKey);const b=new URLSearchParams(opts.body);assert.equal(b.get('client_id'),'api-clientes-login');assert.equal(b.get('grant_type'),'password');assert.equal(b.get('username'),creds.username);assert.equal(b.get('password'),creds.password);return approved();}});
  assert.equal(count,1);assert.equal(result.authenticated,true);assert.equal(result.environment,'qa');assert.equal(result.portfolioAvailable,false);assert.equal(result.pasAttributionVerified,false);assert.equal(result.automaticQuotes,false);noSecrets(result);
 });
 test('rechazos del proveedor nunca devuelven sus cuerpos ni credenciales',async()=>{
@@ -89,4 +89,44 @@ test('el límite local evita reintentos ilimitados contra el usuario API',async 
  const f=await fixture();let calls=0;t.mock.method(globalThis,'fetch',async()=>{calls++;return new Response('',{status:401});});
  for(let i=0;i<5;i++)assert.equal((await f.call(f.path,{data:form})).status,422);
  assert.equal((await f.call(f.path,{data:form})).status,429);assert.equal(calls,5);
+});
+
+async function readFixture(){
+ const f=await fixture();
+ const saved=await f.call('/company-setup/mercantil',{data:{expectedVersion:1,pasCode:'700007',authorized:true,api:{username:creds.username,password:creds.password,subscriptionKey:creds.subscriptionKey}}});
+ assert.equal(saved.status,200);return {...f,readPath:f.path+'/read',readBody:{expectedVersion:2,authorized:true,service:'productor'}};
+}
+test('consulta QA exige titular, CSRF, versión y autorización sin contactar al proveedor ante rechazos',async t=>{
+ const f=await readFixture();let calls=0;t.mock.method(globalThis,'fetch',async()=>{calls++;return approved()});
+ for(const as of ['QA-PEER','QA-OTHER'])assert.equal((await f.call(f.readPath,{as,data:f.readBody})).status,404);
+ assert.equal((await f.call(f.readPath,{as:'QA-ADMIN',data:f.readBody})).status,403);
+ assert.equal((await f.call(f.readPath,{as:'',data:f.readBody})).status,401);
+ assert.equal((await f.call(f.readPath,{csrf:false,data:f.readBody})).status,403);
+ assert.equal((await f.call(f.readPath,{data:{...f.readBody,expectedVersion:1}})).status,409);
+ assert.equal((await f.call(f.readPath,{data:{...f.readBody,authorized:false}})).status,400);
+ assert.equal(calls,0);
+});
+test('consulta de productor sólo devuelve QA y no cambia la conexión ni crea registros de cartera',async t=>{
+ const f=await readFixture(),before=f.DB.db.prepare('SELECT * FROM pilot_connections').all();
+ const tables=f.DB.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT IN ('pilot_audit','pilot_rate_limits')").all().map(t=>t.name);
+ const counts=()=>Object.fromEntries(tables.map(name=>[name,f.DB.db.prepare('SELECT count(*) AS n FROM "'+name+'"').get().n]));const countsBefore=counts();
+ t.mock.method(globalThis,'fetch',async url=>url===MQA_TOKEN_URL?approved():Response.json({datos:[{cuenta:700007,nombre:'Productor QA ficticio'}]}));
+ const r=await f.call(f.readPath,{data:f.readBody});assert.equal(r.status,200);assert.equal(r.data.environment,'qa');assert.equal(r.data.pasAttributionVerified,true);assert.equal(r.data.productionReady,false);assert.equal(r.data.imported,false);noSecrets(r.data);
+ assert.deepEqual(f.DB.db.prepare('SELECT * FROM pilot_connections').all(),before);assert.deepEqual(counts(),countsBefore);
+});
+test('cambiar la conexión o revocar la sesión durante una lectura impide revelar el resultado',async t=>{
+ for(const change of ['version','session']){
+  const f=await readFixture();t.mock.method(globalThis,'fetch',async url=>{
+   if(url===MQA_TOKEN_URL)return approved();
+   if(change==='version')f.DB.db.prepare('UPDATE pilot_connections SET version=3 WHERE id=?').run(f.id);
+   else f.DB.db.prepare('DELETE FROM pilot_sessions WHERE user_id=?').run('QA-MAURO-PAS');
+   return Response.json({datos:[{cuenta:700007,nombre:'PRIVATE_PROVIDER_NAME'}]});
+  });
+  const r=await f.call(f.readPath,{data:f.readBody});assert.equal(r.status,change==='version'?409:401);assert.ok(!JSON.stringify(r.data).includes('PRIVATE_PROVIDER_NAME'));noSecrets(r.data);t.mock.restoreAll();
+ }
+});
+test('Superadmin consulta QA en la vista del PAS y la auditoría conserva su identidad',async t=>{
+ const f=await readFixture();t.mock.method(globalThis,'fetch',async url=>url===MQA_TOKEN_URL?approved():Response.json({datos:[{cuenta:700007,nombre:'Productor QA ficticio'}]}));
+ const r=await f.call('/supervision/QA-MAURO-PAS'+f.readPath,{as:'QA-ADMIN',data:f.readBody});assert.equal(r.status,200);assert.equal(r.data.pasAttributionVerified,true);noSecrets(r.data);
+ const events=await f.call('/audit',{as:'QA-ADMIN',method:'GET'});assert.ok(events.data.events.some(e=>e.action==='supervision.connection.mercantil_qa_read_productor'&&e.actor_id==='QA-ADMIN'));
 });

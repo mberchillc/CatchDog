@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const catalog=JSON.parse(readFileSync('worker/company-catalog.json','utf8'));
 const wait=async fn=>{for(let i=0;i<100;i++){if(fn())return;await new Promise(r=>setTimeout(r,5));}assert.fail('UI did not reach the expected state');};
 const empty=()=>({id:null,version:0,status:'not_registered',pasConfigured:false,pasHint:'',taxId:'',portalConfigured:false,apiConfigured:{username:false,password:false,subscriptionKey:false,clientId:false,clientSecret:false,apiKey:false},qaAuthenticated:false});
-async function ui({role='producer',rejectQa=false,delayRead,delaySave}={}){
+async function ui({role='producer',rejectQa=false,delayRead,delaySave,delayQaRead}={}){
  const dom=new JSDOM('<main id="pilot"></main>',{url:'https://turi.test/privado/#view=companies',runScripts:'outside-only'}),w=dom.window;
  w.scrollTo=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
  for(const file of ['company-setup.js','workspace.js'])vm.runInContext(readFileSync('public/'+file,'utf8'),dom.getInternalVMContext());
@@ -23,6 +23,10 @@ async function ui({role='producer',rejectQa=false,delayRead,delaySave}={}){
    if(delaySave)await delaySave(id);
    state[id]={...state[id],id:'QA-CON-'+id,version:state[id].version+1,pasConfigured:true,status:'credentials_saved',portalConfigured:!!(data.portalUser&&data.portalPassword)||state[id].portalConfigured,apiConfigured:Object.fromEntries(Object.entries(state[id].apiConfigured).map(([k,old])=>[k,!!data.api[k]||old]))};
    return {record:structuredClone(state[id]),message:'Configuración guardada. Acceso API pendiente de validación.'};
+  }
+  if(path==='/connections/QA-CON-mercantil/mercantil-qa/read'){
+   if(delayQaRead)await delayQaRead();
+   return {environment:'qa',producerName:'<img src=x onerror=alert(1)>',service:data.service,records:[{policy:'7001',endorsement:'0',insured:'<script>bad()</script>',date:'2026-11-24',amount:10,currency:'ARS',detail:'Prueba'}],page:1,totalPages:1,totalRecords:1,message:'Consulta de TEST completada. No se importaron datos.'};
   }
   if(path==='/connections/QA-CON-mercantil/mercantil-qa'){
    if(rejectQa)throw Error('Mercantil no aceptó las credenciales API de test.');
@@ -61,4 +65,11 @@ test('una lectura tardía después de salir no vuelve a abrir datos privados',as
 });
 test('un guardado tardío no cierra otro formulario ni inicia su prueba de API',async()=>{
  let release;const pending=new Promise(resolve=>release=resolve),{dom,w,calls}=await ui({delaySave:id=>id==='mercantil'?pending:undefined});const first=await openCompany(w,'mercantil');fill(first);submit(w,first,'test');await wait(()=>calls.some(c=>c.path==='/company-setup/mercantil'&&c.method==='POST'));w.document.querySelector('[data-work="close"]').click();const second=await openCompany(w,'segunda');release();await new Promise(r=>setTimeout(r,20));assert.equal(w.document.querySelector('#company-access-form'),second);assert.equal(calls.some(c=>c.path.endsWith('/mercantil-qa')),false);dom.window.close();
+});
+
+test('consultar TEST usa la versión recién guardada, muestra progreso y escapa los textos del proveedor',async()=>{
+ let release;const pending=new Promise(resolve=>release=resolve),{dom,w,calls}=await ui({delayQaRead:()=>pending}),f=await openCompany(w,'mercantil');fill(f);f.elements.qa_service.value='operaciones';submit(w,f,'read');
+ await wait(()=>calls.some(c=>c.path.endsWith('/mercantil-qa/read')));assert.equal(f.querySelector('#company-access-progress').hidden,false);assert.match(f.querySelector('#company-access-progress').textContent,/consultando Mercantil/);release();
+ await wait(()=>f.dataset.busy==='0');const result=f.querySelector('#mercantil-qa-result');assert.ok(result.textContent.includes('Consulta de TEST completada'));assert.equal(result.querySelector('script,img'),null);assert.match(result.textContent,/<script>bad/);assert.equal(calls.find(c=>c.path.endsWith('/mercantil-qa/read')).data.expectedVersion,1);assert.equal(f.elements.api_password.value,'');
+ f.elements.qa_service.value='cobranzas';f.elements.qa_service.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(result.textContent,'');dom.window.close();
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
 import {harness} from './support/private-harness.mjs';
 import {mqEstimate,mqValidateRisk} from '../worker/multiquote.js';
@@ -43,8 +43,6 @@ test('PDF real tiene logo, importe guardado y dos páginas; el objetivo interno 
  const bytes=await w.TuriQuotePDF.create({record,estimate,producerName:'PAS de prueba · Turi',logoBytes:new w.Uint8Array(readFileSync('public/assets/logo.png'))});
  const pdf=await w.PDFLib.PDFDocument.load(bytes);assert.equal(pdf.getPageCount(),2);assert.match(pdf.getTitle(),/Cronos/);
  assert.ok(pdf.getPages().every(p=>p.node.Resources().get(w.PDFLib.PDFName.of('XObject'))));
- const out='C:/Users/mauro/Documents/Codex/2026-10-27/https-chatgpt-com-c-6ae15a26-e690/outputs';
- mkdirSync(out,{recursive:true});writeFileSync(out+'/Turi-cotizacion-modelo-Cronos.pdf',bytes);
  assert.match(w.TuriQuotePDF.filename(record),/^Cotizacion-Turi-Cronos.*v1.pdf$/);
  await assert.rejects(()=>w.TuriQuotePDF.create({record,estimate:{...estimate,insurerQuote:true}}));dom.window.close();
 });
