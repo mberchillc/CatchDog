@@ -14,7 +14,7 @@ window.TuriCompanySetup=(()=>{
  }
  function qaResult(result){
   const rows=(result.records||[]).map(r=>`<tr><td>${esc(r.policy)}${r.endorsement?` / ${esc(r.endorsement)}`:''}</td><td>${esc(r.insured||'—')}</td><td>${esc(r.date||'—')}</td><td>${r.amount===null?'—':esc(r.amount.toLocaleString('es-AR',{maximumFractionDigits:2}))+' '+esc(r.currency)}</td><td>${esc(r.detail||'—')}</td></tr>`).join('');
-  return `<h4>Cuenta verificada en TEST · ${esc(result.producerName)}</h4><p>${esc(result.message)}</p>${Array.isArray(result.records)?`<p>Página ${esc(result.page)} de ${esc(result.totalPages)} · ${esc(result.totalRecords)} registros informados por Mercantil.</p>${rows?`<div class="table-wrap"><table><thead><tr><th>Póliza / endoso</th><th>Asegurado</th><th>Fecha</th><th>Importe</th><th>Detalle</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p>Mercantil no devolvió registros para este período.</p>'}`:''}`;
+  return `<h4>Cuenta verificada en TEST · ${esc(result.producerName)}</h4><p>${esc(result.message)}</p>${Array.isArray(result.records)?`<p>${result.totalRecords?`Página ${esc(result.page)} de ${esc(result.totalPages)} · `:''}${esc(result.totalRecords)} registros informados por Mercantil.</p>${rows?`<div class="table-wrap"><table><thead><tr><th>Póliza / endoso</th><th>Asegurado</th><th>Fecha</th><th>Importe</th><th>Detalle</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p>Mercantil no devolvió registros para este período.</p>'}`:''}`;
  }
  async function open(companyId){
   const saved=ctx;if(!saved||saved.user.role!=='producer')return;

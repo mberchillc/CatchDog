@@ -48,14 +48,14 @@
       "validation": "mercantil_qa",
       "documentation": "https://apiportal.mercantilandina.com.ar/faqs",
       "contactEmail": "des-api@lamercantil.com.ar",
-      "summary": "Guía recibida y autenticación QA preparada. Falta que Mercantil habilite el usuario API del productor.",
+      "summary": "Autenticación y consultas de TEST disponibles. Usá las credenciales emitidas por Mercantil y verificá la cuenta del productor antes de consultar. Producción requiere habilitación separada.",
       "steps": [
         "Registrate en el portal de APIs y suscribite a los productos que vas a usar.",
         "Obtené la Subscription Key desde tu perfil.",
         "Pedí al equipo API el usuario de test vinculado a tu código PAS, indicando CUIT, contacto y uso previsto.",
-        "Cargá las credenciales API emitidas y probá la autenticación de QA."
+        "Cargá las credenciales API emitidas, verificá la cuenta en TEST y consultá los servicios habilitados."
       ],
-      "reviewedOn": "2026-11-04",
+      "reviewedOn": "2026-11-24",
       "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
     }
   },
