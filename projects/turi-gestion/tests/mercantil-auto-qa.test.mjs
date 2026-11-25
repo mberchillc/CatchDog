@@ -65,6 +65,10 @@ test('alta TEST usa la localidad cotizada, no envía banco ni notificaciones y v
  const sent=JSON.parse(log.find(x=>x.url.endsWith('/clientes/v1/')).body);assert.equal(sent.localidad.id,111);assert.equal(sent.distribucionDigital,false);assert.ok(!('cbu' in sent));assert.ok(!('cuil' in sent));assert.ok(!('cuit' in sent));
  await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'subscribe',{...subscribeInput,tomador:{dni:10000002,sexo:'F'}},r.state,{fetchImpl:provider()}),e=>e.code==='QA_CLIENT_MISMATCH');
 });
+test('validaciones de campos del proveedor se muestran con mensajes legibles y sin claves',async()=>{
+ const state={quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}},input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1'};
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'client',input,state,{fetchImpl:provider([],url=>url.pathname==='/clientes/v1/'?Response.json({Errors:{cuil:['Completá CUIL',credentials.subscriptionKey]}},{status:400}):null)}),e=>{noSecrets({message:e.message});return e.message.includes('Completá CUIL');});
+});
 test('Superadmin conserva autoría y una respuesta 5xx bloquea reenvíos de altas inciertas sin filtrar secretos',async t=>{
  const f=await fixture();let bad=false;const log=[];t.mock.method(globalThis,'fetch',provider(log,(url)=>bad&&url.pathname==='/cotizaciones/v2/auto'?Response.json({message:credentials.password+' '+token},{status:500}):null));
  for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}]])assert.equal((await f.act(a,i)).status,200);

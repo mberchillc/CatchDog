@@ -9,7 +9,8 @@ const maqText=v=>typeof v==='string'?v.replace(/[\x00-\x1f\x7f]/g,'').slice(0,10
 const maqInt=(v,name,min=1,max=999999999)=>{if(!Number.isSafeInteger(v)||v<min||v>max)maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;};
 function maqString(v,name,pattern){if(typeof v!=='string'||!pattern.test(v))maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;}
 function maqErrorText(data,credentials,token){
- const values=[];const visit=(v,depth=0)=>{if(depth>3||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object')for(const k of ['message','mensaje','error','descripcion','detail','errors','errores'])if(v[k])visit(v[k],depth+1);};visit(data);
+ const values=[];const visit=(v,depth=0)=>{if(depth>4||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object'){const entries=Object.entries(v),known=entries.filter(([k])=>/^(message|messages|mensaje|mensajes|error|error_description|descripcion|description|detail|details|errors|errores|title|modelstate|validationerrors)$/i.test(k));for(const [,x] of (known.length?known:depth?entries.slice(0,8):[]))visit(x,depth+1);}};visit(data);
+ if(!values.length&&data&&typeof data==='object')values.push('Campos de respuesta: '+Object.keys(data).filter(k=>/^[A-Za-z_]{1,40}$/.test(k)).slice(0,12).join(', '));
  let s=values.join(' · ').replace(/<[^>]*>/g,' ').replace(/https?:\/\/\S+/gi,'[enlace omitido]');
  for(const secret of [credentials.username,credentials.password,credentials.subscriptionKey,token])if(secret)s=s.split(secret).join('[dato resguardado]');
  return maqText(s);
