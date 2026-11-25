@@ -7,6 +7,17 @@ const MAQ_HOST='https://apidev.mercantilandina.com.ar';
 const maqFail=(status,code,message)=>{throw new MercantilQaError(status,code,message);};
 const maqText=v=>typeof v==='string'?v.replace(/[\x00-\x1f\x7f]/g,'').slice(0,1000):typeof v==='number'&&Number.isFinite(v)?String(v):'';
 const maqInt=(v,name,min=1,max=999999999)=>{if(!Number.isSafeInteger(v)||v<min||v>max)maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;};
+function maqActivityRecord(x){
+ if(!x||typeof x!=='object'||Array.isArray(x))return null;
+ const fields=Object.fromEntries(Object.entries(x).map(([k,v])=>[k.toLowerCase(),v]));
+ const id=Number(fields.id??fields.codigo),nombre=maqText(fields.nombre??fields.descripcion??fields.texto);
+ return Number.isSafeInteger(id)&&id>0&&nombre?{id,nombre}:null;
+}
+function maqActivityList(data){
+ if(typeof data==='string'){try{data=JSON.parse(data);}catch{return null;}}
+ const candidates=[];const visit=(value,depth=0)=>{if(depth>3||!value||typeof value!=='object')return;if(Array.isArray(value)){const records=value.map(maqActivityRecord).filter(Boolean);if(records.length)candidates.push(records);else for(const x of value.slice(0,20))visit(x,depth+1);}else for(const x of Object.values(value))visit(x,depth+1);};visit(data);
+ return candidates.length===1?candidates[0]:null;
+}
 function maqString(v,name,pattern){if(typeof v!=='string'||!pattern.test(v))maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;}
 function maqErrorText(data,credentials,token){
  const values=[];const visit=(v,depth=0)=>{if(depth>4||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object'){const entries=Object.entries(v),known=entries.filter(([k])=>/^(message|messages|mensaje|mensajes|error|error_description|descripcion|description|detail|details|errors|errores|title|modelstate|validationerrors)$/i.test(k));for(const [,x] of (known.length?known:depth?entries.slice(0,8):[]))visit(x,depth+1);}};visit(data);
@@ -78,9 +89,9 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   // Official api-generales / get-actividades, checked in the authenticated
   // developer portal on 2026-11-25. This is the persona catalog, not branch risks.
   const data=await call('/generales/v1/actividades?limite=500&pagina=1');
-  const rows=Array.isArray(data)?data:Array.isArray(data?.datos)?data.datos:null;
-  if(!rows||rows.length>3000)maqFail(502,'QA_ACTIVITY_CATALOG','No pudimos interpretar el catálogo de actividades de Mercantil TEST.');
-  result={datos:rows.map(x=>({id:Number(x.id??x.codigo),nombre:maqText(x.nombre??x.descripcion)})).filter(x=>Number.isSafeInteger(x.id)&&x.id>0&&x.nombre)};next.activities=result.datos;
+  const rows=maqActivityList(data);
+  if(!rows||rows.length>3000){const shape=typeof data==='object'&&data?Object.entries(data).slice(0,10).map(([k,v])=>k+': '+(Array.isArray(v)?'lista '+v.length+(v[0]&&typeof v[0]==='object'?' ('+Object.keys(v[0]).slice(0,8).join(', ')+')':''):typeof v)).join('; '):typeof data;maqFail(502,'QA_ACTIVITY_CATALOG','El catálogo de actividades requiere revisar su formato. Estructura recibida: '+maqText(shape));}
+  result={datos:rows};next.activities=result.datos;
  }else if(action==='client'){
   if(!state.quote?.localidad?.id)maqFail(409,'QA_QUOTE','Cotizá primero para confirmar la localidad TEST.');
   const dni=maqInt(input?.dni,'DNI',1,999999999),sexo=maqString(input?.sexo,'sexo registral',/^[MF]$/);
