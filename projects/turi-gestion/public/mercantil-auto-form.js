@@ -1,0 +1,61 @@
+'use strict';
+window.TuriMercantilAutoQa=(()=>{
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const labels={vehicles:'Buscar vehículo',schemes:'Ver condiciones comerciales',quote:'Cotizar en TEST',client:'Crear tomador en TEST',inspection:'Generar autoinspección TEST',subscribe:'Solicitar emisión en TEST',requests:'Consultar solicitudes TEST'};
+ const field=(label,name,value='',type='text',extra='')=>`<label>${esc(label)}<input name="maq_${name}" type="${type}" value="${esc(value)}" ${extra} autocomplete="off"></label>`;
+ const select=(label,name,options,value='')=>`<label>${esc(label)}<select name="maq_${name}">${options.map(x=>`<option value="${esc(x.value)}" ${String(x.value)===String(value)?'selected':''}>${esc(x.label)}</option>`).join('')}</select></label>`;
+ const sex=()=>select('Sexo según documento','sex',[{value:'',label:'Seleccioná'},{value:'F',label:'Femenino'},{value:'M',label:'Masculino'}]);
+ const money=v=>typeof v==='number'&&Number.isFinite(v)?'$ '+v.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+ function html(){return `<details class="w-span" id="mercantil-auto-qa"><summary><strong>Ensayo de Automotores · TEST</strong></summary><p>Probá cotización y emisión con Mercantil. Este entorno no da cobertura real ni incorpora pólizas a tu cartera de trabajo.</p><label>Operación<select name="auto_qa_action">${Object.entries(labels).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label><div id="auto-qa-fields" class="w-form"></div><label class="check"><input type="checkbox" name="auto_qa_confirm"><span>Confirmo el ensayo en TEST con los datos de esta operación.</span></label><div class="row"><button type="button" name="auto_qa_execute">Ejecutar en TEST</button><button type="button" name="auto_qa_refresh">Ver resultado guardado</button></div><p role="status" id="auto-qa-progress"></p><div id="auto-qa-result" aria-live="polite"></div></details>`;}
+ function renderResults(d){
+  let r='<p><strong>Entorno TEST · Sin cobertura real</strong></p>';
+  if(d.unresolved)r+='<p class="error">Hay una operación cuyo resultado todavía no se confirmó. Consultá su estado antes de repetirla.</p>';
+  if(d.lastError)r+=`<p class="error">${esc(d.lastError.message)}</p>`;
+  if(d.holder)r+=`<p><strong>Tomador creado en TEST:</strong> ${esc(d.holder.nombre)} ${esc(d.holder.apellido)}</p>`;
+  if(d.subscription){const s=d.subscription;r+=`<h3>${s.issued?'Póliza de ensayo emitida':'Solicitud de ensayo recibida'}</h3><p>Solicitud <strong>${esc(s.solicitud||'—')}</strong> · Póliza <strong>${esc(s.poliza||'Pendiente')}</strong> · Estado ${esc(s.estado_solicitud||'Por confirmar')}</p>`;}
+  if(d.inspection)r+=`<p><strong>Autoinspección:</strong> enlace generado, pendiente de completar. <a href="${esc(d.inspection.url)}" target="_blank" rel="noopener noreferrer">Abrir autoinspección TEST ↗</a></p>`;
+  if(d.quote){const q=d.quote;r+=`<h3>Cotización TEST ${esc(q.id)}</h3><p><strong>${esc(q.vehiculo?.nombre)} · ${esc(q.vehiculo?.anio)}</strong><br>${esc(q.localidad?.nombre)} · CP ${esc(q.localidad?.codigo_postal)}<br>Suma asegurada: <strong>${money(q.suma_asegurada)}</strong></p>${q.advertencia?`<p>${esc(q.advertencia)}</p>`:''}<div class="table-wrap"><table><thead><tr><th>Cobertura</th><th>Importe del período</th><th>Inspección informada</th></tr></thead><tbody>${q.resultado.map(p=>`<tr><td>${esc(p.texto||p.producto)}${p.error?`<br>${esc(p.error)}`:''}</td><td>${money(p.costo)}</td><td>${esc(p.inspeccion?.opciones?.filter(x=>x.id).map(x=>x.descripcion||x.id).join(', ')||'Sin modalidad informada')}</td></tr>`).join('')}</tbody></table></div><p class="small">Importes y condiciones de ensayo devueltos por Mercantil; no son una oferta de producción.</p>`;}
+  if(d.vehicles)r+=`<h3>Vehículos encontrados · ${esc(d.vehicles.year)}</h3><ul>${d.vehicles.datos.map(x=>`<li>${esc(x.nombre)}</li>`).join('')}</ul>`;
+  if(d.schemes)r+=`<p>${esc(d.schemes.length)} condiciones comerciales habilitadas. Podés elegir una al cotizar.</p>`;
+  return r;
+ }
+ async function mount(form,saved,record,isActive){
+  if(!record.id)return;const root=form.querySelector('#mercantil-auto-qa');if(!root)return;
+  const action=root.querySelector('[name="auto_qa_action"]'),fields=root.querySelector('#auto-qa-fields'),out=root.querySelector('#auto-qa-result'),progress=root.querySelector('#auto-qa-progress'),execute=root.querySelector('[name="auto_qa_execute"]'),refresh=root.querySelector('[name="auto_qa_refresh"]');
+  const path='/connections/'+encodeURIComponent(record.id)+'/mercantil-qa/auto';let busy=false,data={},previous=action.value;const drafts={};
+  const live=()=>isActive(saved)&&document.querySelector('#company-access-form')===form;
+  const value=name=>fields.querySelector('[name="maq_'+name+'"]')?.value||'';
+  const products=()=>data.quote?.resultado?.filter(p=>!p.error)||[];
+  const productSelect=(items=products())=>select('Cobertura','product',items.map(p=>({value:p.codigo_producto,label:(p.texto||p.producto)+' · '+money(p.costo)})),items.some(p=>p.codigo_producto===976)?976:items[0]?.codigo_producto);
+  function renderFields(){
+   const q=data.quote,a=action.value;
+   if(a==='vehicles')fields.innerHTML=field('Marca o modelo','query')+field('Año del vehículo','year',q?.vehiculo?.anio||data.vehicles?.year||new Date().getFullYear(),'number','min="1950" max="2100"');
+   else if(a==='schemes')fields.innerHTML='<p class="w-span">Mercantil informará las combinaciones de comisión y bonificación habilitadas para el productor.</p>';
+   else if(a==='quote')fields.innerHTML=select('Vehículo','vehicle',(data.vehicles?.datos||[]).map(v=>({value:v.infoauto,label:v.nombre})),q?.vehiculo?.infoauto)+field('Año del vehículo','year',data.vehicles?.year||'','number')+field('Código postal de guarda','postal',q?.localidad?.codigo_postal||'','number')+select('Condición comercial','scheme',(data.schemes||[]).map((s,i)=>({value:i,label:s.descripcion+' · bonificación '+s.bonificacion+'%'})),Math.max(0,(data.schemes||[]).findIndex(s=>s.comision===q?.comision&&s.bonificacion===q?.bonificacion)))+select('GNC','gnc',[{value:'no',label:'Sin GNC'},{value:'yes',label:'Con GNC'}],q?.vehiculo?.gnc?'yes':'no')+field('Período del ensayo','period',q?.periodo||1,'number','min="1" max="24"')+field('Cuotas del período','installments',q?.cuotas||1,'number','min="1" max="24"')+'<p class="small w-span">Ensayo con uso particular, sin rastreador, consumidor final y pago por convenio. No se envían datos bancarios. Buscá primero el vehículo y consultá las condiciones comerciales.</p>';
+   else if(a==='client')fields.innerHTML=field('Apellido','surname')+field('Nombre','name')+field('DNI','dni','','text','inputmode="numeric"')+sex()+field('Fecha de nacimiento','birth','','date')+field('Calle','street')+field('Número','number')+field('Piso / departamento','apartment')+field('CUIL · si Mercantil lo solicita','cuil','','text','inputmode="numeric"')+'<p class="small w-span">Se usará la localidad de la cotización. Alta de persona física y consumidor final, sin distribución digital de documentos.</p>';
+   else if(a==='subscribe')fields.innerHTML=productSelect()+field('DNI del tomador','dni','','text','inputmode="numeric"')+sex()+field('Patente','plate')+field('Número de chasis · según cédula','chassis')+field('Número de motor · según cédula','engine')+'<p class="small w-span">La solicitud usa pago por convenio en TEST. El resultado debe confirmar número de póliza y estado de emisión.</p>';
+   else if(a==='inspection'){const items=products().filter(p=>p.inspeccion?.opciones?.some(x=>x.id));fields.innerHTML=items.length?productSelect(items)+select('Modalidad de inspección','inspection',items.flatMap(p=>p.inspeccion.opciones.filter(x=>x.id)).map(x=>({value:x.id,label:x.descripcion||x.id})))+field('Patente','plate')+field('Apellido','surname')+field('Nombre','name'):'<p class="w-span">Mercantil no informó modalidades de inspección para esta cotización. La solicitud de emisión confirmará si requiere otro paso.</p>';}
+   else fields.innerHTML='<p class="w-span">Se consultará el estado del ensayo actual sin importar pólizas a la cartera.</p>';
+   for(const [name,v] of Object.entries(drafts[a]||{})){const el=fields.querySelector('[name="'+name+'"]');if(el)el.value=v;}
+  }
+  function input(){switch(action.value){
+   case 'vehicles':return {query:value('query').trim(),year:Number(value('year'))};
+   case 'schemes':case 'requests':return {};
+   case 'quote':{const s=data.schemes?.[Number(value('scheme'))];if(!s)throw Error('Consultá primero las condiciones comerciales.');return {localidad:{codigo_postal:Number(value('postal'))},vehiculo:{infoauto:Number(value('vehicle')),anio:Number(value('year')),uso:1,gnc:value('gnc')==='yes',rastreo:0},comision:s.comision,bonificacion:s.bonificacion,periodo:Number(value('period')),cuotas:Number(value('installments')),pago:{tipo_pago:'C'},ajuste_suma:0,iva:5};}
+   case 'client':return {apellido:value('surname').trim(),nombre:value('name').trim(),dni:Number(value('dni')),sexo:value('sex'),nacimiento:value('birth'),calle:value('street').trim(),numero:value('number').trim(),departamento:value('apartment').trim(),...(value('cuil').trim()?{cuil:Number(value('cuil').replace(/[ -]/g,''))}:{})};
+   case 'inspection':if(!value('inspection'))throw Error('Mercantil no ofreció una modalidad de inspección en esta cotización.');return {codigo_producto:Number(value('product')),opcion:value('inspection'),dominio:value('plate').trim().toUpperCase(),apellido:value('surname').trim(),nombre:value('name').trim()};
+   case 'subscribe':return {codigo_producto:Number(value('product')),tomador:{dni:Number(value('dni')),sexo:value('sex')},vehiculo:{dominio:value('plate').trim().toUpperCase(),chasis:value('chassis').trim().toUpperCase(),motor:value('engine').trim().toUpperCase()}};
+  }}
+  function show(result){if(!live())return;data=result;form.dataset.version=String(result.connectionVersion);out.innerHTML=renderResults(result);}
+  const load=async()=>{const result=await saved.request(path);show(result);return result;};
+  action.addEventListener('change',()=>{drafts[previous]=Object.fromEntries([...fields.querySelectorAll('input,select')].map(el=>[el.name,el.value]));previous=action.value;renderFields();});renderFields();
+  async function act(send){if(busy||!live())return;busy=true;execute.disabled=refresh.disabled=true;progress.textContent=send?'Consultando Mercantil TEST…':'Recuperando el ensayo guardado…';
+   try{if(send){if(!form.elements.authorized.checked||!form.elements.auto_qa_confirm.checked)throw Error('Confirmá la autorización y el ensayo TEST.');show(await saved.request(path,'POST',{expectedVersion:Number(form.dataset.version),environment:'qa',authorized:true,action:action.value,input:input()}));}else await load();if(live())progress.textContent='Resultado de TEST guardado. No se modificó la cartera.';}
+   catch(e){if(!live())return;if(e.status===401){saved.expired(e);return;}progress.textContent=e.message;try{await load();}catch{}}
+   finally{busy=false;if(live())execute.disabled=refresh.disabled=false;}
+  }
+  execute.addEventListener('click',()=>act(true));refresh.addEventListener('click',()=>act(false));
+  try{await load();if(live())renderFields();}catch(e){if(live())progress.textContent=e.message;}
+ }
+ return {html,mount};
+})();
