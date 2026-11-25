@@ -113,6 +113,14 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const data=await call('/clientes/v1/','POST',body);
   if(!maqText(data?.id)||Number(data.dni)!==dni||data.sexo!==sexo)maqFail(502,'QA_RESPONSE','El alta de tomador TEST no devolvió una identidad coincidente.');
   result={id:maqText(data.id),nombre:maqText(data.nombre),apellido:maqText(data.apellido),created:true};next.holder={...result,dni,sexo};
+ }else if(action==='clientStatus'){
+  if(!state.holder?.id)maqFail(409,'QA_CLIENT','Primero completá el alta del tomador de este ensayo.');
+  const dni=maqInt(state.holder.dni,'DNI guardado del tomador',1,999999999),sexo=maqString(state.holder.sexo,'sexo registral guardado',/^[MF]$/);
+  // Official Postman: Consultar cliente por doc y sexo. Identifiers come only
+  // from the holder already confirmed for this encrypted TEST workflow.
+  const data=await call('/clientes/v1/personas?'+new URLSearchParams({dni:String(dni),sexo}));
+  if(maqText(data?.id)!==maqText(state.holder.id)||Number(data.dni)!==dni||data.sexo!==sexo)maqFail(502,'QA_CLIENT_MISMATCH','La consulta TEST no devolvió la identidad del tomador de este ensayo.');
+  result={id:maqText(data.id),nombre:maqText(data.nombre),apellido:maqText(data.apellido),estado:maqText(data.estado),checkedAt:NOW()};next.holderStatus=result;
  }else if(action==='subscribe'){
   if(!state.quote)maqFail(409,'QA_QUOTE','Primero obtené una cotización de TEST.');
   const product=state.quote.resultado.find(x=>x.codigo_producto===input?.codigo_producto&&!x.error);
@@ -130,15 +138,9 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   // Only the current QA quote/subscription is exposed, never the whole copied portfolio.
   if(!Array.isArray(data?.items))maqFail(502,'QA_RESPONSE','Mercantil TEST respondió pero no se pudo interpretar el seguimiento de la solicitud.');
   result={solicitud:maqText(id),checkedAt:NOW(),coincidencias:data.items.filter(x=>String(x.referencia??x.solicitud??x.id)===id).map(x=>({solicitud:maqText(x.referencia??x.solicitud??x.id),poliza:maqText(x.poliza),estado:maqText(x.estado?.descripcion??x.estado_solicitud?.descripcion??x.estado??x.estado_solicitud),codigo_estado:maqText(x.estado?.codigo??x.estado_solicitud?.codigo)}))};
-  if(state.subscription?.solicitud){
-   try{
-    // Official api-solicitudes / get-soli-historia: read only the reference
-    // returned by this TEST subscription, without exposing staff identities.
-    const history=await call('/solicitudes/v1/ASEGURAR/'+encodeURIComponent(id)+'/historia/listar');
-    if(String(history?.referencia)!==id||!Array.isArray(history.items)||history.accion&&history.accion!=='ASEGURAR')maqFail(502,'QA_RESPONSE','La historia TEST no confirmó la referencia de esta solicitud.');
-    result.historia=history.items.slice(0,50).map(x=>({fecha:maqText(x.fecha),motivo:maqErrorText({message:x.motivo},credentials,session.token)}));
-   }catch(e){result.historiaError=e instanceof MercantilQaError?e.message:'No se pudo consultar la historia TEST de esta solicitud.';}
-  }
+  // Mercantil API team confirmed by email on 2026-11-25 that history is not
+  // available in TEST. Keep the supported request list; do not call history.
+  result.historiaDisponible=false;
   next.requestStatus=result;
  }else maqFail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  return {environment:'qa',productionReady:false,action,result,state:next};
@@ -148,13 +150,13 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const row=await first(env,'SELECT * FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);
  if(!row||row.company_id!=='mercantil')fail(404,'NOT_FOUND','No encontramos Mercantil en este espacio.');
  const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,payload=await unseal(env,row.encrypted_payload,scope+row.version),state=payload.mercantilAutoQa||{};
- const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus?{solicitud:s.requestStatus.solicitud,checkedAt:s.requestStatus.checkedAt,coincidencias:s.requestStatus.coincidencias,historiaDisponible:false}:null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,holderStatus:s.holderStatus||null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(req.method!=='POST')fail(405,'METHOD','Usá el formulario TEST.');
  const b=await body(req);
  if(b?.authorized!==true||b?.environment!=='qa'||!row.authorized||row.status!=='qa_auth_verified')fail(400,'QA_AUTH','Confirmá el ensayo TEST con un acceso QA ya validado.');
  if(b.expectedVersion!==row.version)fail(409,'VERSION','La configuración cambió. Volvé a abrir la ficha.');
- if(!['vehicles','schemes','quote','activities','inspection','client','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
+ if(!['vehicles','schemes','quote','activities','inspection','client','clientStatus','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  if(state.account&&state.account!==mqaAccount(payload.pasCode))fail(409,'QA_ACCOUNT','El productor cambió desde el ensayo anterior. Requiere una nueva revisión.');
  const unresolved=state.unresolved||(state.operation?.status==='pending'||state.operation?.status==='uncertain'?state.operation:null);
  if(unresolved&&['quote','inspection','client','subscribe'].includes(b.action))fail(409,'QA_UNCERTAIN','Hay una operación sin resultado confirmado. Revisá el estado en Mercantil antes de repetirla.');

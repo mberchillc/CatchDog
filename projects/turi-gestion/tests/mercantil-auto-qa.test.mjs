@@ -22,6 +22,7 @@ function provider(log=[],override){return async(url,options)=>{const u=new URL(u
  if(u.pathname.startsWith('/suscripciones/v2/inspecciones/'))return Response.json({url:'https://inspeccion.example.test/qa'});
  if(u.pathname.startsWith('/suscripciones/v2/auto/'))return Response.json({solicitud:10001,poliza:90001,productor:{id:account},estado_solicitud:{codigo:'E',descripcion:'EMISION'}});
  if(u.pathname==='/clientes/v1/')return Response.json({id:77,dni:10000001,sexo:'F',nombre:'Cliente',apellido:'Ficticio'});
+ if(u.pathname==='/clientes/v1/personas')return Response.json({id:77,dni:10000001,sexo:'F',nombre:'Cliente',apellido:'Ficticio',estado:'REVISAR',email:'PRIVATE_CONTACT_NEVER_EXPOSE'});
  if(u.pathname==='/generales/v1/actividades'){assert.equal(u.searchParams.get('limite'),'500');assert.equal(u.searchParams.get('pagina'),'0');return Response.json({content:[{id:'7',nombre:'JUBILADA'}],number:0,size:500,totalElements:1,totalPages:1,first:true,last:true});}
  if(u.pathname==='/solicitudes/v1/')return Response.json({items:[],total:0,cantidad:0});
  throw Error('Unexpected fixture endpoint '+u.pathname);
@@ -49,10 +50,26 @@ test('seguimiento conserva sólo la solicitud actual, busca su referencia y no c
  const r=await mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl});
  assert.equal(new URL(log.find(x=>x.url.includes('/solicitudes/')).url).searchParams.get('q'),'10001');
  assert.equal(r.state.requestStatus.coincidencias.length,1);assert.equal(r.state.requestStatus.coincidencias[0].estado,'DERIVACION');assert.equal(r.state.subscription.issued,false);
- assert.ok(r.state.requestStatus.historia[0].motivo.includes('Revisión TEST'));noSecrets(r);assert.ok(!JSON.stringify(r).includes('STAFF_NEVER_EXPOSE'));
+ assert.equal(r.state.requestStatus.historiaDisponible,false);assert.ok(!log.some(x=>x.url.includes('/historia/')));noSecrets(r);assert.ok(!JSON.stringify(r).includes('STAFF_NEVER_EXPOSE'));
  assert.ok(!JSON.stringify(r).includes('PRIVATE_NEVER_EXPOSE'));assert.ok(!JSON.stringify(r).includes('OTHER_PERSON_NEVER_EXPOSE'));
  const empty=await mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl:provider()});assert.equal(empty.state.requestStatus.coincidencias.length,0);assert.equal(empty.state.subscription.poliza,'0');
  await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl:provider([],url=>url.pathname==='/solicitudes/v1/'?Response.json({unknown:[]}):null)}),e=>e.code==='QA_RESPONSE');
+});
+test('consulta de tomador usa la identidad guardada, informa REVISAR y no permite cambiarla desde el formulario',async()=>{
+ const state={holder:{id:'77',dni:10000001,sexo:'F'},unresolved:{action:'inspection'}},log=[];
+ const r=await mercantilAutoQaOperation(credentials,String(account),'clientStatus',{dni:99999999,sexo:'M'},state,{fetchImpl:provider(log)});
+ const sent=new URL(log.find(x=>x.url.includes('/clientes/v1/personas')).url);assert.equal(sent.searchParams.get('dni'),'10000001');assert.equal(sent.searchParams.get('sexo'),'F');assert.equal(log.find(x=>x.url.includes('/clientes/v1/personas')).method,'GET');
+ assert.equal(r.result.estado,'REVISAR');assert.equal(r.state.unresolved.action,'inspection');assert.ok(!JSON.stringify(r.result).includes('10000001'));assert.ok(!JSON.stringify(r.result).includes('PRIVATE_CONTACT_NEVER_EXPOSE'));
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'clientStatus',{},state,{fetchImpl:provider([],url=>url.pathname==='/clientes/v1/personas'?Response.json({id:78,dni:10000001,sexo:'F',estado:'ACTIVO'}):null)}),e=>e.code==='QA_CLIENT_MISMATCH');
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'clientStatus',{}, {},{fetchImpl:provider()}),e=>e.code==='QA_CLIENT');
+});
+test('API permite consultar el tomador durante una inspección incierta y mantiene bloqueadas las altas',async t=>{
+ const f=await fixture(),log=[];t.mock.method(globalThis,'fetch',provider(log,url=>url.pathname==='/cotizaciones/v2/auto'?Response.json({...quote,localidad:{id:111,codigo_postal:1000}}):url.pathname.includes('/suscripciones/v2/inspecciones/')?Response.json({message:'Fallo TEST'},{status:500}):null));
+ for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['activities',{}],['quote',quoteInput]])assert.equal((await f.act(a,i)).status,200);
+ const input={dni:10000001,cuil:27100000011,sexo:'F',apellido:'Ficticio',nombre:'Cliente',email:'fixture@example.test',telefono1:'1112345678',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',activityId:7,noInscriptoIibb:true};assert.equal((await f.act('client',input)).status,200);
+ assert.equal((await f.act('inspection',{codigo_producto:801,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'})).status,422);
+ const r=await f.act('clientStatus');assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.holderStatus.estado,'REVISAR');assert.equal(r.data.unresolved.action,'inspection');assert.ok(!JSON.stringify(r.data).includes('10000001'));assert.equal((await f.act('subscribe',subscribeInput)).status,409);
+ assert.equal(log.filter(x=>x.url.includes('/suscripciones/v2/inspecciones/')).length,1);
 });
 test('API conserva el ensayo cifrado y separado de clientes y pólizas; emisión requiere póliza y estado E',async t=>{
  const f=await fixture(),log=[];t.mock.method(globalThis,'fetch',provider(log));

@@ -25,3 +25,8 @@ test('seguimiento presenta derivación y póliza pendiente; una consulta vacía 
  assert.ok(f.root.textContent.includes('Seguimiento de la solicitud TEST'));assert.ok(f.root.textContent.includes('Póliza Pendiente'));assert.ok(!f.root.textContent.includes('Póliza de ensayo emitida'));
  const empty=await setup(async()=>({...fixture,subscription,requestStatus:{coincidencias:[]}}));assert.ok(empty.root.textContent.includes('esto no confirma una emisión ni autoriza repetirla'));
 });
+test('el estado del tomador y la ausencia de historial TEST se explican sin mostrar datos de documento',async()=>{
+ const f=await setup(async()=>({...fixture,holderStatus:{nombre:'Cliente',apellido:'Ficticio',estado:'REVISAR'},requestStatus:{coincidencias:[],historiaDisponible:false}}));
+ assert.ok(f.root.textContent.includes('Estado del tomador en Mercantil TEST'));assert.ok(f.root.textContent.includes('REVISAR'));assert.ok(f.root.textContent.includes('el historial no está disponible en TEST'));
+ choose(f,'clientStatus');assert.ok(f.root.textContent.includes('únicamente el tomador ya creado'));assert.equal(f.root.querySelector('#auto-qa-fields').querySelectorAll('input').length,0);
+});
