@@ -88,7 +88,7 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
  }else if(action==='activities'){
   // Official api-generales / get-actividades, checked in the authenticated
   // developer portal on 2026-11-25. This is the persona catalog, not branch risks.
-  const data=await call('/generales/v1/actividades?limite=500&pagina=1');
+  const data=await call('/generales/v1/actividades?limite=500&pagina=0');
   const rows=maqActivityList(data);
   if(!rows||rows.length>3000){const shape=typeof data==='object'&&data?Object.entries(data).slice(0,10).map(([k,v])=>k+': '+(Array.isArray(v)?'lista '+v.length+(v[0]&&typeof v[0]==='object'?' ('+Object.keys(v[0]).slice(0,8).join(', ')+')':''):typeof v)).join('; '):typeof data;maqFail(502,'QA_ACTIVITY_CATALOG','El catálogo de actividades requiere revisar su formato. Estructura recibida: '+maqText(shape));}
   result={datos:rows};next.activities=result.datos;

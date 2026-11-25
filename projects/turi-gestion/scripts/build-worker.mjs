@@ -2,12 +2,16 @@ import {ensurePdfAssets} from './ensure-pdf-assets.mjs';
 import {readFile,writeFile,mkdir,rm,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
+import {spawnSync} from 'node:child_process';
 await ensurePdfAssets();
 const root=process.cwd(),publicDir=path.join(root,'public');
 const readSource=async file=>(await readFile(file,'utf8')).replace(/\r\n?/g,'\n');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.wasm':'application/wasm','.bcmap':'application/octet-stream','.pfb':'application/octet-stream','.ttf':'font/ttf','.css':'text/css; charset=utf-8','.ico':'image/x-icon','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.woff2':'font/woff2','.json':'application/json; charset=utf-8'};
 const assets={};async function walk(dir){for(const e of await readdir(dir,{withFileTypes:true})){const full=path.join(dir,e.name);if(e.isDirectory())await walk(full);else{const p='/'+path.relative(publicDir,full).replaceAll('\\','/');assets[p]={data:(await readFile(full)).toString('base64'),type:types[path.extname(full)]||'application/octet-stream'}}}}
-await walk(publicDir);const companies=JSON.parse(await readFile('worker/company-catalog.json','utf8'));
+await walk(publicDir);
+const commitRevision=process.env.CF_PAGES_COMMIT_SHA||spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).stdout?.trim()||'local';
+assets['/build-info.json']={data:Buffer.from(JSON.stringify({revision:commitRevision})).toString('base64'),type:'application/json; charset=utf-8'};
+const companies=JSON.parse(await readFile('worker/company-catalog.json','utf8'));
 let security=await readSource('worker/security.js');security=security.replaceAll('export ','');let mail=(await readSource('worker/mail.js')).replaceAll('export ','');let documents=(await readSource('worker/documents.js')).replace(/^import .*\n/gm,'').replaceAll('export ','');let workspace=(await readSource('worker/workspace.js')).replace(/^import .*\n/gm,'').replaceAll('export ','');let api=await readSource('worker/api.js');api=api.replace(/^import .*from '.\/(?:security|mail|workspace|documents|emission|mercantil-qa|mercantil-auto-qa|company-setup|assistants|masturi)\.js';\n/gm,'').replaceAll('export ','');let entry=await readSource('worker/index.js');entry=entry.replace(/^import .*\n/gm,'');
 const multiquote="const MQ_SOURCE_LIBRARY="+JSON.stringify(JSON.parse(await readSource('public/quote-sources.json')))+";\n"+(await readSource('worker/multiquote.js')).replace(/^import .*\n/gm,'').replaceAll('export ','');
 const masturi=(await readSource('worker/masturi.js')).replace(/^import .*\n/gm,'').replaceAll('export ','');

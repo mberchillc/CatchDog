@@ -22,7 +22,7 @@ function provider(log=[],override){return async(url,options)=>{const u=new URL(u
  if(u.pathname.startsWith('/suscripciones/v2/inspecciones/'))return Response.json({url:'https://inspeccion.example.test/qa'});
  if(u.pathname.startsWith('/suscripciones/v2/auto/'))return Response.json({solicitud:10001,poliza:90001,productor:{id:account},estado_solicitud:{codigo:'E',descripcion:'EMISION'}});
  if(u.pathname==='/clientes/v1/')return Response.json({id:77,dni:10000001,sexo:'F',nombre:'Cliente',apellido:'Ficticio'});
- if(u.pathname==='/generales/v1/actividades'){assert.equal(u.searchParams.get('limite'),'500');assert.equal(u.searchParams.get('pagina'),'1');return Response.json({actividades:[{id:'7',nombre:'JUBILADA'}],pagina:1});}
+ if(u.pathname==='/generales/v1/actividades'){assert.equal(u.searchParams.get('limite'),'500');assert.equal(u.searchParams.get('pagina'),'0');return Response.json({content:[{id:'7',nombre:'JUBILADA'}],number:0,size:500,totalElements:1,totalPages:1,first:true,last:true});}
  if(u.pathname==='/solicitudes/v1/')return Response.json({items:[],total:0,cantidad:0});
  throw Error('Unexpected fixture endpoint '+u.pathname);
 };}
