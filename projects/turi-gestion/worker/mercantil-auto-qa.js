@@ -11,7 +11,7 @@ function maqString(v,name,pattern){if(typeof v!=='string'||!pattern.test(v))maqF
 function maqErrorText(data,credentials,token){
  const values=[];const visit=(v,depth=0)=>{if(depth>4||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object'){const entries=Object.entries(v),known=entries.filter(([k])=>/^(message|messages|mensaje|mensajes|error|error_description|descripcion|description|detail|details|errors|errores|title|modelstate|validationerrors)$/i.test(k));for(const [,x] of (known.length?known:depth?entries.slice(0,8):[]))visit(x,depth+1);}};visit(data);
  if(!values.length&&data&&typeof data==='object')values.push('Campos de respuesta: '+Object.keys(data).filter(k=>/^[A-Za-z_]{1,40}$/.test(k)).slice(0,12).join(', '));
- let s=values.join(' · ').replace(/<[^>]*>/g,' ').replace(/https?:\/\/\S+/gi,'[enlace omitido]');
+ let s=[...new Set(values)].filter(v=>!/^\s*[0-9a-f]{8,64}\s*$/i.test(v)).join(' · ').replace(/<[^>]*>/g,' ').replace(/https?:\/\/\S+/gi,'[enlace omitido]');
  for(const secret of [credentials.username,credentials.password,credentials.subscriptionKey,token])if(secret)s=s.split(secret).join('[dato resguardado]');
  return maqText(s);
 }
@@ -81,6 +81,9 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const birth=maqString(input?.nacimiento,'fecha de nacimiento',/^\d{4}-\d{2}-\d{2}$/);if(!Number.isFinite(Date.parse(birth+'T00:00:00Z'))||new Date(birth+'T00:00:00Z').toISOString().slice(0,10)!==birth)maqFail(400,'QA_FIELD','Revisá la fecha de nacimiento.');
   const body={persona:'FISICA',tipoDocumento:'4',dni,sexo,apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u),nacimiento:birth,distribucionDigital:false,localidad:{id:state.quote.localidad.id,postal:state.quote.localidad.codigo_postal,nombre:state.quote.localidad.nombre,provincia:state.quote.localidad.provincia},calle:maqString(input.calle,'calle',/^[\p{L}\p{N} .'-]{1,150}$/u),numero:maqString(input.numero,'número de domicilio',/^[\p{L}\p{N} -]{1,20}$/u),departamento:maqText(input.departamento||''),iva:{inscripcion:{id:5,nombre:'consumidor final'},retencion:false,percepcion:false}};
   for(const field of ['cuil','cuit'])if(input[field]!==undefined)body[field]=maqInt(input[field],field,10000000000,99999999999);
+  body.actividad={nombre:maqString(input.actividad,'actividad declarada',/^[\p{L} .'-]{2,100}$/u).toUpperCase()};
+  if(input.noInscriptoIibb!==true)maqFail(400,'QA_FIELD','Confirmá la condición no inscripta en Ingresos Brutos para este ensayo.');
+  body.ingresosBrutos={inscripcion:{id:0,nombre:'No inscripto'},retencion:false,percepcion:false};
   const data=await call('/clientes/v1/','POST',body);
   if(!maqText(data?.id)||Number(data.dni)!==dni||data.sexo!==sexo)maqFail(502,'QA_RESPONSE','El alta de tomador TEST no devolvió una identidad coincidente.');
   result={id:maqText(data.id),nombre:maqText(data.nombre),apellido:maqText(data.apellido),created:true};next.holder={...result,dni,sexo};

@@ -60,13 +60,15 @@ test('permisos, CSRF, versión y confirmación QA se comprueban antes de contact
 });
 test('alta TEST usa la localidad cotizada, no envía banco ni notificaciones y verifica la identidad devuelta',async()=>{
  const log=[],state={quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}};
- const input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',localidad:{id:999},cbu:'NEVER_SEND_BANK_DATA'};
+ const input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',actividad:'Jubilada',noInscriptoIibb:true,localidad:{id:999},cbu:'NEVER_SEND_BANK_DATA'};
  const r=await mercantilAutoQaOperation(credentials,String(account),'client',input,state,{fetchImpl:provider(log)});assert.equal(r.state.holder.dni,10000001);assert.equal(r.result.created,true);
  const sent=JSON.parse(log.find(x=>x.url.endsWith('/clientes/v1/')).body);assert.equal(sent.localidad.id,111);assert.equal(sent.distribucionDigital,false);assert.ok(!('cbu' in sent));assert.ok(!('cuil' in sent));assert.ok(!('cuit' in sent));
+ assert.deepEqual(sent.actividad,{nombre:'JUBILADA'});assert.equal(sent.ingresosBrutos.inscripcion.id,0);
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'client',{...input,noInscriptoIibb:false},state,{fetchImpl:provider()}),e=>e.code==='QA_FIELD');
  await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'subscribe',{...subscribeInput,tomador:{dni:10000002,sexo:'F'}},r.state,{fetchImpl:provider()}),e=>e.code==='QA_CLIENT_MISMATCH');
 });
 test('validaciones de campos del proveedor se muestran con mensajes legibles y sin claves',async()=>{
- const state={quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}},input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1'};
+ const state={quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}},input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',actividad:'Jubilada',noInscriptoIibb:true};
  await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'client',input,state,{fetchImpl:provider([],url=>url.pathname==='/clientes/v1/'?Response.json({Errors:{cuil:['Completá CUIL',credentials.subscriptionKey]}},{status:400}):null)}),e=>{noSecrets({message:e.message});return e.message.includes('Completá CUIL');});
 });
 test('Superadmin conserva autoría y una respuesta 5xx bloquea reenvíos de altas inciertas sin filtrar secretos',async t=>{
