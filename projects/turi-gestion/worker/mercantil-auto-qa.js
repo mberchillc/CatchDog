@@ -18,6 +18,7 @@ function maqActivityList(data){
  const candidates=[];const visit=(value,depth=0)=>{if(depth>3||!value||typeof value!=='object')return;if(Array.isArray(value)){const records=value.map(maqActivityRecord).filter(Boolean);if(records.length)candidates.push(records);else for(const x of value.slice(0,20))visit(x,depth+1);}else for(const x of Object.values(value))visit(x,depth+1);};visit(data);
  return candidates.length===1?candidates[0]:null;
 }
+const maqNeedsInspection=s=>s.inspectionRequired===true||/autoinspecci[oó]n no fue realizada/i.test(s.lastError?.message||'');
 function maqString(v,name,pattern){if(typeof v!=='string'||!pattern.test(v))maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;}
 function maqErrorText(data,credentials,token){
  const values=[];const visit=(v,depth=0)=>{if(depth>4||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object'){const entries=Object.entries(v),known=entries.filter(([k])=>/^(message|messages|mensaje|mensajes|error|error_description|descripcion|description|detail|details|errors|errores|title|modelstate|validationerrors)$/i.test(k));for(const [,x] of (known.length?known:depth?entries.slice(0,8):[]))visit(x,depth+1);}};visit(data);
@@ -76,15 +77,17 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const body=maqQuoteBody(input,account);
   if(!state.vehicles?.datos?.some(v=>v.infoauto===body.vehiculo.infoauto)||state.vehicles.year!==body.vehiculo.anio)maqFail(409,'QA_CATALOG','Buscá primero el vehículo y año en el catálogo TEST.');
   if(!state.schemes?.some(s=>s.comision===body.comision&&s.bonificacion===body.bonificacion))maqFail(409,'QA_SCHEME','Elegí comisión y bonificación entre los esquemas TEST habilitados.');
-  const data=await call('/cotizaciones/v2/auto','POST',body);maqBoundAccount(data,account);result=maqQuoteView(data);next.quote=result;next.quoteInput=body;delete next.inspection;delete next.subscription;
+  const data=await call('/cotizaciones/v2/auto','POST',body);maqBoundAccount(data,account);result=maqQuoteView(data);next.quote=result;next.quoteInput=body;next.inspectionRequired=false;delete next.inspection;delete next.subscription;
  }else if(action==='inspection'){
   if(!state.quote)maqFail(409,'QA_QUOTE','Primero obtené una cotización de TEST.');
   const product=state.quote.resultado.find(x=>x.codigo_producto===input?.codigo_producto&&!x.error);
-  if(!product?.inspeccion?.opciones?.some(x=>x.id===input?.opcion&&x.id))maqFail(409,'QA_INSPECTION','Elegí una modalidad de inspección ofrecida por Mercantil para esa cobertura.');
+  const offered=product?.inspeccion?.opciones?.filter(x=>x.id)||[];
+  const requiredAuto=!!product&&!offered.length&&maqNeedsInspection(state)&&input?.opcion==='AUTOINSPECCION';
+  if(!offered.some(x=>x.id===input?.opcion)&&!requiredAuto)maqFail(409,'QA_INSPECTION','Elegí una modalidad de inspección ofrecida por Mercantil para esa cobertura.');
   const body={opcion:maqString(input.opcion,'modalidad',/^[A-Z_0-9]{1,50}$/),dominio:maqString(input.dominio,'patente',/^[A-Z0-9]{6,7}$/),apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u)};
   const data=await call('/suscripciones/v2/inspecciones/auto/'+encodeURIComponent(state.quote.id),'POST',body);
   const link=new URL(data?.url);if(link.protocol!=='https:'||link.username||link.password)maqFail(502,'QA_RESPONSE','La inspección TEST devolvió un enlace no válido.');
-  result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;
+  result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;next.inspectionRequired=true;
  }else if(action==='activities'){
   // Official api-generales / get-actividades, checked in the authenticated
   // developer portal on 2026-11-25. This is the persona catalog, not branch risks.
@@ -134,7 +137,7 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const row=await first(env,'SELECT * FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);
  if(!row||row.company_id!=='mercantil')fail(404,'NOT_FOUND','No encontramos Mercantil en este espacio.');
  const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,payload=await unseal(env,row.encrypted_payload,scope+row.version),state=payload.mercantilAutoQa||{};
- const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(req.method!=='POST')fail(405,'METHOD','Usá el formulario TEST.');
  const b=await body(req);
@@ -147,7 +150,7 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const credentials=mercantilQaCredentials({apiUsername:companyAccessState(payload).api.username,apiPassword:companyAccessState(payload).api.password,subscriptionKey:companyAccessState(payload).api.subscriptionKey});
  await rate(env,'mercantil-auto-qa:'+u.id,30,15*60*1000);
  const active=await current(req,env);if(active.id!==u.id||active.tenant_id!==u.tenant_id||active.role!=='producer')fail(403,'PRODUCER_ONLY','Los permisos cambiaron antes del ensayo.');
- const guard=companySessionGuard(active),operation={id:opaque(12),action:b.action,status:'pending',startedAt:NOW()},reserved={...state,operation,lastError:null,...(unresolved?{unresolved}:{})};
+ const guard=companySessionGuard(active),operation={id:opaque(12),action:b.action,status:'pending',startedAt:NOW()},reserved={...state,inspectionRequired:maqNeedsInspection(state),operation,lastError:null,...(unresolved?{unresolved}:{})};
  const encrypted=await seal(env,{...payload,mercantilAutoQa:reserved},scope+(row.version+1));
  const claimed=await run(env,'UPDATE pilot_connections SET encrypted_payload=?,version=version+1,updated_at=? WHERE id=? AND tenant_id=? AND producer_id=? AND version=? AND authorized=1 AND '+guard.sql,encrypted,NOW(),id,u.tenant_id,u.id,row.version,...guard.values);
  if(claimed.meta.changes!==1)fail(409,'VERSION','Otro proceso cambió el acceso. No se envió la operación.');

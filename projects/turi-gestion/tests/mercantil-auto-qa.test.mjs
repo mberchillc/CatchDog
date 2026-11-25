@@ -59,6 +59,12 @@ test('permisos, CSRF, versión y confirmación QA se comprueban antes de contact
  for(const extra of [{expectedVersion:0},{authorized:false},{environment:'production'}])assert.ok((await f.call(f.path,{data:{...data,...extra}})).status>=400);
  assert.equal(calls,0);
 });
+test('la validación real de emisión habilita AUTOINSPECCION sin declarar inspección completada',async t=>{
+ const f=await fixture(),log=[];t.mock.method(globalThis,'fetch',provider(log,url=>url.pathname.startsWith('/suscripciones/v2/auto/')?Response.json({message:'La autoinspección no fue realizada'},{status:409}):null));
+ for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['quote',quoteInput]])assert.equal((await f.act(a,i)).status,200);
+ assert.equal((await f.act('subscribe',subscribeInput)).status,422);assert.equal((await f.state()).data.inspectionRequired,true);
+ const r=await f.act('inspection',{codigo_producto:800,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'});assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.inspection.completed,false);assert.equal(r.data.subscription,null);assert.ok(log.some(x=>x.url.endsWith('/suscripciones/v2/inspecciones/auto/quote-fixture')));
+});
 test('alta TEST usa la localidad cotizada, no envía banco ni notificaciones y verifica la identidad devuelta',async()=>{
  const log=[],state={activities:[{id:7,nombre:'JUBILADA'}],quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}};
  const input={dni:10000001,cuil:27100000011,sexo:'F',apellido:'Ficticio',nombre:'Cliente',email:'fixture@example.test',telefono1:'1112345678',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',activityId:7,noInscriptoIibb:true,localidad:{id:999},cbu:'NEVER_SEND_BANK_DATA'};
