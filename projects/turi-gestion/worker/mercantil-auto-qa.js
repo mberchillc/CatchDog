@@ -74,6 +74,13 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const data=await call('/suscripciones/v2/inspecciones/auto/'+encodeURIComponent(state.quote.id),'POST',body);
   const link=new URL(data?.url);if(link.protocol!=='https:'||link.username||link.password)maqFail(502,'QA_RESPONSE','La inspección TEST devolvió un enlace no válido.');
   result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;
+ }else if(action==='activities'){
+  // One read-only discovery request at the conventional child resource. A missing
+  // catalog is reported; no activity identifiers are guessed or enumerated.
+  const data=await call('/clientes/v1/actividades');
+  const rows=Array.isArray(data)?data:Array.isArray(data?.datos)?data.datos:null;
+  if(!rows||rows.length>3000)maqFail(502,'QA_ACTIVITY_CATALOG','No pudimos interpretar el catálogo de actividades de Mercantil TEST.');
+  result={datos:rows.map(x=>({id:x.id??x.codigo,nombre:maqText(x.nombre??x.descripcion)})).filter(x=>Number.isSafeInteger(x.id)&&x.id>0&&x.nombre)};next.activities=result.datos;
  }else if(action==='client'){
   if(!state.quote?.localidad?.id)maqFail(409,'QA_QUOTE','Cotizá primero para confirmar la localidad TEST.');
   const dni=maqInt(input?.dni,'DNI',1,999999999),sexo=maqString(input?.sexo,'sexo registral',/^[MF]$/);
@@ -81,7 +88,8 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const birth=maqString(input?.nacimiento,'fecha de nacimiento',/^\d{4}-\d{2}-\d{2}$/);if(!Number.isFinite(Date.parse(birth+'T00:00:00Z'))||new Date(birth+'T00:00:00Z').toISOString().slice(0,10)!==birth)maqFail(400,'QA_FIELD','Revisá la fecha de nacimiento.');
   const body={persona:'FISICA',tipoDocumento:'4',dni,sexo,apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u),nacimiento:birth,distribucionDigital:false,localidad:{id:state.quote.localidad.id,postal:state.quote.localidad.codigo_postal,nombre:state.quote.localidad.nombre,provincia:state.quote.localidad.provincia},calle:maqString(input.calle,'calle',/^[\p{L}\p{N} .'-]{1,150}$/u),numero:maqString(input.numero,'número de domicilio',/^[\p{L}\p{N} -]{1,20}$/u),departamento:maqText(input.departamento||''),iva:{inscripcion:{id:5,nombre:'consumidor final'},retencion:false,percepcion:false}};
   for(const field of ['cuil','cuit'])if(input[field]!==undefined)body[field]=maqInt(input[field],field,10000000000,99999999999);
-  body.actividad={nombre:maqString(input.actividad,'actividad declarada',/^[\p{L} .'-]{2,100}$/u).toUpperCase()};
+  const activity=state.activities?.find(x=>x.id===input.activityId);if(!activity)maqFail(400,'QA_ACTIVITY_CATALOG','Consultá el catálogo de actividades de Mercantil y elegí la correspondiente al tomador.');
+  body.actividad={id:activity.id,nombre:activity.nombre};
   if(input.noInscriptoIibb!==true)maqFail(400,'QA_FIELD','Confirmá la condición no inscripta en Ingresos Brutos para este ensayo.');
   body.ingresosBrutos={inscripcion:{id:0,nombre:'No inscripto'},retencion:false,percepcion:false};
   const data=await call('/clientes/v1/','POST',body);
@@ -111,13 +119,13 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const row=await first(env,'SELECT * FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);
  if(!row||row.company_id!=='mercantil')fail(404,'NOT_FOUND','No encontramos Mercantil en este espacio.');
  const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,payload=await unseal(env,row.encrypted_payload,scope+row.version),state=payload.mercantilAutoQa||{};
- const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(req.method!=='POST')fail(405,'METHOD','Usá el formulario TEST.');
  const b=await body(req);
  if(b?.authorized!==true||b?.environment!=='qa'||!row.authorized||row.status!=='qa_auth_verified')fail(400,'QA_AUTH','Confirmá el ensayo TEST con un acceso QA ya validado.');
  if(b.expectedVersion!==row.version)fail(409,'VERSION','La configuración cambió. Volvé a abrir la ficha.');
- if(!['vehicles','schemes','quote','inspection','client','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
+ if(!['vehicles','schemes','quote','activities','inspection','client','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  if(state.account&&state.account!==mqaAccount(payload.pasCode))fail(409,'QA_ACCOUNT','El productor cambió desde el ensayo anterior. Requiere una nueva revisión.');
  const unresolved=state.unresolved||(state.operation?.status==='pending'||state.operation?.status==='uncertain'?state.operation:null);
  if(unresolved&&['quote','inspection','client','subscribe'].includes(b.action))fail(409,'QA_UNCERTAIN','Hay una operación sin resultado confirmado. Revisá el estado en Mercantil antes de repetirla.');
