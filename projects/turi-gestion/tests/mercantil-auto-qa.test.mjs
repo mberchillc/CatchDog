@@ -21,6 +21,7 @@ function provider(log=[],override){return async(url,options)=>{const u=new URL(u
  if(u.pathname==='/cotizaciones/v2/auto')return Response.json(quote);
  if(u.pathname.startsWith('/suscripciones/v2/inspecciones/'))return Response.json({url:'https://inspeccion.example.test/qa'});
  if(u.pathname.startsWith('/suscripciones/v2/auto/'))return Response.json({solicitud:10001,poliza:90001,productor:{id:account},estado_solicitud:{codigo:'E',descripcion:'EMISION'}});
+ if(u.pathname==='/clientes/v1/')return Response.json({id:77,dni:10000001,sexo:'F',nombre:'Cliente',apellido:'Ficticio'});
  if(u.pathname==='/solicitudes/v1/')return Response.json({items:[],total:0,cantidad:0});
  throw Error('Unexpected fixture endpoint '+u.pathname);
 };}
@@ -56,6 +57,13 @@ test('permisos, CSRF, versión y confirmación QA se comprueban antes de contact
  assert.equal((await f.call(f.path,{as:'QA-ADMIN',data})).status,403);assert.equal((await f.call(f.path,{as:'',data})).status,401);assert.equal((await f.call(f.path,{csrf:false,data})).status,403);
  for(const extra of [{expectedVersion:0},{authorized:false},{environment:'production'}])assert.ok((await f.call(f.path,{data:{...data,...extra}})).status>=400);
  assert.equal(calls,0);
+});
+test('alta TEST usa la localidad cotizada, no envía banco ni notificaciones y verifica la identidad devuelta',async()=>{
+ const log=[],state={quote:{...quote,localidad:{id:111,codigo_postal:1000,nombre:'LOCALIDAD FICTICIA',provincia:'PROVINCIA FICTICIA'}}};
+ const input={dni:10000001,sexo:'F',apellido:'Ficticio',nombre:'Cliente',nacimiento:'1970-01-01',calle:'Calle ficticia',numero:'1',localidad:{id:999},cbu:'NEVER_SEND_BANK_DATA'};
+ const r=await mercantilAutoQaOperation(credentials,String(account),'client',input,state,{fetchImpl:provider(log)});assert.equal(r.state.holder.dni,10000001);assert.equal(r.result.created,true);
+ const sent=JSON.parse(log.find(x=>x.url.endsWith('/clientes/v1/')).body);assert.equal(sent.localidad.id,111);assert.equal(sent.distribucionDigital,false);assert.ok(!('cbu' in sent));assert.ok(!('cuil' in sent));assert.ok(!('cuit' in sent));
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'subscribe',{...subscribeInput,tomador:{dni:10000002,sexo:'F'}},r.state,{fetchImpl:provider()}),e=>e.code==='QA_CLIENT_MISMATCH');
 });
 test('Superadmin conserva autoría y una respuesta 5xx bloquea reenvíos de altas inciertas sin filtrar secretos',async t=>{
  const f=await fixture();let bad=false;const log=[];t.mock.method(globalThis,'fetch',provider(log,(url)=>bad&&url.pathname==='/cotizaciones/v2/auto'?Response.json({message:credentials.password+' '+token},{status:500}):null));

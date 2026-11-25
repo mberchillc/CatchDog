@@ -73,11 +73,22 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const data=await call('/suscripciones/v2/inspecciones/auto/'+encodeURIComponent(state.quote.id),'POST',body);
   const link=new URL(data?.url);if(link.protocol!=='https:'||link.username||link.password)maqFail(502,'QA_RESPONSE','La inspección TEST devolvió un enlace no válido.');
   result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;
+ }else if(action==='client'){
+  if(!state.quote?.localidad?.id)maqFail(409,'QA_QUOTE','Cotizá primero para confirmar la localidad TEST.');
+  const dni=maqInt(input?.dni,'DNI',1,999999999),sexo=maqString(input?.sexo,'sexo registral',/^[MF]$/);
+  if(state.holder)maqFail(409,'QA_CLIENT_EXISTS','Este ensayo ya tiene un tomador creado en TEST.');
+  const birth=maqString(input?.nacimiento,'fecha de nacimiento',/^\d{4}-\d{2}-\d{2}$/);if(!Number.isFinite(Date.parse(birth+'T00:00:00Z'))||new Date(birth+'T00:00:00Z').toISOString().slice(0,10)!==birth)maqFail(400,'QA_FIELD','Revisá la fecha de nacimiento.');
+  const body={persona:'FISICA',tipoDocumento:'4',dni,sexo,apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u),nacimiento:birth,distribucionDigital:false,localidad:{id:state.quote.localidad.id,postal:state.quote.localidad.codigo_postal,nombre:state.quote.localidad.nombre,provincia:state.quote.localidad.provincia},calle:maqString(input.calle,'calle',/^[\p{L}\p{N} .'-]{1,150}$/u),numero:maqString(input.numero,'número de domicilio',/^[\p{L}\p{N} -]{1,20}$/u),departamento:maqText(input.departamento||''),iva:{inscripcion:{id:5,nombre:'consumidor final'},retencion:false,percepcion:false}};
+  for(const field of ['cuil','cuit'])if(input[field]!==undefined)body[field]=maqInt(input[field],field,10000000000,99999999999);
+  const data=await call('/clientes/v1/','POST',body);
+  if(!maqText(data?.id)||Number(data.dni)!==dni||data.sexo!==sexo)maqFail(502,'QA_RESPONSE','El alta de tomador TEST no devolvió una identidad coincidente.');
+  result={id:maqText(data.id),nombre:maqText(data.nombre),apellido:maqText(data.apellido),created:true};next.holder={...result,dni,sexo};
  }else if(action==='subscribe'){
   if(!state.quote)maqFail(409,'QA_QUOTE','Primero obtené una cotización de TEST.');
   const product=state.quote.resultado.find(x=>x.codigo_producto===input?.codigo_producto&&!x.error);
   if(!product)maqFail(409,'QA_PRODUCT','Elegí una cobertura válida de esta cotización TEST.');
   if(state.subscription)maqFail(409,'QA_ALREADY_SENT','Esta cotización ya tiene una suscripción TEST. Consultá su estado.');
+  if(state.holder&&(state.holder.dni!==input?.tomador?.dni||state.holder.sexo!==input?.tomador?.sexo))maqFail(409,'QA_CLIENT_MISMATCH','El tomador no coincide con el creado para este ensayo TEST.');
   // The documented CONVENIO example requires no bank/card data. No debit is created here.
   const body={codigo_producto:product.codigo_producto,pago:{tipoPago:'CONVENIO'},tomador:{dni:maqInt(input?.tomador?.dni,'DNI',1,999999999),sexo:maqString(input?.tomador?.sexo,'sexo registral',/^[MF]$/)},vehiculo:{dominio:maqString(input?.vehiculo?.dominio,'patente',/^[A-Z0-9]{6,7}$/),chasis:maqString(input?.vehiculo?.chasis,'chasis',/^[A-Z0-9]{8,30}$/),motor:maqString(input?.vehiculo?.motor,'motor',/^[A-Z0-9]{4,30}$/)}};
   const data=await call('/suscripciones/v2/auto/'+encodeURIComponent(state.quote.id),'POST',body);maqBoundAccount(data,account);
@@ -96,16 +107,16 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const row=await first(env,'SELECT * FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);
  if(!row||row.company_id!=='mercantil')fail(404,'NOT_FOUND','No encontramos Mercantil en este espacio.');
  const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,payload=await unseal(env,row.encrypted_payload,scope+row.version),state=payload.mercantilAutoQa||{};
- const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,subscription:s.subscription||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,lastError:s.lastError||null});
+ const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(req.method!=='POST')fail(405,'METHOD','Usá el formulario TEST.');
  const b=await body(req);
  if(b?.authorized!==true||b?.environment!=='qa'||!row.authorized||row.status!=='qa_auth_verified')fail(400,'QA_AUTH','Confirmá el ensayo TEST con un acceso QA ya validado.');
  if(b.expectedVersion!==row.version)fail(409,'VERSION','La configuración cambió. Volvé a abrir la ficha.');
- if(!['vehicles','schemes','quote','inspection','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
+ if(!['vehicles','schemes','quote','inspection','client','subscribe','requests'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  if(state.account&&state.account!==mqaAccount(payload.pasCode))fail(409,'QA_ACCOUNT','El productor cambió desde el ensayo anterior. Requiere una nueva revisión.');
  const unresolved=state.unresolved||(state.operation?.status==='pending'||state.operation?.status==='uncertain'?state.operation:null);
- if(unresolved&&['quote','inspection','subscribe'].includes(b.action))fail(409,'QA_UNCERTAIN','Hay una operación sin resultado confirmado. Revisá el estado en Mercantil antes de repetirla.');
+ if(unresolved&&['quote','inspection','client','subscribe'].includes(b.action))fail(409,'QA_UNCERTAIN','Hay una operación sin resultado confirmado. Revisá el estado en Mercantil antes de repetirla.');
  const credentials=mercantilQaCredentials({apiUsername:companyAccessState(payload).api.username,apiPassword:companyAccessState(payload).api.password,subscriptionKey:companyAccessState(payload).api.subscriptionKey});
  await rate(env,'mercantil-auto-qa:'+u.id,30,15*60*1000);
  const active=await current(req,env);if(active.id!==u.id||active.tenant_id!==u.tenant_id||active.role!=='producer')fail(403,'PRODUCER_ONLY','Los permisos cambiaron antes del ensayo.');
@@ -114,9 +125,9 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const claimed=await run(env,'UPDATE pilot_connections SET encrypted_payload=?,version=version+1,updated_at=? WHERE id=? AND tenant_id=? AND producer_id=? AND version=? AND authorized=1 AND '+guard.sql,encrypted,NOW(),id,u.tenant_id,u.id,row.version,...guard.values);
  if(claimed.meta.changes!==1)fail(409,'VERSION','Otro proceso cambió el acceso. No se envió la operación.');
  let result,error;
- try{result=await mercantilAutoQaOperation(credentials,payload.pasCode,b.action,b.input,reserved);}catch(e){error=e instanceof MercantilQaError?e:new MercantilQaError(502,'QA_OUTCOME_UNKNOWN','El resultado TEST requiere revisión antes de repetir la operación.');if(['quote','inspection','subscribe'].includes(b.action)&&['QA_RESPONSE','QA_PAS_MISMATCH'].includes(error.code))error=new MercantilQaError(502,'QA_OUTCOME_UNKNOWN',error.message+' Revisá el estado antes de repetir el alta.');}
+ try{result=await mercantilAutoQaOperation(credentials,payload.pasCode,b.action,b.input,reserved);}catch(e){error=e instanceof MercantilQaError?e:new MercantilQaError(502,'QA_OUTCOME_UNKNOWN','El resultado TEST requiere revisión antes de repetir la operación.');if(['quote','inspection','client','subscribe'].includes(b.action)&&['QA_RESPONSE','QA_PAS_MISMATCH'].includes(error.code))error=new MercantilQaError(502,'QA_OUTCOME_UNKNOWN',error.message+' Revisá el estado antes de repetir el alta.');}
  const finalState=result?.state||reserved;finalState.operation={...operation,status:error?(error.code==='QA_OUTCOME_UNKNOWN'?'uncertain':'rejected'):'completed',finishedAt:NOW()};
- if(error?.code==='QA_OUTCOME_UNKNOWN'&&['quote','inspection','subscribe'].includes(b.action))finalState.unresolved=finalState.operation;
+ if(error?.code==='QA_OUTCOME_UNKNOWN'&&['quote','inspection','client','subscribe'].includes(b.action))finalState.unresolved=finalState.operation;
  if(error)finalState.lastError={code:error.code,message:error.message};
  const live=await current(req,env);if(live.id!==u.id||live.tenant_id!==u.tenant_id||live.role!=='producer')fail(403,'PRODUCER_ONLY','La sesión cambió durante el ensayo.');
  const finalEncrypted=await seal(env,{...payload,mercantilAutoQa:finalState},scope+(row.version+2)),finalGuard=companySessionGuard(live);
