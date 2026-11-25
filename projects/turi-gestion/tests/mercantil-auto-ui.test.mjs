@@ -19,3 +19,9 @@ test('cotizar envía sólo los valores de los campos y conserva el control de ve
 test('un rechazo de emisión por autoinspección habilita el formulario oficial aunque la cotización no listó modalidades',async()=>{
  const f=await setup(async()=>({...fixture,inspectionRequired:true}));choose(f,'inspection');const modality=f.root.querySelector('[name="maq_inspection"]');assert.equal(modality.value,'AUTOINSPECCION');assert.ok(f.root.querySelector('[name="maq_plate"]'));assert.ok(f.root.textContent.includes('Autoinspección requerida por Mercantil antes de emitir'));assert.equal(f.root.querySelectorAll('pre,textarea').length,0);
 });
+test('seguimiento presenta derivación y póliza pendiente; una consulta vacía no declara emisión ni reenvío',async()=>{
+ const subscription={solicitud:'10001',poliza:'0',estado_solicitud:'DERIVACION',issued:false};
+ const f=await setup(async()=>({...fixture,subscription,requestStatus:{coincidencias:[{solicitud:'10001',poliza:'0',estado:'DERIVACION'}]}}));
+ assert.ok(f.root.textContent.includes('Seguimiento de la solicitud TEST'));assert.ok(f.root.textContent.includes('Póliza Pendiente'));assert.ok(!f.root.textContent.includes('Póliza de ensayo emitida'));
+ const empty=await setup(async()=>({...fixture,subscription,requestStatus:{coincidencias:[]}}));assert.ok(empty.root.textContent.includes('esto no confirma una emisión ni autoriza repetirla'));
+});

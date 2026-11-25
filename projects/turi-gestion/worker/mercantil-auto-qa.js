@@ -77,7 +77,7 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const body=maqQuoteBody(input,account);
   if(!state.vehicles?.datos?.some(v=>v.infoauto===body.vehiculo.infoauto)||state.vehicles.year!==body.vehiculo.anio)maqFail(409,'QA_CATALOG','Buscá primero el vehículo y año en el catálogo TEST.');
   if(!state.schemes?.some(s=>s.comision===body.comision&&s.bonificacion===body.bonificacion))maqFail(409,'QA_SCHEME','Elegí comisión y bonificación entre los esquemas TEST habilitados.');
-  const data=await call('/cotizaciones/v2/auto','POST',body);maqBoundAccount(data,account);result=maqQuoteView(data);next.quote=result;next.quoteInput=body;next.inspectionRequired=false;delete next.inspection;delete next.subscription;
+  const data=await call('/cotizaciones/v2/auto','POST',body);maqBoundAccount(data,account);result=maqQuoteView(data);next.quote=result;next.quoteInput=body;next.inspectionRequired=false;delete next.inspection;delete next.subscription;delete next.requestStatus;
  }else if(action==='inspection'){
   if(!state.quote)maqFail(409,'QA_QUOTE','Primero obtené una cotización de TEST.');
   const product=state.quote.resultado.find(x=>x.codigo_producto===input?.codigo_producto&&!x.error);
@@ -125,10 +125,21 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   if(!maqText(data?.solicitud)&&!maqText(data?.poliza))maqFail(502,'QA_RESPONSE','Mercantil TEST no confirmó un número de solicitud ni de póliza.');
   result={solicitud:maqText(data.solicitud),poliza:maqText(data.poliza),estado_solicitud:maqText(data.estado_solicitud?.descripcion??data.estado_solicitud),codigo_estado:maqText(data.estado_solicitud?.codigo),fecha_solicitud:maqText(data.fecha_solicitud),fecha_vigencia:maqText(data.fecha_vigencia),issued:!!maqText(data.poliza)&&Number(data.poliza)>0&&data.estado_solicitud?.codigo==='E'};next.subscription=result;
  }else if(action==='requests'){
-  const data=await call('/solicitudes/v1/?'+new URLSearchParams({accion:'ASEGURAR',productor:account}));
+  const id=state.subscription?.solicitud||state.quote?.id;
+  const data=id?await call('/solicitudes/v1/?'+new URLSearchParams({accion:'ASEGURAR',productor:account,q:id})):{items:[]};
   // Only the current QA quote/subscription is exposed, never the whole copied portfolio.
-  const rows=Array.isArray(data?.items)?data.items:[];
-  const id=next.subscription?.solicitud;result={total:data.total,cantidad:data.cantidad,coincidencias:id?rows.filter(x=>String(x.referencia??x.solicitud??x.id)===id).map(x=>({solicitud:maqText(x.referencia??x.solicitud??x.id),poliza:maqText(x.poliza),estado:maqText(x.estado?.descripcion??x.estado??x.estado_solicitud)})):[]};
+  if(!Array.isArray(data?.items))maqFail(502,'QA_RESPONSE','Mercantil TEST respondió pero no se pudo interpretar el seguimiento de la solicitud.');
+  result={solicitud:maqText(id),checkedAt:NOW(),coincidencias:data.items.filter(x=>String(x.referencia??x.solicitud??x.id)===id).map(x=>({solicitud:maqText(x.referencia??x.solicitud??x.id),poliza:maqText(x.poliza),estado:maqText(x.estado?.descripcion??x.estado_solicitud?.descripcion??x.estado??x.estado_solicitud),codigo_estado:maqText(x.estado?.codigo??x.estado_solicitud?.codigo)}))};
+  if(state.subscription?.solicitud){
+   try{
+    // Official api-solicitudes / get-soli-historia: read only the reference
+    // returned by this TEST subscription, without exposing staff identities.
+    const history=await call('/solicitudes/v1/ASEGURAR/'+encodeURIComponent(id)+'/historia/listar');
+    if(String(history?.referencia)!==id||!Array.isArray(history.items)||history.accion&&history.accion!=='ASEGURAR')maqFail(502,'QA_RESPONSE','La historia TEST no confirmó la referencia de esta solicitud.');
+    result.historia=history.items.slice(0,50).map(x=>({fecha:maqText(x.fecha),motivo:maqErrorText({message:x.motivo},credentials,session.token)}));
+   }catch(e){result.historiaError=e instanceof MercantilQaError?e.message:'No se pudo consultar la historia TEST de esta solicitud.';}
+  }
+  next.requestStatus=result;
  }else maqFail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  return {environment:'qa',productionReady:false,action,result,state:next};
 }
@@ -137,7 +148,7 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const row=await first(env,'SELECT * FROM pilot_connections WHERE id=? AND tenant_id=? AND producer_id=?',id,u.tenant_id,u.id);
  if(!row||row.company_id!=='mercantil')fail(404,'NOT_FOUND','No encontramos Mercantil en este espacio.');
  const scope=`connection:${u.tenant_id}:${u.id}:mercantil:`,payload=await unseal(env,row.encrypted_payload,scope+row.version),state=payload.mercantilAutoQa||{};
- const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=s=>({environment:'qa',productionReady:false,quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus||null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido}:null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(req.method!=='POST')fail(405,'METHOD','Usá el formulario TEST.');
  const b=await body(req);

@@ -43,6 +43,17 @@ test('Automotores QA verifica productor, catálogo, esquemas y un host fijo; ign
  const sent=JSON.parse(log.find(x=>x.url.endsWith('/cotizaciones/v2/auto')).body);assert.equal(sent.productor.id,account);assert.equal(sent.vehiculo.anio,2012);assert.equal(new URL(log.find(x=>x.url.includes('/vehiculos/')).url).searchParams.get('tipo'),'AUTO');assert.ok(!('id' in sent.localidad));
  await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'quote',{...quoteInput,comision:99},state,options),e=>e.code==='QA_SCHEME');
 });
+test('seguimiento conserva sólo la solicitud actual, busca su referencia y no convierte una derivación en emisión',async()=>{
+ const state={subscription:{solicitud:'10001',poliza:'0',estado_solicitud:'DERIVACION',issued:false}},log=[];
+ const fetchImpl=provider(log,url=>url.pathname==='/solicitudes/v1/'?Response.json({items:[{referencia:10001,poliza:0,estado:{codigo:'001',descripcion:'DERIVACION'},asegurado:{dni:'PRIVATE_NEVER_EXPOSE'}},{referencia:10002,poliza:88888,estado:'EMITIDA',nombre:'OTHER_PERSON_NEVER_EXPOSE'}]}):url.pathname.endsWith('/historia/listar')?Response.json({accion:'ASEGURAR',referencia:'10001',items:[{fecha:'2026-01-01',motivo:'Revisión TEST '+credentials.password,de:'STAFF_NEVER_EXPOSE'}]}):null);
+ const r=await mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl});
+ assert.equal(new URL(log.find(x=>x.url.includes('/solicitudes/')).url).searchParams.get('q'),'10001');
+ assert.equal(r.state.requestStatus.coincidencias.length,1);assert.equal(r.state.requestStatus.coincidencias[0].estado,'DERIVACION');assert.equal(r.state.subscription.issued,false);
+ assert.ok(r.state.requestStatus.historia[0].motivo.includes('Revisión TEST'));noSecrets(r);assert.ok(!JSON.stringify(r).includes('STAFF_NEVER_EXPOSE'));
+ assert.ok(!JSON.stringify(r).includes('PRIVATE_NEVER_EXPOSE'));assert.ok(!JSON.stringify(r).includes('OTHER_PERSON_NEVER_EXPOSE'));
+ const empty=await mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl:provider()});assert.equal(empty.state.requestStatus.coincidencias.length,0);assert.equal(empty.state.subscription.poliza,'0');
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'requests',{},state,{fetchImpl:provider([],url=>url.pathname==='/solicitudes/v1/'?Response.json({unknown:[]}):null)}),e=>e.code==='QA_RESPONSE');
+});
 test('API conserva el ensayo cifrado y separado de clientes y pólizas; emisión requiere póliza y estado E',async t=>{
  const f=await fixture(),log=[];t.mock.method(globalThis,'fetch',provider(log));
  for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['quote',quoteInput],['inspection',{codigo_producto:801,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'}],['subscribe',subscribeInput]]){const r=await f.act(a,i);assert.equal(r.status,200,JSON.stringify(r.data));noSecrets(r.data);}
