@@ -45,6 +45,12 @@ test('PAS ve diez fichas aunque no haya códigos, con código obligatorio y acce
  for(const id of ['mercantil','segunda','cristobal','experta']){const f=await openCompany(w,id);assert.equal(f.elements.pasCode.required,true);assert.equal(f.elements.pasCode.maxLength,120);assert.equal(f.elements.portalPassword.type,'password');assert.ok(f.textContent.includes('Cómo obtener el acceso'));assert.equal(f.querySelectorAll('a[href^="https://"]').length>=1,true);w.document.querySelector('[data-work="close"]').click();}
  dom.window.close();
 });
+test('Mercantil propone fechas con datos de TEST y permite elegir la rama oficial por nombre',async()=>{
+ const {dom,w,calls}=await ui(),f=await openCompany(w,'mercantil');
+ assert.equal(f.elements.qa_from.value,'2026-09-16');assert.equal(f.elements.qa_to.value,'2026-09-22');assert.match(f.textContent,/22\/09\/2026/);
+ assert.equal(f.elements.qa_branch.tagName,'SELECT');assert.equal(f.elements.qa_branch.value,'5');assert.equal(f.elements.qa_branch.selectedOptions[0].textContent,'Automotores (5)');assert.ok([...f.elements.qa_branch.options].some(o=>o.value==='35'&&o.textContent==='Motovehículos (35)'));
+ fill(f);f.elements.qa_service.value='comisiones';submit(w,f,'read');await wait(()=>f.dataset.busy==='0');const query=calls.find(c=>c.path.endsWith('/mercantil-qa/read')).data;assert.equal(query.branch,5);assert.equal(query.from,'2026-09-16');assert.equal(query.to,'2026-09-22');dom.window.close();
+});
 test('Mercantil guarda configuración y prueba desde el servidor sin devolver ni conservar claves en pantalla',async()=>{
  const {dom,w,calls}=await ui(),f=await openCompany(w,'mercantil');fill(f);submit(w,f,'test');await wait(()=>!w.document.querySelector('#company-access-form'));
  const saved=calls.find(c=>c.path==='/company-setup/mercantil'&&c.method==='POST');assert.equal(saved.data.pasCode,'QA-PAS-0007');assert.equal(saved.data.portalPassword,'QA-PORTAL-SECRET');assert.equal(saved.data.api.subscriptionKey,'QA-API-KEY');

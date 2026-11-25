@@ -55,8 +55,116 @@
         "Pedí al equipo API el usuario de test vinculado a tu código PAS, indicando CUIT, contacto y uso previsto.",
         "Cargá las credenciales API emitidas, verificá la cuenta en TEST y consultá los servicios habilitados."
       ],
-      "reviewedOn": "2026-11-24",
-      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración."
+      "reviewedOn": "2026-11-25",
+      "selectionBasis": "Prioridad operativa del piloto: cartera PAS y evidencia del canal de integración.",
+      "qaDataCutoff": "2026-09-22",
+      "qaDataReviewedOn": "2026-11-25",
+      "qaBranches": [
+        {
+          "code": 1,
+          "name": "Granizo"
+        },
+        {
+          "code": 4,
+          "name": "Incendio"
+        },
+        {
+          "code": 5,
+          "name": "Automotores"
+        },
+        {
+          "code": 6,
+          "name": "Accidentes personales"
+        },
+        {
+          "code": 7,
+          "name": "Cristales"
+        },
+        {
+          "code": 8,
+          "name": "Robo y riesgos similares"
+        },
+        {
+          "code": 9,
+          "name": "Responsabilidad civil"
+        },
+        {
+          "code": 10,
+          "name": "Ganado"
+        },
+        {
+          "code": 11,
+          "name": "Transportes"
+        },
+        {
+          "code": 13,
+          "name": "Caución"
+        },
+        {
+          "code": 14,
+          "name": "Seguro técnico"
+        },
+        {
+          "code": 15,
+          "name": "Aeronavegación"
+        },
+        {
+          "code": 16,
+          "name": "Combinado familiar"
+        },
+        {
+          "code": 17,
+          "name": "Integral para comercio e industria"
+        },
+        {
+          "code": 18,
+          "name": "Riesgos varios"
+        },
+        {
+          "code": 19,
+          "name": "Integral para consorcio de copropietarios"
+        },
+        {
+          "code": 21,
+          "name": "Vida individual"
+        },
+        {
+          "code": 22,
+          "name": "Vida colectivo"
+        },
+        {
+          "code": 23,
+          "name": "Vida obligatorio"
+        },
+        {
+          "code": 27,
+          "name": "Seguro técnico E.E."
+        },
+        {
+          "code": 30,
+          "name": "Cascos"
+        },
+        {
+          "code": 31,
+          "name": "Crédito"
+        },
+        {
+          "code": 35,
+          "name": "Motovehículos"
+        },
+        {
+          "code": 36,
+          "name": "Sepelio individual"
+        },
+        {
+          "code": 37,
+          "name": "Sepelio colectivo"
+        },
+        {
+          "code": 41,
+          "name": "Retiro individual"
+        }
+      ]
     }
   },
   {

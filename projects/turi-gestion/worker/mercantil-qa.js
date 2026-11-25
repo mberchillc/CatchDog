@@ -74,7 +74,7 @@ function mqaReadQuery(input,storedAccount){
  if(service==='comisiones'&&(!Number.isSafeInteger(branch)||branch<1||branch>999))mqaFail(400,'MERCANTIL_QA_BRANCH','Para consultar comisiones indicá el número de rama informado por Mercantil.');
  return {account,service,page,from:input.from,to:input.to,branch};
 }
-async function mqaGetJson(path,credentials,token,{fetchImpl=fetch,timeoutMs=8000}={}){
+async function mqaGetJson(path,credentials,token,{fetchImpl=fetch,timeoutMs=20000}={}){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{
   // Paths are built exclusively from the fixed service allowlist and validated fields.

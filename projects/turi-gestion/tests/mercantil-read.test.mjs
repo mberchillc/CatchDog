@@ -60,3 +60,11 @@ test('un período vacío admite el indicador de página cero sin aceptar página
  await assert.rejects(mercantilQaRead(credentials,account,query,mockProvider({override:()=>Response.json({datos:[record('operaciones')],total_elementos:1,total_paginas:1,pagina_actual:0})})),e=>e.code==='MERCANTIL_QA_RESPONSE');
  await assert.rejects(mercantilQaRead(credentials,account,query,mockProvider({override:()=>Response.json({message:credentials.password,error:token})})),e=>{noSecrets(e.message);return e.code==='MERCANTIL_QA_RESPONSE'});
 });
+test('una consulta de cartera lenta se cancela sin mostrar datos ni detalles de red privados',async()=>{
+ let calls=0;
+ await assert.rejects(mercantilQaRead(credentials,account,query,{timeoutMs:30,fetchImpl:async(url,{signal})=>{
+  calls++;if(url===MQA_TOKEN_URL)return Response.json({access_token:token,token_type:'Bearer'});
+  if(new URL(url).pathname==='/productores/v1/')return Response.json(producers());
+  return new Promise((_resolve,reject)=>{if(signal.aborted)reject(Error(credentials.password));else signal.addEventListener('abort',()=>reject(Error(credentials.password)));});
+ }}),e=>{noSecrets(e.message);return e.code==='MERCANTIL_QA_TIMEOUT'&&e.status===504});assert.equal(calls,3);
+});

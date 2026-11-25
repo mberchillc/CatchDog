@@ -1,8 +1,21 @@
 # Mercantil Andina: primera validación API
 
-Actualizado: 24/11/2026. Mercantil entregó un usuario de TEST y una colección oficial de servicios. Se creó y verificó una suscripción activa al producto Auto en el portal del responsable técnico. La primera autenticación desde Cloudflare falló por el modo `redirect: 'error'`, que Workers no admite. La corrección usa `manual` y rechaza los estados 3xx sin reenviar credenciales. La repetición publicada confirmó autenticación, coincidencia de cuenta y respuestas de operaciones y cobranzas en TEST; todavía no se acredita conexión de producción.
+Actualizado: 25/11/2026. Mercantil entregó un usuario de TEST y una colección oficial de servicios. Se creó y verificó una suscripción activa al producto Auto en el portal del responsable técnico. La primera autenticación desde Cloudflare falló por el modo `redirect: 'error'`, que Workers no admite. La corrección usa `manual` y rechaza los estados 3xx sin reenviar credenciales. Se verificaron desde la aplicación autenticación, coincidencia de cuenta y los cuatro servicios de cartera en TEST; todavía no se acredita conexión de producción.
 
-Las consultas de operaciones y cobranzas del 18 al 24 de noviembre de 2026 devolvieron cero registros y página cero. Ese resultado vacío fue comprobado desde el formulario publicado, manteniendo la cuenta correcta y sin importaciones. No demuestra el mapeo de registros con contenido ni la cartera de producción. El validador admite el indicador de página cero sólo cuando listado, total y páginas son cero; cualquier otra incompatibilidad informa exclusivamente tipos, contadores numéricos y nombres de campos reconocidos, sin copiar el cuerpo del proveedor. Rechazos y comisiones aún requieren validación real, al igual que cotización y emisión.
+El 25/11 Mercantil confirmó por correo que TEST es una copia de producción con datos hasta el 22 de septiembre y compartió 26 códigos de rama, incluido Automotores = 5. Consultar noviembre devolvía correctamente cero registros. Se repitieron las lecturas del 16 al 22/09/2026 en el PAS de prueba de Mauro, con la cuenta del productor verificada en cada respuesta:
+
+| Servicio | Resultado verificado |
+| --- | --- |
+| Operaciones | 7 registros; póliza, asegurado, fecha e importe presentes. |
+| Cobranzas | 8 registros. |
+| Rechazos | 0 registros; respuesta vacía válida. |
+| Comisiones, rama 5 | 5 registros; póliza, importe y fechas dentro del período consultado. |
+
+Estos datos permanecen en la respuesta privada de TEST: no se guardan como ejemplos en el repositorio ni se importan a la cartera de trabajo. El validador admite página cero sólo cuando listado, total y páginas son cero. Las demás incompatibilidades informan exclusivamente tipos, contadores y campos reconocidos, sin copiar el cuerpo del proveedor. Cotización, inspección y emisión aún requieren validación real de TEST.
+
+El formulario propone una semana que termina en el corte informado y muestra su fecha de revisión; el usuario puede cambiarla. La rama se elige por nombre, con los códigos oficiales de Mercantil. La consulta inicial de tres semanas agotó el límite de 8 segundos; las lecturas semanales respondieron. Las consultas GET disponen ahora de hasta 20 segundos por servicio, conservando límite de tamaño, cancelación y rechazo de redirecciones. La autenticación mantiene su límite de 8 segundos.
+
+Mercantil indicó que el pasaje a producción requiere avisarles al completar satisfactoriamente TEST; su equipo valida las pruebas y emite credenciales y Subscription Key nuevas. No reutilizar las claves QA para producción ni declarar ese acceso habilitado antes de recibirlo.
 
 El registro del desarrollador y su Subscription Key son distintos del acceso comercial del productor y del usuario API de TEST. El código, las credenciales y las claves reales se mantienen fuera de este repositorio.
 
