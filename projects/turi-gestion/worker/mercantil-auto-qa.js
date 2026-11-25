@@ -75,9 +75,9 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const link=new URL(data?.url);if(link.protocol!=='https:'||link.username||link.password)maqFail(502,'QA_RESPONSE','La inspección TEST devolvió un enlace no válido.');
   result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;
  }else if(action==='activities'){
-  // One read-only discovery request at the conventional child resource. A missing
-  // catalog is reported; no activity identifiers are guessed or enumerated.
-  const data=await call('/clientes/v1/actividades');
+  // Official api-generales / get-actividades, checked in the authenticated
+  // developer portal on 2026-11-25. This is the persona catalog, not branch risks.
+  const data=await call('/generales/v1/actividades?limite=500&pagina=1');
   const rows=Array.isArray(data)?data:Array.isArray(data?.datos)?data.datos:null;
   if(!rows||rows.length>3000)maqFail(502,'QA_ACTIVITY_CATALOG','No pudimos interpretar el catálogo de actividades de Mercantil TEST.');
   result={datos:rows.map(x=>({id:x.id??x.codigo,nombre:maqText(x.nombre??x.descripcion)})).filter(x=>Number.isSafeInteger(x.id)&&x.id>0&&x.nombre)};next.activities=result.datos;
