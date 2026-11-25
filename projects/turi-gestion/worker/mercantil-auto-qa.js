@@ -28,7 +28,8 @@ async function maqHttp(path,method,data,credentials,token,{fetchImpl=fetch,timeo
  finally{clearTimeout(timer);}
 }
 function maqBoundAccount(data,account){
- if(data?.productor&&mqaAccount(data.productor.id??data.productor.cuenta)!==account)maqFail(502,'QA_PAS_MISMATCH','La respuesta de TEST no coincide con el productor habilitado.');
+ const value=data?.productor;
+ if(value!==undefined&&mqaAccount(typeof value==='object'&&value!==null?value.id??value.cuenta:value)!==account)maqFail(502,'QA_PAS_MISMATCH','La respuesta de TEST no coincide con el productor habilitado.');
 }
 function maqQuoteBody(b,account){
  if(!b||typeof b!=='object'||Array.isArray(b))maqFail(400,'QA_FIELD','Completá la solicitud de cotización.');

@@ -17,7 +17,7 @@ function provider(log=[],override){return async(url,options)=>{const u=new URL(u
  if(u.pathname==='/credenciales/v2/')return Response.json({access_token:token,token_type:'Bearer'});
  if(u.pathname==='/productores/v1/')return Response.json({datos:[{cuenta:account,nombre:'Productor ficticio'}]});
  if(u.pathname==='/vehiculos/v1/')return Response.json({datos:[vehicle],cantidad:1,total:1});
- if(u.pathname.endsWith('/esquemas/auto'))return Response.json({productor:{id:account},datos:schemes});
+ if(u.pathname.endsWith('/esquemas/auto'))return Response.json({productor:account,datos:schemes});
  if(u.pathname==='/cotizaciones/v2/auto')return Response.json(quote);
  if(u.pathname.startsWith('/suscripciones/v2/inspecciones/'))return Response.json({url:'https://inspeccion.example.test/qa'});
  if(u.pathname.startsWith('/suscripciones/v2/auto/'))return Response.json({solicitud:10001,poliza:90001,productor:{id:account},estado_solicitud:{codigo:'E',descripcion:'EMISION'}});
