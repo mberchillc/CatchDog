@@ -4,6 +4,7 @@ import { emissionApi } from './emission.js';
 import { workspaceApi } from './workspace.js';
 import { documentsApi,filesReady } from './documents.js';
 import { mercantilQaApi, mercantilQaReadApi } from './mercantil-qa.js';
+import { mercantilAutoQaApi } from './mercantil-auto-qa.js';
 import { companySetupApi } from './company-setup.js';
 import { assistantsApi } from './assistants.js';
 import { masturiApi } from './masturi.js';
@@ -196,6 +197,7 @@ async function privateApi(req,env,companies,u,{audit,current,rate}){
  }
  if(/^\/api\/pilot\/connections\/[^/]+\/mercantil-qa$/.test(path)&&req.method==='POST')return mercantilQaApi(req,env,u,path.split('/')[4],{json,fail,first,run,audit,body,rate,current});
  if(/^\/api\/pilot\/connections\/[^/]+\/mercantil-qa\/read$/.test(path)&&req.method==='POST')return mercantilQaReadApi(req,env,u,path.split('/')[4],{json,fail,first,audit,body,rate,current});
+ if(/^\/api\/pilot\/connections\/[^/]+\/mercantil-qa\/auto$/.test(path))return mercantilAutoQaApi(req,env,u,path.split('/')[4],{json,fail,first,run,audit,body,rate,current});
  if(path==='/api/pilot/connections'&&req.method==='POST'){
   onlyProducer(u);await rate(env,'vault:'+u.id,30);const b=await body(req);if(b.method!=='pas_only'&&env.TURI_ENABLE_PORTAL_SECRETS!=='1')fail(409,'CONNECTOR_NOT_ENABLED','Primero validaremos el conector de esta compañía. Por ahora registrá sólo tu código PAS.');if(!companies.some(c=>c.id===b.companyId))fail(400,'COMPANY','Elegí una compañía del listado.');if(!['pas_only','portal','api_key'].includes(b.method))fail(400,'METHOD','Elegí el tipo de acceso.');const pas=clean(b.pasCode,120),username=clean(b.portalUser,160),password=typeof b.portalPassword==='string'?b.portalPassword.slice(0,512):'',apiKey=typeof b.apiKey==='string'?b.apiKey.slice(0,4096):'';
   if(!pas||b.authorized!==true||(b.method==='portal'&&(!username||!password))||(b.method==='api_key'&&!apiKey))fail(400,'REQUIRED','Completá los datos del acceso y confirmá tu autorización.');
@@ -255,7 +257,7 @@ async function privateApi(req,env,companies,u,{audit,current,rate}){
 async function supervisionApi(req,env,companies){
  const actor=await current(req,env);
  if(actor.role!=='superadmin')fail(403,'ADMIN_ONLY','Esta vista pertenece al superadministrador.');
- const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|assistants(?:\/[A-Za-z0-9_-]+(?:\/test)?)?|companies|connections(?:\/[A-Za-z0-9_-]+(?:\/mercantil-qa(?:\/read)?)?)?|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
+ const url=new URL(req.url),match=/^\/api\/pilot\/supervision\/([A-Za-z0-9_-]{1,100})\/(auth\/me|assistants(?:\/[A-Za-z0-9_-]+(?:\/test)?)?|companies|connections(?:\/[A-Za-z0-9_-]+(?:\/mercantil-qa(?:\/(?:read|auto))?)?)?|audit|company-setup\/[A-Za-z0-9_-]+|work\/[A-Za-z0-9_/-]+|documents(?:\/[A-Za-z0-9_/-]+)?)$/.exec(url.pathname);
  if(!match)fail(404,'NOT_FOUND','No encontramos esa vista de supervisión.');
  const producerId=match[1];
  const target=await first(env,"SELECT * FROM pilot_users WHERE id=? AND tenant_id=? AND role='producer' AND disabled=0",producerId,actor.tenant_id);

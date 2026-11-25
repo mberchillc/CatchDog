@@ -19,7 +19,7 @@ export function mercantilQaCredentials(input){
   mqaFail(400,'MERCANTIL_QA_REQUIRED','Usá el usuario de test emitido para vos por Mercantil; el ejemplo de la guía no es un acceso habilitado.');
  return {username,password,subscriptionKey};
 }
-async function mqaAccessToken(credentials,{fetchImpl=fetch,timeoutMs=8000}={}){
+export async function mqaAccessToken(credentials,{fetchImpl=fetch,timeoutMs=8000}={}){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{
   const response=await fetchImpl(MQA_TOKEN_URL,{
@@ -52,7 +52,7 @@ export async function mercantilQaAuthenticate(credentials,options={}){
  return {authenticated:true,environment:'qa',authenticatedAt:session.authenticatedAt,portfolioAvailable:false,automaticQuotes:false,pasAttributionVerified:false};
 }
 
-function mqaAccount(value){
+export function mqaAccount(value){
  const text=typeof value==='number'&&Number.isSafeInteger(value)?String(value):typeof value==='string'?value.trim():'';
  return /^\d{1,12}$/.test(text)&&Number(text)>0?String(Number(text)):null;
 }
