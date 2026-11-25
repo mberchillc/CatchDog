@@ -80,7 +80,7 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const data=await call('/generales/v1/actividades?limite=500&pagina=1');
   const rows=Array.isArray(data)?data:Array.isArray(data?.datos)?data.datos:null;
   if(!rows||rows.length>3000)maqFail(502,'QA_ACTIVITY_CATALOG','No pudimos interpretar el catálogo de actividades de Mercantil TEST.');
-  result={datos:rows.map(x=>({id:x.id??x.codigo,nombre:maqText(x.nombre??x.descripcion)})).filter(x=>Number.isSafeInteger(x.id)&&x.id>0&&x.nombre)};next.activities=result.datos;
+  result={datos:rows.map(x=>({id:Number(x.id??x.codigo),nombre:maqText(x.nombre??x.descripcion)})).filter(x=>Number.isSafeInteger(x.id)&&x.id>0&&x.nombre)};next.activities=result.datos;
  }else if(action==='client'){
   if(!state.quote?.localidad?.id)maqFail(409,'QA_QUOTE','Cotizá primero para confirmar la localidad TEST.');
   const dni=maqInt(input?.dni,'DNI',1,999999999),sexo=maqString(input?.sexo,'sexo registral',/^[MF]$/);
@@ -88,6 +88,9 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const birth=maqString(input?.nacimiento,'fecha de nacimiento',/^\d{4}-\d{2}-\d{2}$/);if(!Number.isFinite(Date.parse(birth+'T00:00:00Z'))||new Date(birth+'T00:00:00Z').toISOString().slice(0,10)!==birth)maqFail(400,'QA_FIELD','Revisá la fecha de nacimiento.');
   const body={persona:'FISICA',tipoDocumento:'4',dni,sexo,apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u),nacimiento:birth,distribucionDigital:false,localidad:{id:state.quote.localidad.id,postal:state.quote.localidad.codigo_postal,nombre:state.quote.localidad.nombre,provincia:state.quote.localidad.provincia},calle:maqString(input.calle,'calle',/^[\p{L}\p{N} .'-]{1,150}$/u),numero:maqString(input.numero,'número de domicilio',/^[\p{L}\p{N} -]{1,20}$/u),departamento:maqText(input.departamento||''),iva:{inscripcion:{id:5,nombre:'consumidor final'},retencion:false,percepcion:false}};
   for(const field of ['cuil','cuit'])if(input[field]!==undefined)body[field]=maqInt(input[field],field,10000000000,99999999999);
+  if(!body.cuil)maqFail(400,'QA_FIELD','Completá el CUIL del tomador.');
+  body.contacto=maqString(input.contacto||input.nombre+' '+input.apellido,'nombre de contacto',/^[\p{L}\p{N} .'-]{2,150}$/u);
+  body.email=maqString(input.email,'correo de contacto',/^[^\s@<>]{1,100}@[^\s@<>]{1,100}\.[^\s@<>]{2,30}$/);
   const activity=state.activities?.find(x=>x.id===input.activityId);if(!activity)maqFail(400,'QA_ACTIVITY_CATALOG','Consultá el catálogo de actividades de Mercantil y elegí la correspondiente al tomador.');
   body.actividad={id:activity.id,nombre:activity.nombre};
   if(input.noInscriptoIibb!==true)maqFail(400,'QA_FIELD','Confirmá la condición no inscripta en Ingresos Brutos para este ensayo.');
