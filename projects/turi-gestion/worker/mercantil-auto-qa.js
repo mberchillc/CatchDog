@@ -102,6 +102,7 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   if(!body.cuil)maqFail(400,'QA_FIELD','Completá el CUIL del tomador.');
   body.contacto=maqString(input.contacto||input.nombre+' '+input.apellido,'nombre de contacto',/^[\p{L}\p{N} .'-]{2,150}$/u);
   body.email=maqString(input.email,'correo de contacto',/^[^\s@<>]{1,100}@[^\s@<>]{1,100}\.[^\s@<>]{2,30}$/);
+  body.telefono1=maqString(input.telefono1,'celular de contacto, sin 0 inicial, sin 15 y sin espacios',/^[1-9]\d{7,13}$/);
   const activity=state.activities?.find(x=>x.id===input.activityId);if(!activity)maqFail(400,'QA_ACTIVITY_CATALOG','Consultá el catálogo de actividades de Mercantil y elegí la correspondiente al tomador.');
   body.actividad={id:activity.id,nombre:activity.nombre};
   if(input.noInscriptoIibb!==true)maqFail(400,'QA_FIELD','Confirmá la condición no inscripta en Ingresos Brutos para este ensayo.');
