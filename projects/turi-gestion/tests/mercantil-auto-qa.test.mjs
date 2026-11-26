@@ -34,8 +34,8 @@ async function fixture(){
  const saved=await call('/company-setup/mercantil',{data:{expectedVersion:0,pasCode:String(account),authorized:true,api:credentials}});assert.equal(saved.status,201);
  const id=saved.data.record.id;DB.db.prepare("UPDATE pilot_connections SET status='qa_auth_verified' WHERE id=?").run(id);
  const path='/connections/'+id+'/mercantil-qa/auto';
- const state=()=>call(path,{method:'GET'});
- const act=async(action,input={},options={})=>{const before=await state();return call(path,{data:{expectedVersion:before.data.connectionVersion,authorized:true,environment:'qa',action,input},...options});};
+ const state=(caseId='legacy')=>call(path+'?case='+encodeURIComponent(caseId),{method:'GET'});
+ const act=async(action,input={},options={})=>{const caseId=options.caseId||'legacy',before=await state(caseId);return call(path,{data:{expectedVersion:before.data.connectionVersion,authorized:true,environment:'qa',caseId,action,input},...options});};
  return {DB,env,call,id,path,state,act};
 }
 test('Automotores QA verifica productor, catálogo, esquemas y un host fijo; ignora un productor inyectado',async()=>{
@@ -112,5 +112,32 @@ test('Superadmin conserva autoría y una respuesta 5xx bloquea reenvíos de alta
  for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}]])assert.equal((await f.act(a,i)).status,200);
  bad=true;const st=await f.state();const r=await f.call('/supervision/QA-AUTO-PAS'+f.path,{as:'QA-ADMIN',data:{expectedVersion:st.data.connectionVersion,authorized:true,environment:'qa',action:'quote',input:quoteInput}});assert.equal(r.status,422);assert.equal(r.data.error,'QA_OUTCOME_UNKNOWN');noSecrets(r.data);
  assert.equal((await f.act('quote',quoteInput)).status,409);assert.equal((await f.act('requests')).status,200);assert.equal((await f.act('quote',quoteInput)).status,409);
+ assert.equal((await f.act('newCase')).status,409);
  assert.ok(f.DB.db.prepare("SELECT actor_id FROM pilot_audit WHERE action='supervision.connection.mercantil_auto_qa_quote_rejected'").all().some(x=>x.actor_id==='QA-ADMIN'));
+});
+test('tomador existente se verifica por identidad, se conserva cifrado y no reemplaza uno ya seleccionado',async()=>{
+ const log=[],r=await mercantilAutoQaOperation(credentials,String(account),'existingClient',{dni:10000001,sexo:'F'}, {},{fetchImpl:provider(log)});
+ assert.equal(r.state.holder.created,false);assert.equal(r.state.holderStatus.estado,'REVISAR');assert.ok(!('dni' in r.result));assert.equal(log.filter(x=>x.url.includes('/clientes/'))[0].method,'GET');
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'existingClient',{dni:10000002,sexo:'F'}, {},{fetchImpl:provider()}),e=>e.code==='QA_CLIENT_MISMATCH');
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'existingClient',{dni:10000001,sexo:'F'},r.state,{fetchImpl:provider()}),e=>e.code==='QA_CLIENT_EXISTS');
+});
+test('nuevo ensayo conserva íntegro el anterior y su inspección incierta; emisión usa otra referencia sin crear clientes reales',async t=>{
+ const f=await fixture(),log=[];let quoteCount=0;
+ t.mock.method(globalThis,'fetch',provider(log,url=>url.pathname==='/cotizaciones/v2/auto'?Response.json({...quote,id:'QA-QUOTE-'+(++quoteCount)}):url.pathname.includes('/suscripciones/v2/inspecciones/')?Response.json({message:'Proveedor TEST no disponible'},{status:500}):url.pathname==='/clientes/v1/personas'?Response.json({id:77,dni:10000001,sexo:'F',nombre:'Cliente',apellido:'Ficticio',estado:'ACTIVO'}):null));
+ for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['quote',quoteInput]])assert.equal((await f.act(a,i)).status,200);
+ assert.equal((await f.act('inspection',{codigo_producto:801,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'})).status,422);
+ const before=f.DB.db.prepare('SELECT * FROM pilot_connections').get(),old=(await unseal(f.env,before.encrypted_payload,'connection:QA-AUTO:QA-AUTO-PAS:mercantil:'+before.version)).mercantilAutoQa,callsBefore=log.length;
+ const created=await f.act('newCase',{label:'Segundo ensayo TEST'});assert.equal(created.status,200,JSON.stringify(created.data));assert.equal(log.length,callsBefore);const caseId=created.data.caseId;assert.notEqual(caseId,'legacy');assert.equal(created.data.quote,null);assert.equal(created.data.holder,null);assert.equal(created.data.unresolved,null);assert.equal(created.data.cases.find(c=>c.id==='legacy').unresolved,true);
+ assert.equal((await f.act('existingClient',{dni:10000001,sexo:'F'},{caseId})).status,200);assert.equal((await f.act('quote',quoteInput,{caseId})).status,200);
+ assert.equal((await f.act('inspection',{codigo_producto:801,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'},{caseId})).status,409);
+ const issued=await f.act('subscribe',subscribeInput,{caseId});assert.equal(issued.status,200,JSON.stringify(issued.data));assert.equal(issued.data.subscription.issued,true);assert.ok(!JSON.stringify(issued.data).includes('10000001'));
+ const after=f.DB.db.prepare('SELECT * FROM pilot_connections').get(),p=await unseal(f.env,after.encrypted_payload,'connection:QA-AUTO:QA-AUTO-PAS:mercantil:'+after.version);assert.deepEqual(p.mercantilAutoQa,old);assert.equal(p.mercantilAutoQaCases[caseId].quote.id,'QA-QUOTE-2');assert.equal(p.mercantilAutoQaCases[caseId].holder.dni,10000001);
+ assert.equal((await f.act('subscribe',subscribeInput)).status,409);assert.equal((await f.state('unknown-case')).status,404);assert.equal(log.filter(x=>x.url.includes('/suscripciones/v2/inspecciones/')).length,1);assert.equal(log.filter(x=>x.url.includes('/suscripciones/v2/auto/'))[0].url.endsWith('QA-QUOTE-2'),true);
+ for(const table of ['work_clients','work_policies'])assert.equal(f.DB.db.prepare('SELECT count(*) n FROM '+table).get().n,0);
+});
+test('una referencia de cotización repetida entre ensayos se bloquea y no habilita reenvíos',async t=>{
+ const f=await fixture();t.mock.method(globalThis,'fetch',provider());
+ for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['quote',quoteInput]])assert.equal((await f.act(a,i)).status,200);
+ const created=await f.act('newCase'),caseId=created.data.caseId;
+ const r=await f.act('quote',quoteInput,{caseId});assert.equal(r.status,502,JSON.stringify(r.data));assert.equal(r.data.error,'QA_OUTCOME_UNKNOWN');assert.equal(r.data.quote,null);assert.equal(r.data.unresolved.action,'quote');assert.equal((await f.act('subscribe',subscribeInput,{caseId})).status,409);assert.equal((await f.act('newCase')).status,409);
 });

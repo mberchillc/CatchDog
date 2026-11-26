@@ -1,7 +1,7 @@
 'use strict';
 window.TuriMercantilAutoQa=(()=>{
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const labels={vehicles:'Buscar vehículo',schemes:'Ver condiciones comerciales',quote:'Cotizar en TEST',activities:'Ver actividades de Mercantil',client:'Crear tomador en TEST',clientStatus:'Consultar estado del tomador TEST',inspection:'Generar autoinspección TEST',subscribe:'Solicitar emisión en TEST',requests:'Consultar solicitudes TEST'};
+ const labels={vehicles:'Buscar vehículo',schemes:'Ver condiciones comerciales',quote:'Cotizar en TEST',activities:'Ver actividades de Mercantil',client:'Crear tomador en TEST',existingClient:'Usar tomador registrado en TEST',clientStatus:'Consultar estado del tomador TEST',inspection:'Generar autoinspección TEST',subscribe:'Solicitar emisión en TEST',requests:'Consultar solicitudes TEST'};
  const field=(label,name,value='',type='text',extra='')=>`<label>${esc(label)}<input name="maq_${name}" type="${type}" value="${esc(value)}" ${extra} autocomplete="off"></label>`;
  const select=(label,name,options,value='')=>`<label>${esc(label)}<select name="maq_${name}">${options.map(x=>`<option value="${esc(x.value)}" ${String(x.value)===String(value)?'selected':''}>${esc(x.label)}</option>`).join('')}</select></label>`;
  const sex=()=>select('Sexo según documento','sex',[{value:'',label:'Seleccioná'},{value:'F',label:'Femenino'},{value:'M',label:'Masculino'}]);
@@ -12,7 +12,8 @@ window.TuriMercantilAutoQa=(()=>{
   let r='<p><strong>Entorno TEST · Sin cobertura real</strong></p>';
   if(d.unresolved)r+='<p class="error">Hay una operación cuyo resultado todavía no se confirmó. Consultá su estado antes de repetirla.</p>';
   if(d.lastError)r+=`<p class="error"><strong>${esc(labels[d.operation?.action]||'Última operación TEST')}:</strong> ${esc(d.lastError.message)}</p>`;
-  if(d.holder)r+=`<p><strong>Tomador creado en TEST:</strong> ${esc(d.holder.nombre)} ${esc(d.holder.apellido)}</p>`;
+  for(const c of d.cases||[])if(c.id!==d.caseId&&c.unresolved)r+=`<p>El ensayo «${esc(c.label)}» conserva una operación pendiente de confirmar.</p>`;
+  if(d.holder)r+=`<p><strong>${d.holder.created===false?'Tomador registrado en TEST':'Tomador creado en TEST'}:</strong> ${esc(d.holder.nombre)} ${esc(d.holder.apellido)}</p>`;
   if(d.holderStatus){const h=d.holderStatus;r+=`<h3>Estado del tomador en Mercantil TEST</h3><p>${esc(h.nombre)} ${esc(h.apellido)} · <strong>${esc(h.estado||'Estado no informado')}</strong></p><p>Mercantil indicó que la emisión directa en TEST necesita un tomador en estado ACTIVO.</p>`;}
   if(d.inspectionRequired&&!d.inspection)r+='<p><strong>Autoinspección requerida por Mercantil antes de emitir.</strong> Generá el enlace para completar ese paso.</p>';
   if(d.subscription){const s=d.subscription;r+=`<h3>${s.issued?'Póliza de ensayo emitida':'Solicitud de ensayo recibida'}</h3><p>Solicitud <strong>${esc(s.solicitud||'—')}</strong> · Póliza <strong>${policyLabel(s.poliza)}</strong> · Estado ${esc(s.estado_solicitud||'Por confirmar')}</p>`;}
@@ -26,8 +27,9 @@ window.TuriMercantilAutoQa=(()=>{
  }
  async function mount(form,saved,record,isActive){
   if(!record.id)return;const root=form.querySelector('#mercantil-auto-qa');if(!root)return;
-  const action=root.querySelector('[name="auto_qa_action"]'),fields=root.querySelector('#auto-qa-fields'),out=root.querySelector('#auto-qa-result'),progress=root.querySelector('#auto-qa-progress'),execute=root.querySelector('[name="auto_qa_execute"]'),refresh=root.querySelector('[name="auto_qa_refresh"]');
-  const path='/connections/'+encodeURIComponent(record.id)+'/mercantil-qa/auto';let busy=false,data={},previous=action.value;const drafts={};
+  root.querySelector('[name="auto_qa_action"]').closest('label').insertAdjacentHTML('beforebegin','<div class="row"><label>Ensayo guardado<select name="auto_qa_case"><option value="legacy">Ensayo inicial</option></select></label><button type="button" name="auto_qa_new_case">Nuevo ensayo TEST</button></div>');
+  const action=root.querySelector('[name="auto_qa_action"]'),caseSelect=root.querySelector('[name="auto_qa_case"]'),newCase=root.querySelector('[name="auto_qa_new_case"]'),fields=root.querySelector('#auto-qa-fields'),out=root.querySelector('#auto-qa-result'),progress=root.querySelector('#auto-qa-progress'),execute=root.querySelector('[name="auto_qa_execute"]'),refresh=root.querySelector('[name="auto_qa_refresh"]');
+  const path='/connections/'+encodeURIComponent(record.id)+'/mercantil-qa/auto';let busy=false,data={},previous=action.value,drafts={};
   const live=()=>isActive(saved)&&document.querySelector('#company-access-form')===form;
   const value=name=>fields.querySelector('[name="maq_'+name+'"]')?.value||'';
   const products=()=>data.quote?.resultado?.filter(p=>!p.error)||[];
@@ -38,6 +40,7 @@ window.TuriMercantilAutoQa=(()=>{
    else if(a==='schemes')fields.innerHTML='<p class="w-span">Mercantil informará las combinaciones de comisión y bonificación habilitadas para el productor.</p>';
    else if(a==='activities')fields.innerHTML='<p class="w-span">Mercantil informará su catálogo de actividades para completar el alta del tomador.</p>';
    else if(a==='clientStatus')fields.innerHTML='<p class="w-span">Se consultará únicamente el tomador ya creado para este ensayo. Sus datos y su estado en Mercantil no se modifican.</p>';
+   else if(a==='existingClient')fields.innerHTML=field('DNI del tomador de prueba','dni','','text','inputmode="numeric"')+sex()+'<p class="w-span">Consultá un tomador de prueba ya registrado en Mercantil para este nuevo ensayo.</p>';
    else if(a==='quote')fields.innerHTML=select('Vehículo','vehicle',(data.vehicles?.datos||[]).map(v=>({value:v.infoauto,label:v.nombre})),q?.vehiculo?.infoauto)+field('Año del vehículo','year',data.vehicles?.year||'','number')+field('Código postal de guarda','postal',q?.localidad?.codigo_postal||'','number')+select('Condición comercial','scheme',(data.schemes||[]).map((s,i)=>({value:i,label:s.descripcion+' · bonificación '+s.bonificacion+'%'})),Math.max(0,(data.schemes||[]).findIndex(s=>s.comision===q?.comision&&s.bonificacion===q?.bonificacion)))+select('GNC','gnc',[{value:'no',label:'Sin GNC'},{value:'yes',label:'Con GNC'}],q?.vehiculo?.gnc?'yes':'no')+field('Período del ensayo','period',q?.periodo||1,'number','min="1" max="24"')+field('Cuotas del período','installments',q?.cuotas||1,'number','min="1" max="24"')+'<p class="small w-span">Ensayo con uso particular, sin rastreador, consumidor final y pago por convenio. No se envían datos bancarios. Buscá primero el vehículo y consultá las condiciones comerciales.</p>';
    else if(a==='client')fields.innerHTML=field('Apellido','surname')+field('Nombre','name')+field('DNI','dni','','text','inputmode="numeric"')+sex()+field('Fecha de nacimiento','birth','','date')+field('Calle','street')+field('Número','number')+field('Piso / departamento','apartment')+field('CUIL','cuil','','text','inputmode="numeric"')+field('Correo de contacto','email','','email')+field('Celular de contacto · sin 0 inicial ni 15','phone','','tel','inputmode="numeric" maxlength="14"')+select('Actividad','activity',[{value:'',label:'Seleccioná'},...(data.activities||[]).map(x=>({value:x.id,label:x.nombre}))])+select('Ingresos Brutos','iibb',[{value:'',label:'Seleccioná'},{value:'no',label:'No inscripta/o'}])+'<p class="small w-span">Se usará la localidad de la cotización. Alta de persona física y consumidor final, sin distribución digital de documentos. Consultá primero las actividades de Mercantil.</p>';
    else if(a==='subscribe')fields.innerHTML=productSelect()+field('DNI del tomador','dni','','text','inputmode="numeric"')+sex()+field('Patente','plate')+field('Número de chasis · según cédula','chassis')+field('Número de motor · según cédula','engine')+'<p class="small w-span">La solicitud usa pago por convenio en TEST. El resultado debe confirmar número de póliza y estado de emisión.</p>';
@@ -48,20 +51,24 @@ window.TuriMercantilAutoQa=(()=>{
   function input(){switch(action.value){
    case 'vehicles':return {query:value('query').trim(),year:Number(value('year'))};
    case 'schemes':case 'requests':case 'activities':case 'clientStatus':return {};
+   case 'existingClient':return {dni:Number(value('dni')),sexo:value('sex')};
    case 'quote':{const s=data.schemes?.[Number(value('scheme'))];if(!s)throw Error('Consultá primero las condiciones comerciales.');return {localidad:{codigo_postal:Number(value('postal'))},vehiculo:{infoauto:Number(value('vehicle')),anio:Number(value('year')),uso:1,gnc:value('gnc')==='yes',rastreo:0},comision:s.comision,bonificacion:s.bonificacion,periodo:Number(value('period')),cuotas:Number(value('installments')),pago:{tipo_pago:'C'},ajuste_suma:0,iva:5};}
    case 'client':return {apellido:value('surname').trim(),nombre:value('name').trim(),dni:Number(value('dni')),sexo:value('sex'),nacimiento:value('birth'),calle:value('street').trim(),numero:value('number').trim(),departamento:value('apartment').trim(),email:value('email').trim(),telefono1:value('phone').trim(),activityId:Number(value('activity')),noInscriptoIibb:value('iibb')==='no',...(value('cuil').trim()?{cuil:Number(value('cuil').replace(/[ -]/g,''))}:{})};
    case 'inspection':if(!value('inspection'))throw Error('Mercantil no ofreció una modalidad de inspección en esta cotización.');return {codigo_producto:Number(value('product')),opcion:value('inspection'),dominio:value('plate').trim().toUpperCase(),apellido:value('surname').trim(),nombre:value('name').trim()};
    case 'subscribe':return {codigo_producto:Number(value('product')),tomador:{dni:Number(value('dni')),sexo:value('sex')},vehiculo:{dominio:value('plate').trim().toUpperCase(),chasis:value('chassis').trim().toUpperCase(),motor:value('engine').trim().toUpperCase()}};
   }}
-  function show(result){if(!live())return;data=result;form.dataset.version=String(result.connectionVersion);out.innerHTML=renderResults(result);}
-  const load=async()=>{const result=await saved.request(path);show(result);return result;};
+  function show(result){if(!live())return;data=result;form.dataset.version=String(result.connectionVersion);const items=result.cases||[{id:'legacy',label:'Ensayo inicial'}];caseSelect.innerHTML=items.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}${c.quoteId?' · '+esc(c.quoteId):''}${c.unresolved?' · Pendiente de confirmar':''}</option>`).join('');caseSelect.value=result.caseId||'legacy';out.innerHTML=renderResults(result);}
+  const load=async()=>{const result=await saved.request(path+'?case='+encodeURIComponent(caseSelect.value||'legacy'));show(result);return result;};
+  const setBusy=value=>{busy=value;execute.disabled=refresh.disabled=caseSelect.disabled=newCase.disabled=value;};
   action.addEventListener('change',()=>{drafts[previous]=Object.fromEntries([...fields.querySelectorAll('input,select')].map(el=>[el.name,el.value]));previous=action.value;renderFields();});renderFields();
-  async function act(send){if(busy||!live())return;busy=true;execute.disabled=refresh.disabled=true;progress.textContent=send?'Consultando Mercantil TEST…':'Recuperando el ensayo guardado…';
-   try{if(send){if(!form.elements.authorized.checked||!form.elements.auto_qa_confirm.checked)throw Error('Confirmá la autorización y el ensayo TEST.');show(await saved.request(path,'POST',{expectedVersion:Number(form.dataset.version),environment:'qa',authorized:true,action:action.value,input:input()}));}else await load();if(live())progress.textContent='Resultado de TEST guardado. No se modificó la cartera.';}
+  async function act(send,create=false){if(busy||!live())return;setBusy(true);progress.textContent=create?'Preparando otro ensayo TEST…':send?'Consultando Mercantil TEST…':'Recuperando el ensayo guardado…';
+   try{if(send){if(!form.elements.authorized.checked||!form.elements.auto_qa_confirm.checked)throw Error('Confirmá la autorización y el ensayo TEST.');show(await saved.request(path,'POST',{expectedVersion:Number(form.dataset.version),environment:'qa',authorized:true,caseId:data.caseId||'legacy',action:create?'newCase':action.value,input:create?{}:input()}));if(create){drafts={};action.value='existingClient';previous=action.value;renderFields();}}else await load();if(live())progress.textContent='Resultado de TEST guardado. No se modificó la cartera.';}
    catch(e){if(!live())return;if(e.status===401){saved.expired(e);return;}progress.textContent=e.message;try{await load();}catch{}}
-   finally{busy=false;if(live())execute.disabled=refresh.disabled=false;}
+   finally{if(live())setBusy(false);else busy=false;}
   }
   execute.addEventListener('click',()=>act(true));refresh.addEventListener('click',()=>act(false));
+  newCase.addEventListener('click',()=>act(true,true));
+  caseSelect.addEventListener('change',async()=>{if(busy||!live())return;setBusy(true);try{await load();drafts={};if(live())renderFields();}catch(e){if(live()){progress.textContent=e.message;caseSelect.value=data.caseId||'legacy';}}finally{if(live())setBusy(false);else busy=false;}});
   try{await load();if(live())renderFields();}catch(e){if(live())progress.textContent=e.message;}
  }
  return {html,mount};
