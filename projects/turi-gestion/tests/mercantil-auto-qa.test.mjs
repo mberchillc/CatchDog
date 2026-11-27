@@ -141,3 +141,17 @@ test('una referencia de cotización repetida entre ensayos se bloquea y no habil
  const created=await f.act('newCase'),caseId=created.data.caseId;
  const r=await f.act('quote',quoteInput,{caseId});assert.equal(r.status,502,JSON.stringify(r.data));assert.equal(r.data.error,'QA_OUTCOME_UNKNOWN');assert.equal(r.data.quote,null);assert.equal(r.data.unresolved.action,'quote');assert.equal((await f.act('subscribe',subscribeInput,{caseId})).status,409);assert.equal((await f.act('newCase')).status,409);
 });
+test('confirmación revisada conserva el intento incierto exacto y no declara fotos completas ni repite la inspección',async()=>{
+ const pending={id:'QA-PENDING',action:'inspection',status:'uncertain'},state={quote,unresolved:pending,subscription:{solicitud:'10001',poliza:'0',issued:false}},input={operationId:'QA-PENDING',quoteId:quote.id,inspectionId:12345,sourceReference:'Correo de Mercantil - confirmación TEST',confirmed:true},log=[];
+ const r=await mercantilAutoQaOperation(credentials,String(account),'reconcileInspection',input,state,{fetchImpl:provider(log)});assert.equal(r.state.unresolved,undefined);assert.equal(r.state.inspection,undefined);assert.equal(r.result.completed,false);assert.equal(r.state.inspectionRequired,true);assert.equal(r.state.subscription.poliza,'0');assert.deepEqual(r.state.inspectionReconciliations[0].pendingOperation,pending);assert.equal(state.unresolved.id,'QA-PENDING');assert.ok(!log.some(x=>x.url.includes('/suscripciones/')));
+ for(const extra of [{operationId:'OTHER'},{quoteId:'OTHER'},{confirmed:false}])await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'reconcileInspection',{...input,...extra},state,{fetchImpl:provider()}),e=>e.code==='QA_RECONCILE');
+ await assert.rejects(mercantilAutoQaOperation(credentials,String(account),'reconcileInspection',input,r.state,{fetchImpl:provider()}),e=>e.code==='QA_RECONCILE');
+});
+test('API guarda la confirmación con permisos y versión sin borrar la evidencia de la inspección anterior',async t=>{
+ const f=await fixture(),log=[];t.mock.method(globalThis,'fetch',provider(log,url=>url.pathname.includes('/suscripciones/v2/inspecciones/')?Response.json({message:'Servicio TEST caído'},{status:500}):null));
+ for(const [a,i] of [['vehicles',{query:'FICTICIO',year:2012}],['schemes',{}],['quote',quoteInput]])assert.equal((await f.act(a,i)).status,200);
+ await f.act('inspection',{codigo_producto:801,opcion:'AUTOINSPECCION',dominio:'ABC123',apellido:'Ficticio',nombre:'Cliente'});const before=await f.state(),input={operationId:before.data.unresolved.id,quoteId:quote.id,inspectionId:12345,sourceReference:'Correo de Mercantil - confirmación TEST',confirmed:true};
+ const denied=await f.call(f.path,{data:{expectedVersion:before.data.connectionVersion-1,authorized:true,environment:'qa',action:'reconcileInspection',input}});assert.equal(denied.status,409);
+ const r=await f.act('reconcileInspection',input);assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.unresolved,null);assert.equal(r.data.inspection,null);assert.equal(r.data.inspectionEvidence.completed,false);
+ const row=f.DB.db.prepare('SELECT * FROM pilot_connections').get(),p=await unseal(f.env,row.encrypted_payload,'connection:QA-AUTO:QA-AUTO-PAS:mercantil:'+row.version);assert.equal(p.mercantilAutoQa.inspectionReconciliations[0].pendingOperation.id,before.data.unresolved.id);assert.equal(p.mercantilAutoQa.quote.id,quote.id);assert.equal(log.filter(x=>x.url.includes('/suscripciones/v2/inspecciones/')).length,1);
+});

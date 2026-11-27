@@ -80,6 +80,13 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   if(!state.schemes?.some(s=>s.comision===body.comision&&s.bonificacion===body.bonificacion))maqFail(409,'QA_SCHEME','Elegí comisión y bonificación entre los esquemas TEST habilitados.');
   if(state.quote)maqFail(409,'QA_QUOTE_EXISTS','Este ensayo ya tiene una cotización. Prepará otro ensayo para conservar sus resultados.');
   const data=await call('/cotizaciones/v2/auto','POST',body);maqBoundAccount(data,account);result=maqQuoteView(data);next.quote=result;next.quoteInput=body;next.inspectionRequired=false;delete next.inspection;delete next.subscription;delete next.requestStatus;
+ }else if(action==='reconcileInspection'){
+  const pending=state.unresolved;
+  if(!state.quote||pending?.action!=='inspection'||pending.id!==input?.operationId||state.quote.id!==input?.quoteId||input?.confirmed!==true)maqFail(409,'QA_RECONCILE','Confirmá una respuesta de Mercantil correspondiente a este intento de inspección pendiente.');
+  const evidence={quoteId:state.quote.id,inspectionId:maqInt(input.inspectionId,'número de inspección confirmado'),sourceReference:maqString(input.sourceReference,'referencia de la confirmación',/^[^<>\r\n]{10,250}$/u),confirmedAt:NOW(),providerResponseConfirmed:true,completed:false};
+  // Reconciliation records the provider's response to the exact pending
+  // operation. It never calls the inspection service or marks photos complete.
+  next.inspectionReconciliations=[...(state.inspectionReconciliations||[]),{pendingOperation:pending,evidence}];next.inspectionEvidence=evidence;next.inspectionRequired=true;delete next.unresolved;result=evidence;
  }else if(action==='inspection'){
   if(!state.quote)maqFail(409,'QA_QUOTE','Primero obtené una cotización de TEST.');
   const product=state.quote.resultado.find(x=>x.codigo_producto===input?.codigo_producto&&!x.error);
@@ -162,11 +169,11 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const caseId=b?.caseId??new URL(req.url).searchParams.get('case')??'legacy',cases=maqCases(payload),selected=cases.find(c=>c.id===caseId);
  if(!selected)fail(404,'QA_CASE','No encontramos ese ensayo en este acceso.');
  const state=selected.state,storeState=(s,key=caseId)=>key==='legacy'?{...payload,mercantilAutoQa:s}:{...payload,mercantilAutoQaCases:{...(payload.mercantilAutoQaCases||{}),[key]:s}};
- const view=(s,key=caseId,p=payload)=>({environment:'qa',productionReady:false,caseId:key,cases:maqCases(p).map(c=>({id:c.id,label:c.label,quoteId:c.state.quote?.id||null,unresolved:!!c.state.unresolved})),quote:s.quote||null,inspection:s.inspection||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus?{solicitud:s.requestStatus.solicitud,checkedAt:s.requestStatus.checkedAt,coincidencias:s.requestStatus.coincidencias,historiaDisponible:false}:null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido,created:s.holder.created!==false}:null,holderStatus:s.holderStatus||null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=(s,key=caseId,p=payload)=>({environment:'qa',productionReady:false,caseId:key,cases:maqCases(p).map(c=>({id:c.id,label:c.label,quoteId:c.state.quote?.id||null,unresolved:!!c.state.unresolved})),quote:s.quote||null,inspection:s.inspection||null,inspectionEvidence:s.inspectionEvidence||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus?{solicitud:s.requestStatus.solicitud,checkedAt:s.requestStatus.checkedAt,coincidencias:s.requestStatus.coincidencias,historiaDisponible:false}:null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido,created:s.holder.created!==false}:null,holderStatus:s.holderStatus||null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(b?.authorized!==true||b?.environment!=='qa'||!row.authorized||row.status!=='qa_auth_verified')fail(400,'QA_AUTH','Confirmá el ensayo TEST con un acceso QA ya validado.');
  if(b.expectedVersion!==row.version)fail(409,'VERSION','La configuración cambió. Volvé a abrir la ficha.');
- if(!['vehicles','schemes','quote','activities','inspection','client','existingClient','clientStatus','subscribe','requests','newCase'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
+ if(!['vehicles','schemes','quote','activities','inspection','reconcileInspection','client','existingClient','clientStatus','subscribe','requests','newCase'].includes(b.action))fail(400,'QA_ACTION','Elegí una operación de Automotores TEST.');
  if(state.account&&state.account!==mqaAccount(payload.pasCode))fail(409,'QA_ACCOUNT','El productor cambió desde el ensayo anterior. Requiere una nueva revisión.');
  const unresolved=state.unresolved||(state.operation?.status==='pending'||state.operation?.status==='uncertain'?state.operation:null);
  if(unresolved&&['quote','inspection','client','existingClient','subscribe'].includes(b.action))fail(409,'QA_UNCERTAIN','Hay una operación sin resultado confirmado. Revisá el estado en Mercantil antes de repetirla.');
