@@ -20,6 +20,11 @@ function maqActivityList(data){
 }
 const maqNeedsInspection=s=>s.inspectionRequired===true||/autoinspecci[oó]n no fue realizada/i.test(s.lastError?.message||'');
 const maqCases=p=>[{id:'legacy',label:'Ensayo inicial',state:p.mercantilAutoQa||{}},...Object.entries(p.mercantilAutoQaCases||{}).map(([id,state])=>({id,label:state.label||'Ensayo TEST',state}))];
+function maqInspectionView(inspection){
+ if(!inspection)return null;
+ try{const link=new URL(inspection.url),id=Number(link.searchParams.get('idRepo'));if(link.hostname==='tst.barbara.com.ar'&&Number.isSafeInteger(id)&&id>0)return {...inspection,inspectionId:id};}catch{}
+ return inspection;
+}
 function maqString(v,name,pattern){if(typeof v!=='string'||!pattern.test(v))maqFail(400,'QA_FIELD','Revisá '+name+'.');return v;}
 function maqErrorText(data,credentials,token){
  const values=[];const visit=(v,depth=0)=>{if(depth>4||values.length>8)return;if(typeof v==='string')values.push(v);else if(Array.isArray(v))v.slice(0,5).forEach(x=>visit(x,depth+1));else if(v&&typeof v==='object'){const entries=Object.entries(v),known=entries.filter(([k])=>/^(message|messages|mensaje|mensajes|error|error_description|descripcion|description|detail|details|errors|errores|title|modelstate|validationerrors)$/i.test(k));for(const [,x] of (known.length?known:depth?entries.slice(0,8):[]))visit(x,depth+1);}};visit(data);
@@ -96,7 +101,7 @@ export async function mercantilAutoQaOperation(credentials,account,action,input,
   const body={opcion:maqString(input.opcion,'modalidad',/^[A-Z_0-9]{1,50}$/),dominio:maqString(input.dominio,'patente',/^[A-Z0-9]{6,7}$/),apellido:maqString(input.apellido,'apellido',/^[\p{L} .'-]{1,100}$/u),nombre:maqString(input.nombre,'nombre',/^[\p{L} .'-]{1,100}$/u)};
   const data=await call('/suscripciones/v2/inspecciones/auto/'+encodeURIComponent(state.quote.id),'POST',body);
   const link=new URL(data?.url);if(link.protocol!=='https:'||link.username||link.password)maqFail(502,'QA_RESPONSE','La inspección TEST devolvió un enlace no válido.');
-  result={codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false};next.inspection=result;next.inspectionRequired=true;
+  result=maqInspectionView({codigo_producto:product.codigo_producto,url:link.href,estado:'enlace_generado',completed:false});next.inspection=result;next.inspectionRequired=true;
  }else if(action==='activities'){
   // Official api-generales / get-actividades, checked in the authenticated
   // developer portal on 2026-11-25. This is the persona catalog, not branch risks.
@@ -169,7 +174,7 @@ export async function mercantilAutoQaApi(req,env,u,id,{json,fail,first,run,audit
  const caseId=b?.caseId??new URL(req.url).searchParams.get('case')??'legacy',cases=maqCases(payload),selected=cases.find(c=>c.id===caseId);
  if(!selected)fail(404,'QA_CASE','No encontramos ese ensayo en este acceso.');
  const state=selected.state,storeState=(s,key=caseId)=>key==='legacy'?{...payload,mercantilAutoQa:s}:{...payload,mercantilAutoQaCases:{...(payload.mercantilAutoQaCases||{}),[key]:s}};
- const view=(s,key=caseId,p=payload)=>({environment:'qa',productionReady:false,caseId:key,cases:maqCases(p).map(c=>({id:c.id,label:c.label,quoteId:c.state.quote?.id||null,unresolved:!!c.state.unresolved})),quote:s.quote||null,inspection:s.inspection||null,inspectionEvidence:s.inspectionEvidence||null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus?{solicitud:s.requestStatus.solicitud,checkedAt:s.requestStatus.checkedAt,coincidencias:s.requestStatus.coincidencias,historiaDisponible:false}:null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido,created:s.holder.created!==false}:null,holderStatus:s.holderStatus||null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null});
+ const view=(s,key=caseId,p=payload)=>{const inspection=maqInspectionView(s.inspection);return {environment:'qa',productionReady:false,caseId:key,cases:maqCases(p).map(c=>({id:c.id,label:c.label,quoteId:c.state.quote?.id||null,unresolved:!!c.state.unresolved})),quote:s.quote||null,inspection,inspectionEvidence:s.inspectionEvidence?{...s.inspectionEvidence,recordedInspectionId:s.inspectionEvidence.inspectionId,inspectionId:inspection?.inspectionId||s.inspectionEvidence.inspectionId}:null,inspectionRequired:maqNeedsInspection(s),subscription:s.subscription||null,requestStatus:s.requestStatus?{solicitud:s.requestStatus.solicitud,checkedAt:s.requestStatus.checkedAt,coincidencias:s.requestStatus.coincidencias,historiaDisponible:false}:null,holder:s.holder?{id:s.holder.id,nombre:s.holder.nombre,apellido:s.holder.apellido,created:s.holder.created!==false}:null,holderStatus:s.holderStatus||null,activities:s.activities||null,vehicles:s.vehicles||null,schemes:s.schemes||null,operation:s.operation||null,unresolved:s.unresolved||null,lastError:s.lastError||null};};
  if(req.method==='GET')return json({connectionVersion:row.version,...view(state)});
  if(b?.authorized!==true||b?.environment!=='qa'||!row.authorized||row.status!=='qa_auth_verified')fail(400,'QA_AUTH','Confirmá el ensayo TEST con un acceso QA ya validado.');
  if(b.expectedVersion!==row.version)fail(409,'VERSION','La configuración cambió. Volvé a abrir la ficha.');
